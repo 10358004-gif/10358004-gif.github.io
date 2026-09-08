@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人首頁</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        nav {
+            background-color: #f8f9fa;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #667eea;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        footer {
+            background-color: #2d3436;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>歡迎來到我的網站</h1>
+        <p>成大南工學生 | 程式設計愛好者</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#home">首頁</a></li>
+            <li><a href="#about">關於</a></li>
+            <li><a href="#projects">項目</a></li>
+            <li><a href="#contact">聯繫</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="about">
+            <h2>關於我</h2>
+            <p>你好！我是一名來自國立成功大學南臺灣工程學位學程的學生。我對程式設計充滿熱情，專長包括軟體開發、演算法設計和系統架構。</p>
+            <p style="margin-top: 1rem;">在這個網站中，我分享我的學習成果、個人項目和技術心得。歡迎瀏覽我的作品，並與我交流討論有關程式設計的任何想法。</p>
+        </section>
+
+        <section id="projects">
+            <h2>我的專長</h2>
+            <div class="cards">
+                <div class="card">
+                    <h3>💻 軟體開發</h3>
+                    <p>熟悉多種程式語言，具備開發功能完整的應用程式的能力。從前端到後端，我都在不斷學習和精進。</p>
+                </div>
+                <div class="card">
+                    <h3>🔧 演算法設計</h3>
+                    <p>對資料結構和演算法有深入理解，能夠設計高效的解決方案來解決複雜問題。</p>
+                </div>
+                <div class="card">
+                    <h3>🏗️ 系統架構</h3>
+                    <p>了解軟體設計原則，能夠規劃和構建可維護的系統架構。</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact">
+            <h2>聯繫方式</h2>
+            <p>如果你有任何問題或建議，歡迎透過以下方式與我聯繫：</p>
+            <ul style="margin-top: 1rem; margin-left: 2rem;">
+                <li>Email: your.email@example.com</li>
+                <li>GitHub: <a href="https://github.com" style="color: #667eea;">github.com/yourprofile</a></li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 成大南工學生. 保留所有權利。</p>
+        <p>由 <a href="https://pages.github.com/">GitHub Pages</a> 提供支持</p>
+    </footer>
+</body>
+</html>
