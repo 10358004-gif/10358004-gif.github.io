@@ -275,13 +275,8 @@
     <div class="container">
         <h1>🔨 打地鼠遊戲 🐭</h1>
         
-        <div class="difficulty">
-            <label for="difficulty">難度選擇：</label>
-            <select id="difficulty">
-                <option value="easy">簡單 (3秒出現1只)</option>
-                <option value="normal" selected>普通 (2秒出現1只)</option>
-                <option value="hard">困難 (1秒出現1只)</option>
-            </select>
+        <div class="difficulty" style="font-size: 1.5em; color: #667eea; font-weight: bold;">
+            🎮 玩家：張依琳
         </div>
 
         <div class="info">
@@ -306,6 +301,7 @@
     <div class="game-over" id="gameOver">
         <div class="game-over-content">
             <h2>遊戲結束！</h2>
+            <p style="font-size: 1.5em; color: #667eea; font-weight: bold; margin-bottom: 10px;" id="playerNameDisplay"></p>
             <div class="final-score" id="finalScore">0</div>
             <p style="font-size: 1.2em; margin-bottom: 20px; color: #666;">您的最終分數</p>
             <button onclick="startGame()">再玩一次</button>
@@ -330,7 +326,7 @@
         const scoreDisplay = document.getElementById('score');
         const timeDisplay = document.getElementById('time');
         const startBtn = document.getElementById('startBtn');
-        const difficultySelect = document.getElementById('difficulty');
+        const playerName = '張依琳';
 
         // 初始化遊戲板
         function initBoard() {
@@ -405,12 +401,11 @@
             timeLeft = 30;
             gameActive = true;
             activeMoleId = null;
-            difficulty = difficultySelect.value;
+            difficulty = 'normal'; // 固定難度
 
             scoreDisplay.textContent = score;
             timeDisplay.textContent = timeLeft;
             startBtn.disabled = true;
-            difficultySelect.disabled = true;
             document.getElementById('gameOver').classList.remove('show');
 
             // 清除之前的計時器
@@ -443,9 +438,9 @@
             }
 
             startBtn.disabled = false;
-            difficultySelect.disabled = false;
 
             // 顯示遊戲結束畫面
+            document.getElementById('playerNameDisplay').textContent = playerName + '，恭喜你！';
             document.getElementById('finalScore').textContent = score;
             document.getElementById('gameOver').classList.add('show');
         }
@@ -462,7 +457,6 @@
             scoreDisplay.textContent = score;
             timeDisplay.textContent = timeLeft;
             startBtn.disabled = false;
-            difficultySelect.disabled = false;
 
             // 隱藏所有地鼠
             for (let i = 0; i < 9; i++) {
