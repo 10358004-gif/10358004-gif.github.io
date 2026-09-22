@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工程用計算機 - Casio FX-991ES PLUS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #333 0%, #111 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .user-name {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .calculator {
+            background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 3px solid #1a1a1a;
+        }
+
+        .top-section {
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+        }
+
+        .top-btn {
+            padding: 8px 5px;
+            font-size: 10px;
+            background: #404040;
+            color: #aaa;
+            border: 1px solid #555;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .top-btn:hover {
+            background: #505050;
+            color: #fff;
+        }
+
+        .top-btn.active {
+            background: #666;
+            color: #fff;
+        }
+
+        .display-area {
+            background: #0a0a0a;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 2px solid #1a1a1a;
+        }
+
+        .main-display {
+            background: #1a3a1a;
+            color: #00dd00;
+            font-size: 28px;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: right;
+            min-height: 40px;
+            word-wrap: break-word;
+            word-break: break-all;
+            border: 1px solid #003300;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 5px;
+        }
+
+        .sub-display {
+            background: #0a1a0a;
+            color: #00aa00;
+            font-size: 12px;
+            padding: 6px;
+            border-radius: 4px;
+            text-align: right;
+            height: 20px;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+        }
+
+        .main-buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .btn {
+            padding: 12px 5px;
+            font-size: 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.1s;
+            color: #fff;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-number {
+            background: #404040;
+            color: #00ff00;
+            border: 1px solid #555;
+        }
+
+        .btn-number:hover {
+            background: #505050;
+        }
+
+        .btn-operator {
+            background: #665500;
+            color: #ffff00;
+            border: 1px solid #886600;
+        }
+
+        .btn-operator:hover {
+            background: #776600;
+        }
+
+        .btn-function {
+            background: #335500;
+            color: #88ff00;
+            font-size: 11px;
+            border: 1px solid #556600;
+        }
+
+        .btn-function:hover {
+            background: #446600;
+        }
+
+        .btn-del {
+            background: #553333;
+            color: #ff8888;
+            border: 1px solid #884444;
+            font-size: 12px;
+        }
+
+        .btn-del:hover {
+            background: #664444;
+        }
+
+        .btn-equals {
+            background: #33aa33;
+            color: #fff;
+            border: 1px solid #55dd55;
+            grid-column: span 2;
+        }
+
+        .btn-equals:hover {
+            background: #44bb44;
+        }
+
+        .secondary-buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+
+        .title {
+            text-align: center;
+            color: #888;
+            font-size: 11px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="user-name">張依琳</div>
+        
+        <div class="calculator">
+            <div class="title">工程用計算機</div>
+
+            <div class="top-section">
+                <button class="top-btn" onclick="toggleShift()">SHIFT</button>
+                <button class="top-btn" onclick="toggleAlpha()">ALPHA</button>
+                <button class="top-btn" onclick="toggleMode()">MODE</button>
+                <button class="top-btn" onclick="toggleSetup()">SETUP</button>
+                <button class="top-btn btn-del" onclick="deleteLastChar()">DEL</button>
+            </div>
+
+            <div class="display-area">
+                <div class="main-display" id="display">0</div>
+                <div class="sub-display" id="subDisplay"></div>
+            </div>
+
+            <div class="main-buttons">
+                <!-- Row 1 -->
+                <button class="btn btn-function" onclick="calculateArcSin()">asin</button>
+                <button class="btn btn-function" onclick="calculateArcCos()">acos</button>
+                <button class="btn btn-function" onclick="calculateArcTan()">atan</button>
+                <button class="btn btn-function" onclick="calculatePI()">π</button>
+                <button class="btn btn-del" onclick="clearDisplay()">AC</button>
+
+                <!-- Row 2 -->
+                <button class="btn btn-function" onclick="calculateSin()">sin</button>
+                <button class="btn btn-function" onclick="calculateCos()">cos</button>
+                <button class="btn btn-function" onclick="calculateTan()">tan</button>
+                <button class="btn btn-function" onclick="calculateExp()">e^x</button>
+                <button class="btn btn-operator" onclick="appendOperator('÷')">÷</button>
+
+                <!-- Row 3 -->
+                <button class="btn btn-function" onclick="calculateLog()">log</button>
+                <button class="btn btn-function" onclick="calculateLn()">ln</button>
+                <button class="btn btn-function" onclick="calculateSqrt()">√</button>
+                <button class="btn btn-function" onclick="calculatePower()">x^2</button>
+                <button class="btn btn-operator" onclick="appendOperator('×')">×</button>
+
+                <!-- Row 4 -->
+                <button class="btn btn-number" onclick="appendNumber('7')">7</button>
+                <button class="btn btn-number" onclick="appendNumber('8')">8</button>
+                <button class="btn btn-number" onclick="appendNumber('9')">9</button>
+                <button class="btn btn-function" onclick="calculateReciprocal()">1/x</button>
+                <button class="btn btn-operator" onclick="appendOperator('−')">−</button>
+
+                <!-- Row 5 -->
+                <button class="btn btn-number" onclick="appendNumber('4')">4</button>
+                <button class="btn btn-number" onclick="appendNumber('5')">5</button>
+                <button class="btn btn-number" onclick="appendNumber('6')">6</button>
+                <button class="btn btn-function" onclick="calculateFact()">x!</button>
+                <button class="btn btn-operator" onclick="appendOperator('+')">+</button>
+
+                <!-- Row 6 -->
+                <button class="btn btn-number" onclick="appendNumber('1')">1</button>
+                <button class="btn btn-number" onclick="appendNumber('2')">2</button>
+                <button class="btn btn-number" onclick="appendNumber('3')">3</button>
+                <button class="btn btn-function" onclick="toggleSign()">+/−</button>
+                <button class="btn btn-equals" onclick="calculate()">=</button>
+
+                <!-- Row 7 -->
+                <button class="btn btn-number" onclick="appendNumber('0')">0</button>
+                <button class="btn btn-number" onclick="appendNumber('.')">.</button>
+                <button class="btn btn-function" onclick="retrieveAns()">Ans</button>
+                <button class="btn btn-operator" style="background: #303030; color: #666;">()</button>
+                <button class="btn btn-operator" style="background: #303030; color: #666;">M+</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let display = document.getElementById('display');
+        let subDisplay = document.getElementById('subDisplay');
+        let currentValue = '0';
+        let previousValue = '';
+        let operator = '';
+        let isDegrees = true;
+        let lastAnswer = 0;
+        let shiftActive = false;
+        let alphaActive = false;
+
+        function updateDisplay() {
+            display.textContent = currentValue.length > 16 ? currentValue.substring(0, 16) : currentValue;
+        }
+
+        function updateSubDisplay() {
+            if (previousValue && operator) {
+                subDisplay.textContent = previousValue + ' ' + operator;
+            } else {
+                subDisplay.textContent = '';
+            }
+        }
+
+        function clearDisplay() {
+            currentValue = '0';
+            previousValue = '';
+            operator = '';
+            updateDisplay();
+            updateSubDisplay();
+        }
+
+        function deleteLastChar() {
+            if (currentValue.length > 1) {
+                currentValue = currentValue.slice(0, -1);
+            } else {
+                currentValue = '0';
+            }
+            updateDisplay();
+        }
+
+        function appendNumber(num) {
+            if (currentValue === '0' && num !== '.') {
+                currentValue = num;
+            } else if (num === '.' && !currentValue.includes('.')) {
+                currentValue += num;
+            } else if (num !== '.') {
+                currentValue += num;
+            }
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            if (currentValue !== '' && currentValue !== '0') {
+                previousValue = currentValue;
+                operator = op;
+                currentValue = '0';
+                updateDisplay();
+                updateSubDisplay();
+            }
+        }
+
+        function calculate() {
+            if (previousValue === '' || operator === '') return;
+            
+            let result;
+            const prev = parseFloat(previousValue);
+            const current = parseFloat(currentValue);
+
+            switch(operator) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '−':
+                    result = prev - current;
+                    break;
+                case '×':
+                    result = prev * current;
+                    break;
+                case '÷':
+                    result = current !== 0 ? prev / current : 'Error';
+                    break;
+                default:
+                    return;
+            }
+
+            lastAnswer = result;
+            currentValue = result.toString();
+            operator = '';
+            previousValue = '';
+            updateDisplay();
+            updateSubDisplay();
+        }
+
+        function toggleSign() {
+            const num = parseFloat(currentValue);
+            currentValue = (-num).toString();
+            updateDisplay();
+        }
+
+        function calculateSin() {
+            const num = parseFloat(currentValue);
+            const angle = isDegrees ? num * Math.PI / 180 : num;
+            lastAnswer = Math.sin(angle);
+            currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
+            updateDisplay();
+        }
+
+        function calculateCos() {
+            const num = parseFloat(currentValue);
+            const angle = isDegrees ? num * Math.PI / 180 : num;
+            lastAnswer = Math.cos(angle);
+            currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
+            updateDisplay();
+        }
+
+        function calculateTan() {
+            const num = parseFloat(currentValue);
+            const angle = isDegrees ? num * Math.PI / 180 : num;
+            lastAnswer = Math.tan(angle);
+            currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
+            updateDisplay();
+        }
+
+        function calculateArcSin() {
+            const num = parseFloat(currentValue);
+            if (num >= -1 && num <= 1) {
+                const result = Math.asin(num);
+                lastAnswer = isDegrees ? result * 180 / Math.PI : result;
+                currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
+            } else {
+                currentValue = 'Error';
+            }
+            updateDisplay();
+        }
+
+        function calculateArcCos() {
+            const num = parseFloat(currentValue);
+            if (num >= -1 && num <= 1) {
+                const result = Math.acos(num);
+                lastAnswer = isDegrees ? result * 180 / Math.PI : result;
+                currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
+            } else {
+                currentValue = 'Error';
+            }
+            updateDisplay();
+        }
+
+        function calculateArcTan() {
+            const num = parseFloat(currentValue);
+            const result = Math.atan(num);
+            lastAnswer = isDegrees ? result * 180 / Math.PI : result;
+            currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
+            updateDisplay();
+        }
+
+        function calculateSqrt() {
+            const num = parseFloat(currentValue);
+            if (num >= 0) {
+                lastAnswer = Math.sqrt(num);
+                currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
+            } else {
+                currentValue = 'Error';
+            }
+            updateDisplay();
+        }
+
+        function calculateLog() {
+            const num = parseFloat(currentValue);
+            if (num > 0) {
+                lastAnswer = Math.log10(num);
+                currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
+            } else {
+                currentValue = 'Error';
+            }
+            updateDisplay();
+        }
+
+        function calculateLn() {
+            const num = parseFloat(currentValue);
+            if (num > 0) {
+                lastAnswer = Math.log(num);
+                currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
+            } else {
+                currentValue = 'Error';
+            }
+            updateDisplay();
+        }
+
+        function calculatePower() {
+            lastAnswer = Math.pow(parseFloat(currentValue), 2);
+            currentValue = lastAnswer.toString();
+            updateDisplay();
+        }
+
+        function calculateReciprocal() {
+            const num = parseFloat(currentValue);
+            if (num !== 0) {
+                lastAnswer = 1 / num;
+                currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
+            } else {
+                currentValue = 'Error';
+            }
+            updateDisplay();
+        }
+
+        function calculateFact() {
+            const num = parseInt(currentValue);
+            if (num >= 0 && num <= 170) {
+                let result = 1;
+                for (let i = 2; i <= num; i++) {
+                    result *= i;
+                }
+                lastAnswer = result;
+                currentValue = result.toString();
+            } else {
+                currentValue = 'Error';
+            }
+            updateDisplay();
+        }
+
+        function calculatePI() {
+            currentValue = Math.PI.toString();
+            lastAnswer = Math.PI;
+            updateDisplay();
+        }
+
+        function calculateExp() {
+            const num = parseFloat(currentValue);
+            lastAnswer = Math.exp(num);
+            currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
+            updateDisplay();
+        }
+
+        function retrieveAns() {
+            currentValue = lastAnswer.toString();
+            updateDisplay();
+        }
+
+        function toggleShift() {
+            shiftActive = !shiftActive;
+            document.querySelector('[onclick="toggleShift()"]').classList.toggle('active');
+        }
+
+        function toggleAlpha() {
+            alphaActive = !alphaActive;
+            document.querySelector('[onclick="toggleAlpha()"]').classList.toggle('active');
+        }
+
+        function toggleMode() {
+            isDegrees = !isDegrees;
+            alert(isDegrees ? '度數模式 (DEG)' : '弧度模式 (RAD)');
+        }
+
+        function toggleSetup() {
+            alert('設定功能選單');
+        }
+
+        // 支援鍵盤輸入
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '0' && e.key <= '9') appendNumber(e.key);
+            if (e.key === '.') appendNumber('.');
+            if (e.key === '+') appendOperator('+');
+            if (e.key === '-') appendOperator('−');
+            if (e.key === '*') appendOperator('×');
+            if (e.key === '/') { e.preventDefault(); appendOperator('÷'); }
+            if (e.key === 'Enter' || e.key === '=') calculate();
+            if (e.key === 'Backspace') deleteLastChar();
+            if (e.key === 'Escape') clearDisplay();
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>
