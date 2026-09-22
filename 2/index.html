@@ -43,8 +43,9 @@
             padding: 16px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
                         inset 0 1px 0 rgba(255, 255, 255, 0.05),
-                        inset 0 0 0 2px #e8e8e8;
-            border: 2px solid #e8e8e8;
+                        inset 0 0 0 2px #ffffff,
+                        0 0 0 2px rgba(232, 232, 232, 0.35);
+            border: 4px solid #e8e8e8;
             position: relative;
             overflow: hidden;
         }
@@ -93,7 +94,7 @@
             font-size: 9px;
             background: #2a2f3e;
             color: #a0a8b8;
-            border: 1px solid #e8e8e8;
+            border: 2px solid #e8e8e8;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -136,7 +137,7 @@
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 12px;
-            border: 1.5px solid #e8e8e8;
+            border: 2.5px solid #e8e8e8;
             position: relative;
             z-index: 1;
             box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3),
@@ -153,7 +154,7 @@
             min-height: 38px;
             word-wrap: break-word;
             word-break: break-all;
-            border: 1px solid #e8e8e8;
+            border: 2px solid #e8e8e8;
             font-weight: 600;
             font-family: 'Courier New', monospace;
             margin-bottom: 5px;
@@ -171,7 +172,7 @@
             height: 18px;
             overflow: hidden;
             font-family: 'Courier New', monospace;
-            border: 1px solid #e8e8e8;
+            border: 2px solid #e8e8e8;
             letter-spacing: 0.3px;
             box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
         }
@@ -188,7 +189,7 @@
         .btn {
             padding: 11px 4px;
             font-size: 13px;
-            border: 1px solid #e8e8e8;
+            border: 2px solid #e8e8e8;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 500;
@@ -199,7 +200,8 @@
             background: #2a2f3e;
             box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.5),
                         inset 0 2px 2px rgba(255, 255, 255, 0.1),
-                        0 3px 8px rgba(0, 0, 0, 0.4);
+                        0 4px 0 rgba(0, 0, 0, 0.5),
+                        0 7px 10px rgba(0, 0, 0, 0.45);
         }
 
         .btn::before {
@@ -224,11 +226,12 @@
         }
 
         .btn:active {
-            transform: translateY(1px);
+            transform: translateY(3px);
             border-color: #e8e8e8;
             box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.5),
                         inset 0 1px 2px rgba(255, 255, 255, 0.1),
-                        0 1px 3px rgba(0, 0, 0, 0.3);
+                        0 1px 0 rgba(0, 0, 0, 0.4),
+                        0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .btn-number {
@@ -369,8 +372,8 @@
                 <button class="btn btn-number" onclick="appendNumber('0')">0</button>
                 <button class="btn btn-number" onclick="appendNumber('.')">.</button>
                 <button class="btn btn-function" onclick="retrieveAns()">Ans</button>
-                <button class="btn btn-operator" style="background: linear-gradient(135deg, #2a3a4a, #1a2a3a); border: 1.5px solid #e8e8e8;">()</button>
-                <button class="btn btn-operator" style="background: linear-gradient(135deg, #2a3a4a, #1a2a3a); border: 1.5px solid #e8e8e8;">M+</button>
+                <button class="btn btn-operator" style="background: linear-gradient(135deg, #2a3a4a, #1a2a3a); border: 2px solid #e8e8e8;">()</button>
+                <button class="btn btn-operator" style="background: linear-gradient(135deg, #2a3a4a, #1a2a3a); border: 2px solid #e8e8e8;">M+</button>
             </div>
         </div>
     </div>
