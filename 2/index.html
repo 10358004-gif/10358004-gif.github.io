@@ -12,56 +12,38 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
+            font-family: 'Arial', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 50%, #0f1419 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
-            animation: bgShimmer 8s ease-in-out infinite;
-        }
-
-        @keyframes bgShimmer {
-            0%, 100% {
-                background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
-            }
-            50% {
-                background: linear-gradient(135deg, #1a1f3a 0%, #2a2f4a 50%, #1a1f3a 100%);
-            }
         }
 
         .container {
             position: relative;
             width: 100%;
             max-width: 380px;
-            filter: drop-shadow(0 0 20px rgba(100, 200, 255, 0.3));
         }
 
         .user-name {
             position: absolute;
-            top: -40px;
+            top: -35px;
             right: 0;
-            color: #fff;
-            font-size: 16px;
-            font-weight: bold;
-            background: linear-gradient(135deg, #00ccff, #ff00ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 10px rgba(100, 200, 255, 0.5);
+            color: #e0e0e0;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
 
         .calculator {
-            background: linear-gradient(135deg, #1a1f3a 0%, #2a3f5f 50%, #1a1f3a 100%);
-            border-radius: 25px;
-            padding: 20px;
-            box-shadow: 0 0 30px rgba(100, 200, 255, 0.4),
-                        0 0 60px rgba(255, 0, 255, 0.2),
-                        0 20px 50px rgba(0, 0, 0, 0.8),
-                        inset 0 1px 20px rgba(255, 255, 255, 0.1);
-            border: 3px solid;
-            border-image: linear-gradient(135deg, #00ccff, #ff00ff, #00ccff) 1;
+            background: #1a1f2e;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             position: relative;
             overflow: hidden;
         }
@@ -69,125 +51,147 @@
         .calculator::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
-            animation: shimmerAnimation 3s infinite;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                transparent 0%,
+                rgba(100, 200, 255, 0.05) 20%,
+                rgba(100, 200, 255, 0.1) 50%,
+                rgba(100, 200, 255, 0.05) 80%,
+                transparent 100%);
+            animation: waveFlow 6s ease-in-out infinite;
             pointer-events: none;
+            z-index: 0;
         }
 
-        @keyframes shimmerAnimation {
-            0% {
-                transform: translate(-100%, -100%) rotate(45deg);
+        @keyframes waveFlow {
+            0%, 100% {
+                transform: translateX(-100%);
             }
-            100% {
-                transform: translate(100%, 100%) rotate(45deg);
+            50% {
+                transform: translateX(100%);
             }
         }
 
         .top-section {
-            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2a 50%, #0a0a1a 100%);
-            padding: 10px;
-            border-radius: 10px;
+            background: transparent;
+            padding: 8px;
+            border-radius: 8px;
             margin-bottom: 10px;
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 5px;
-            border: 1.5px solid #0088ff;
-            box-shadow: 0 0 10px rgba(0, 136, 255, 0.2);
+            gap: 6px;
+            position: relative;
+            z-index: 1;
         }
 
         .top-btn {
             padding: 8px 5px;
-            font-size: 10px;
-            background: linear-gradient(135deg, #1a2a4a, #0a1a3a);
-            color: #88ccff;
-            border: 1px solid #0088ff;
-            border-radius: 4px;
+            font-size: 9px;
+            background: #2a2f3e;
+            color: #a0a8b8;
+            border: 0.5px solid rgba(100, 150, 200, 0.3);
+            border-radius: 5px;
             cursor: pointer;
-            transition: all 0.1s;
-            box-shadow: 0 2px 8px rgba(0, 136, 255, 0.2);
+            transition: all 0.2s ease;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .top-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(100, 200, 255, 0.2), transparent);
+            transition: left 0.4s;
         }
 
         .top-btn:hover {
-            background: linear-gradient(135deg, #2a3a5a, #1a2a4a);
-            color: #00ffff;
-            box-shadow: 0 2px 12px rgba(0, 255, 255, 0.3);
+            background: #3a3f4e;
+            color: #c0c8d8;
+            border-color: rgba(100, 200, 255, 0.6);
+        }
+
+        .top-btn:hover::before {
+            left: 100%;
         }
 
         .top-btn.active {
-            background: linear-gradient(135deg, #0088ff, #0066dd);
+            background: #2a5a8a;
             color: #fff;
-            box-shadow: 0 0 15px rgba(0, 136, 255, 0.6);
+            border-color: rgba(100, 200, 255, 0.8);
         }
 
         .display-area {
-            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2a 50%, #0a0a1a 100%);
+            background: #16191f;
             padding: 12px;
-            border-radius: 10px;
+            border-radius: 8px;
             margin-bottom: 12px;
-            border: 2px solid #0088ff;
-            box-shadow: 0 0 15px rgba(0, 136, 255, 0.3),
-                        inset 0 0 10px rgba(0, 136, 255, 0.1);
+            border: 1px solid rgba(100, 150, 200, 0.2);
+            position: relative;
+            z-index: 1;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .main-display {
-            background: linear-gradient(135deg, #001100 0%, #002200 50%, #001100 100%);
-            color: #00ff00;
-            font-size: 28px;
-            padding: 12px;
-            border-radius: 8px;
+            background: #0d0f15;
+            color: #64d5ff;
+            font-size: 26px;
+            padding: 10px;
+            border-radius: 6px;
             text-align: right;
-            min-height: 40px;
+            min-height: 38px;
             word-wrap: break-word;
             word-break: break-all;
-            border: 2px solid #00ff00;
-            font-weight: bold;
+            border: 0.5px solid rgba(100, 200, 255, 0.3);
+            font-weight: 600;
             font-family: 'Courier New', monospace;
             margin-bottom: 5px;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5),
-                        inset 0 0 15px rgba(0, 255, 0, 0.1);
-            text-shadow: 0 0 10px #00ff00;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 0.5px;
         }
 
         .sub-display {
-            background: linear-gradient(135deg, #001100 0%, #002200 50%, #001100 100%);
-            color: #00aa00;
-            font-size: 12px;
-            padding: 6px;
-            border-radius: 6px;
+            background: #0d0f15;
+            color: #4a9fb5;
+            font-size: 11px;
+            padding: 5px;
+            border-radius: 4px;
             text-align: right;
-            height: 20px;
+            height: 18px;
             overflow: hidden;
             font-family: 'Courier New', monospace;
-            border: 1px solid #00aa00;
-            box-shadow: 0 0 10px rgba(0, 170, 0, 0.4);
+            border: 0.5px solid rgba(100, 150, 200, 0.2);
+            letter-spacing: 0.3px;
         }
 
         .main-buttons {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            margin-bottom: 12px;
-            padding: 10px;
-            background: linear-gradient(135deg, rgba(0, 136, 255, 0.05), rgba(255, 0, 255, 0.05));
-            border-radius: 10px;
+            gap: 7px;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
         }
 
         .btn {
-            padding: 12px 5px;
-            font-size: 14px;
-            border: none;
-            border-radius: 8px;
+            padding: 11px 4px;
+            font-size: 13px;
+            border: 0.5px solid rgba(100, 150, 200, 0.3);
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s;
+            font-weight: 500;
+            transition: all 0.15s ease;
             color: #fff;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(100, 200, 255, 0.3);
+            background: #2a2f3e;
         }
 
         .btn::before {
@@ -197,115 +201,93 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            animation: btnShine 2s infinite;
-        }
-
-        @keyframes btnShine {
-            0% {
-                left: -100%;
-            }
-            50% {
-                left: 100%;
-            }
-            100% {
-                left: 100%;
-            }
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transition: left 0.3s ease;
         }
 
         .btn:hover {
-            transform: scale(1.08) translateY(-2px);
-            filter: brightness(1.2);
-            box-shadow: 0 6px 20px rgba(100, 200, 255, 0.6),
-                        0 0 20px rgba(255, 0, 255, 0.3);
+            transform: translateY(-1px);
+            border-color: rgba(100, 200, 255, 0.5);
+            background: #333844;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn:active {
-            transform: scale(0.96) translateY(0);
-            box-shadow: 0 2px 8px rgba(100, 200, 255, 0.4);
+            transform: translateY(0);
+            border-color: rgba(100, 200, 255, 0.6);
         }
 
         .btn-number {
-            background: linear-gradient(135deg, #1a3a5a, #0a2a4a);
-            color: #00ff88;
-            border: 1.5px solid #0088ff;
-            text-shadow: 0 0 5px #00ff88;
+            background: linear-gradient(135deg, #2a3a4a 0%, #252d38 100%);
+            color: #64d5ff;
+            text-shadow: 0 0 4px rgba(100, 200, 255, 0.3);
         }
 
         .btn-number:hover {
-            background: linear-gradient(135deg, #2a4a6a, #1a3a5a);
-            border-color: #00ffff;
+            background: linear-gradient(135deg, #3a4a5a 0%, #353d48 100%);
+            box-shadow: inset 0 0 8px rgba(100, 200, 255, 0.15);
         }
 
         .btn-operator {
-            background: linear-gradient(135deg, #5a3a1a, #4a2a0a);
-            color: #ffff00;
-            border: 1.5px solid #ff8800;
-            text-shadow: 0 0 5px #ffff00;
+            background: linear-gradient(135deg, #4a3a2a 0%, #3a322a 100%);
+            color: #ffb366;
+            text-shadow: 0 0 4px rgba(255, 180, 100, 0.3);
         }
 
         .btn-operator:hover {
-            background: linear-gradient(135deg, #6a4a2a, #5a3a1a);
-            border-color: #ffff00;
+            background: linear-gradient(135deg, #5a4a3a 0%, #4a423a 100%);
+            box-shadow: inset 0 0 8px rgba(255, 180, 100, 0.15);
         }
 
         .btn-function {
-            background: linear-gradient(135deg, #2a5a1a, #1a4a0a);
-            color: #00ff00;
+            background: linear-gradient(135deg, #2a4a3a 0%, #252d30 100%);
+            color: #4affe0;
             font-size: 11px;
-            border: 1.5px solid #00aa00;
-            text-shadow: 0 0 5px #00ff00;
+            text-shadow: 0 0 4px rgba(74, 255, 224, 0.3);
         }
 
         .btn-function:hover {
-            background: linear-gradient(135deg, #3a6a2a, #2a5a1a);
-            border-color: #00ffff;
+            background: linear-gradient(135deg, #3a5a4a 0%, #353d40 100%);
+            box-shadow: inset 0 0 8px rgba(74, 255, 224, 0.15);
         }
 
         .btn-del {
-            background: linear-gradient(135deg, #5a1a1a, #4a0a0a);
-            color: #ff6666;
-            border: 1.5px solid #ff4444;
-            font-size: 12px;
-            text-shadow: 0 0 5px #ff6666;
+            background: linear-gradient(135deg, #4a2a2a 0%, #3a2525 100%);
+            color: #ff8080;
+            font-size: 11px;
+            text-shadow: 0 0 4px rgba(255, 128, 128, 0.3);
         }
 
         .btn-del:hover {
-            background: linear-gradient(135deg, #6a2a2a, #5a1a1a);
-            border-color: #ff0000;
+            background: linear-gradient(135deg, #5a3a3a 0%, #4a3535 100%);
+            box-shadow: inset 0 0 8px rgba(255, 128, 128, 0.15);
         }
 
         .btn-equals {
-            background: linear-gradient(135deg, #00aa44, #00aa33);
-            color: #fff;
-            border: 1.5px solid #00ff88;
+            background: linear-gradient(135deg, #2a5a3a 0%, #252d2a 100%);
+            color: #64ff64;
             grid-column: span 2;
-            text-shadow: 0 0 5px #00ff88;
+            text-shadow: 0 0 4px rgba(100, 255, 100, 0.3);
         }
 
         .btn-equals:hover {
-            background: linear-gradient(135deg, #00cc55, #00bb44);
-            border-color: #00ffff;
-        }
-
-        .secondary-buttons {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
+            background: linear-gradient(135deg, #3a6a4a 0%, #353d3a 100%);
+            box-shadow: inset 0 0 8px rgba(100, 255, 100, 0.15);
         }
 
         .title {
             text-align: center;
-            background: linear-gradient(135deg, #00ccff, #ff00ff, #00ccff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-size: 16px;
-            margin-bottom: 12px;
+            color: #a0a8b8;
+            font-size: 12px;
+            margin-bottom: 10px;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: bold;
-            text-shadow: 0 0 15px rgba(100, 200, 255, 0.5);
+            letter-spacing: 1.5px;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
         }
     </style>
 </head>
