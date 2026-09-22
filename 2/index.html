@@ -13,18 +13,29 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #333 0%, #111 100%);
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            animation: bgShimmer 8s ease-in-out infinite;
+        }
+
+        @keyframes bgShimmer {
+            0%, 100% {
+                background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
+            }
+            50% {
+                background: linear-gradient(135deg, #1a1f3a 0%, #2a2f4a 50%, #1a1f3a 100%);
+            }
         }
 
         .container {
             position: relative;
             width: 100%;
             max-width: 380px;
+            filter: drop-shadow(0 0 20px rgba(100, 200, 255, 0.3));
         }
 
         .user-name {
@@ -34,161 +45,247 @@
             color: #fff;
             font-size: 16px;
             font-weight: bold;
+            background: linear-gradient(135deg, #00ccff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 10px rgba(100, 200, 255, 0.5);
         }
 
         .calculator {
-            background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
-            border-radius: 20px;
-            padding: 15px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            border: 3px solid #1a1a1a;
+            background: linear-gradient(135deg, #1a1f3a 0%, #2a3f5f 50%, #1a1f3a 100%);
+            border-radius: 25px;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(100, 200, 255, 0.4),
+                        0 0 60px rgba(255, 0, 255, 0.2),
+                        0 20px 50px rgba(0, 0, 0, 0.8),
+                        inset 0 1px 20px rgba(255, 255, 255, 0.1);
+            border: 3px solid;
+            border-image: linear-gradient(135deg, #00ccff, #ff00ff, #00ccff) 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculator::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            animation: shimmerAnimation 3s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes shimmerAnimation {
+            0% {
+                transform: translate(-100%, -100%) rotate(45deg);
+            }
+            100% {
+                transform: translate(100%, 100%) rotate(45deg);
+            }
         }
 
         .top-section {
-            background: #1a1a1a;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2a 50%, #0a0a1a 100%);
             padding: 10px;
             border-radius: 10px;
             margin-bottom: 10px;
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 5px;
+            border: 1.5px solid #0088ff;
+            box-shadow: 0 0 10px rgba(0, 136, 255, 0.2);
         }
 
         .top-btn {
             padding: 8px 5px;
             font-size: 10px;
-            background: #404040;
-            color: #aaa;
-            border: 1px solid #555;
+            background: linear-gradient(135deg, #1a2a4a, #0a1a3a);
+            color: #88ccff;
+            border: 1px solid #0088ff;
             border-radius: 4px;
             cursor: pointer;
             transition: all 0.1s;
+            box-shadow: 0 2px 8px rgba(0, 136, 255, 0.2);
         }
 
         .top-btn:hover {
-            background: #505050;
-            color: #fff;
+            background: linear-gradient(135deg, #2a3a5a, #1a2a4a);
+            color: #00ffff;
+            box-shadow: 0 2px 12px rgba(0, 255, 255, 0.3);
         }
 
         .top-btn.active {
-            background: #666;
+            background: linear-gradient(135deg, #0088ff, #0066dd);
             color: #fff;
+            box-shadow: 0 0 15px rgba(0, 136, 255, 0.6);
         }
 
         .display-area {
-            background: #0a0a0a;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2a 50%, #0a0a1a 100%);
             padding: 12px;
-            border-radius: 8px;
+            border-radius: 10px;
             margin-bottom: 12px;
-            border: 2px solid #1a1a1a;
+            border: 2px solid #0088ff;
+            box-shadow: 0 0 15px rgba(0, 136, 255, 0.3),
+                        inset 0 0 10px rgba(0, 136, 255, 0.1);
         }
 
         .main-display {
-            background: #1a3a1a;
-            color: #00dd00;
+            background: linear-gradient(135deg, #001100 0%, #002200 50%, #001100 100%);
+            color: #00ff00;
             font-size: 28px;
             padding: 12px;
-            border-radius: 6px;
+            border-radius: 8px;
             text-align: right;
             min-height: 40px;
             word-wrap: break-word;
             word-break: break-all;
-            border: 1px solid #003300;
+            border: 2px solid #00ff00;
             font-weight: bold;
             font-family: 'Courier New', monospace;
             margin-bottom: 5px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5),
+                        inset 0 0 15px rgba(0, 255, 0, 0.1);
+            text-shadow: 0 0 10px #00ff00;
         }
 
         .sub-display {
-            background: #0a1a0a;
+            background: linear-gradient(135deg, #001100 0%, #002200 50%, #001100 100%);
             color: #00aa00;
             font-size: 12px;
             padding: 6px;
-            border-radius: 4px;
+            border-radius: 6px;
             text-align: right;
             height: 20px;
             overflow: hidden;
             font-family: 'Courier New', monospace;
+            border: 1px solid #00aa00;
+            box-shadow: 0 0 10px rgba(0, 170, 0, 0.4);
         }
 
         .main-buttons {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
-            margin-bottom: 8px;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 10px;
+            background: linear-gradient(135deg, rgba(0, 136, 255, 0.05), rgba(255, 0, 255, 0.05));
+            border-radius: 10px;
         }
 
         .btn {
             padding: 12px 5px;
             font-size: 14px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            transition: all 0.1s;
+            transition: all 0.2s;
             color: #fff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(100, 200, 255, 0.3);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: btnShine 2s infinite;
+        }
+
+        @keyframes btnShine {
+            0% {
+                left: -100%;
+            }
+            50% {
+                left: 100%;
+            }
+            100% {
+                left: 100%;
+            }
         }
 
         .btn:hover {
-            transform: scale(1.05);
+            transform: scale(1.08) translateY(-2px);
+            filter: brightness(1.2);
+            box-shadow: 0 6px 20px rgba(100, 200, 255, 0.6),
+                        0 0 20px rgba(255, 0, 255, 0.3);
         }
 
         .btn:active {
-            transform: scale(0.95);
+            transform: scale(0.96) translateY(0);
+            box-shadow: 0 2px 8px rgba(100, 200, 255, 0.4);
         }
 
         .btn-number {
-            background: #404040;
-            color: #00ff00;
-            border: 1px solid #555;
+            background: linear-gradient(135deg, #1a3a5a, #0a2a4a);
+            color: #00ff88;
+            border: 1.5px solid #0088ff;
+            text-shadow: 0 0 5px #00ff88;
         }
 
         .btn-number:hover {
-            background: #505050;
+            background: linear-gradient(135deg, #2a4a6a, #1a3a5a);
+            border-color: #00ffff;
         }
 
         .btn-operator {
-            background: #665500;
+            background: linear-gradient(135deg, #5a3a1a, #4a2a0a);
             color: #ffff00;
-            border: 1px solid #886600;
+            border: 1.5px solid #ff8800;
+            text-shadow: 0 0 5px #ffff00;
         }
 
         .btn-operator:hover {
-            background: #776600;
+            background: linear-gradient(135deg, #6a4a2a, #5a3a1a);
+            border-color: #ffff00;
         }
 
         .btn-function {
-            background: #335500;
-            color: #88ff00;
+            background: linear-gradient(135deg, #2a5a1a, #1a4a0a);
+            color: #00ff00;
             font-size: 11px;
-            border: 1px solid #556600;
+            border: 1.5px solid #00aa00;
+            text-shadow: 0 0 5px #00ff00;
         }
 
         .btn-function:hover {
-            background: #446600;
+            background: linear-gradient(135deg, #3a6a2a, #2a5a1a);
+            border-color: #00ffff;
         }
 
         .btn-del {
-            background: #553333;
-            color: #ff8888;
-            border: 1px solid #884444;
+            background: linear-gradient(135deg, #5a1a1a, #4a0a0a);
+            color: #ff6666;
+            border: 1.5px solid #ff4444;
             font-size: 12px;
+            text-shadow: 0 0 5px #ff6666;
         }
 
         .btn-del:hover {
-            background: #664444;
+            background: linear-gradient(135deg, #6a2a2a, #5a1a1a);
+            border-color: #ff0000;
         }
 
         .btn-equals {
-            background: #33aa33;
+            background: linear-gradient(135deg, #00aa44, #00aa33);
             color: #fff;
-            border: 1px solid #55dd55;
+            border: 1.5px solid #00ff88;
             grid-column: span 2;
+            text-shadow: 0 0 5px #00ff88;
         }
 
         .btn-equals:hover {
-            background: #44bb44;
+            background: linear-gradient(135deg, #00cc55, #00bb44);
+            border-color: #00ffff;
         }
 
         .secondary-buttons {
@@ -199,11 +296,16 @@
 
         .title {
             text-align: center;
-            color: #888;
-            font-size: 11px;
-            margin-bottom: 8px;
+            background: linear-gradient(135deg, #00ccff, #ff00ff, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 16px;
+            margin-bottom: 12px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            font-weight: bold;
+            text-shadow: 0 0 15px rgba(100, 200, 255, 0.5);
         }
     </style>
 </head>
@@ -274,8 +376,8 @@
                 <button class="btn btn-number" onclick="appendNumber('0')">0</button>
                 <button class="btn btn-number" onclick="appendNumber('.')">.</button>
                 <button class="btn btn-function" onclick="retrieveAns()">Ans</button>
-                <button class="btn btn-operator" style="background: #303030; color: #666;">()</button>
-                <button class="btn btn-operator" style="background: #303030; color: #666;">M+</button>
+                <button class="btn btn-operator" style="background: linear-gradient(135deg, #2a3a4a, #1a2a3a); border: 1.5px solid #0088ff;">()</button>
+                <button class="btn btn-operator" style="background: linear-gradient(135deg, #2a3a4a, #1a2a3a); border: 1.5px solid #0088ff;">M+</button>
             </div>
         </div>
     </div>
