@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>工程用計算機 - Casio FX-991ES PLUS</title>
+    <title>打地鼠遊戲</title>
     <style>
         * {
             margin: 0;
@@ -12,8 +12,8 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #333 0%, #111 100%);
+            font-family: 'Arial', 'Microsoft JhengHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -24,533 +24,564 @@
         .container {
             position: relative;
             width: 100%;
-            max-width: 380px;
+            max-width: 900px;
         }
 
-        .user-name {
+        .player-name {
             position: absolute;
-            top: -40px;
-            right: 0;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 20px;
             color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+            z-index: 100;
+        }
+
+        .game-header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .game-board {
+            background: linear-gradient(135deg, #90c240 0%, #7ab33f 100%);
+            border-radius: 15px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3),
+                        inset 0 2px 5px rgba(255, 255, 255, 0.2);
+            min-height: 500px;
+        }
+
+        .hole {
+            position: relative;
+            background: radial-gradient(circle at 30% 30%, #8b7355, #5c4033);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.4),
+                        0 5px 10px rgba(0, 0, 0, 0.2);
+            aspect-ratio: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border: 3px solid #4a3728;
+            transition: all 0.1s;
+        }
+
+        .hole:hover {
+            transform: scale(1.02);
+        }
+
+        .hole:active {
+            transform: scale(0.98);
+        }
+
+        .mole {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(circle at 35% 35%, #8B4513, #6B3410);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: popUp 0.3s ease-out;
+            cursor: pointer;
+        }
+
+        @keyframes popUp {
+            0% {
+                transform: translateY(100%);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes popDown {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(100%);
+            }
+        }
+
+        .mole.hiding {
+            animation: popDown 0.2s ease-in forwards;
+        }
+
+        .mole-eyes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .eye {
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .pupil {
+            width: 8px;
+            height: 8px;
+            background: #000;
+            border-radius: 50%;
+        }
+
+        .mole-mouth {
+            position: absolute;
+            bottom: 20%;
+            width: 12px;
+            height: 4px;
+            background: #000;
+            border-radius: 2px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 30px;
             font-size: 16px;
             font-weight: bold;
-        }
-
-        .calculator {
-            background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
-            border-radius: 20px;
-            padding: 15px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            border: 3px solid #1a1a1a;
-        }
-
-        .top-section {
-            background: #1a1a1a;
-            padding: 10px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 5px;
-        }
-
-        .top-btn {
-            padding: 8px 5px;
-            font-size: 10px;
-            background: #404040;
-            color: #aaa;
-            border: 1px solid #555;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.1s;
-        }
-
-        .top-btn:hover {
-            background: #505050;
-            color: #fff;
-        }
-
-        .top-btn.active {
-            background: #666;
-            color: #fff;
-        }
-
-        .display-area {
-            background: #0a0a0a;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            border: 2px solid #1a1a1a;
-        }
-
-        .main-display {
-            background: #1a3a1a;
-            color: #00dd00;
-            font-size: 28px;
-            padding: 12px;
-            border-radius: 6px;
-            text-align: right;
-            min-height: 40px;
-            word-wrap: break-word;
-            word-break: break-all;
-            border: 1px solid #003300;
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
-            margin-bottom: 5px;
-        }
-
-        .sub-display {
-            background: #0a1a0a;
-            color: #00aa00;
-            font-size: 12px;
-            padding: 6px;
-            border-radius: 4px;
-            text-align: right;
-            height: 20px;
-            overflow: hidden;
-            font-family: 'Courier New', monospace;
-        }
-
-        .main-buttons {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-
-        .btn {
-            padding: 12px 5px;
-            font-size: 14px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
+            transition: all 0.2s;
+            color: #fff;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(72, 187, 120, 0.4);
+        }
+
+        .btn-start:active {
+            transform: translateY(0);
+        }
+
+        .btn-start:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+            box-shadow: 0 5px 15px rgba(245, 101, 101, 0.3);
+        }
+
+        .btn-reset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(245, 101, 101, 0.4);
+        }
+
+        .btn-reset:active {
+            transform: translateY(0);
+        }
+
+        .difficulty {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .difficulty label {
+            color: #fff;
             font-weight: bold;
-            transition: all 0.1s;
-            color: #fff;
         }
 
-        .btn:hover {
-            transform: scale(1.05);
+        .difficulty input[type="radio"] {
+            margin-right: 5px;
         }
 
-        .btn:active {
-            transform: scale(0.95);
+        .game-over-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .btn-number {
-            background: #404040;
-            color: #00ff00;
-            border: 1px solid #555;
-        }
-
-        .btn-number:hover {
-            background: #505050;
-        }
-
-        .btn-operator {
-            background: #665500;
-            color: #ffff00;
-            border: 1px solid #886600;
-        }
-
-        .btn-operator:hover {
-            background: #776600;
-        }
-
-        .btn-function {
-            background: #335500;
-            color: #88ff00;
-            font-size: 11px;
-            border: 1px solid #556600;
-        }
-
-        .btn-function:hover {
-            background: #446600;
-        }
-
-        .btn-del {
-            background: #553333;
-            color: #ff8888;
-            border: 1px solid #884444;
-            font-size: 12px;
-        }
-
-        .btn-del:hover {
-            background: #664444;
-        }
-
-        .btn-equals {
-            background: #33aa33;
-            color: #fff;
-            border: 1px solid #55dd55;
-            grid-column: span 2;
-        }
-
-        .btn-equals:hover {
-            background: #44bb44;
-        }
-
-        .secondary-buttons {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
-        }
-
-        .title {
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
             text-align: center;
-            color: #888;
-            font-size: 11px;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            font-size: 32px;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .modal-content p {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .modal-content button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 15px 40px;
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .game-board {
+                grid-template-columns: repeat(3, 1fr);
+                min-height: 400px;
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .game-header {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
+
+            .player-name {
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-board {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="user-name">張依琳</div>
-        
-        <div class="calculator">
-            <div class="title">工程用計算機</div>
+        <div class="player-name">👤 張依琳</div>
 
-            <div class="top-section">
-                <button class="top-btn" onclick="toggleShift()">SHIFT</button>
-                <button class="top-btn" onclick="toggleAlpha()">ALPHA</button>
-                <button class="top-btn" onclick="toggleMode()">MODE</button>
-                <button class="top-btn" onclick="toggleSetup()">SETUP</button>
-                <button class="top-btn btn-del" onclick="deleteLastChar()">DEL</button>
+        <div class="game-header">
+            <div class="stat">
+                <div class="stat-label">分數</div>
+                <div class="stat-value" id="score">0</div>
             </div>
-
-            <div class="display-area">
-                <div class="main-display" id="display">0</div>
-                <div class="sub-display" id="subDisplay"></div>
+            <div class="stat">
+                <div class="stat-label">剩餘時間</div>
+                <div class="stat-value" id="timer">30</div>
             </div>
-
-            <div class="main-buttons">
-                <!-- Row 1 -->
-                <button class="btn btn-function" onclick="calculateArcSin()">asin</button>
-                <button class="btn btn-function" onclick="calculateArcCos()">acos</button>
-                <button class="btn btn-function" onclick="calculateArcTan()">atan</button>
-                <button class="btn btn-function" onclick="calculatePI()">π</button>
-                <button class="btn btn-del" onclick="clearDisplay()">AC</button>
-
-                <!-- Row 2 -->
-                <button class="btn btn-function" onclick="calculateSin()">sin</button>
-                <button class="btn btn-function" onclick="calculateCos()">cos</button>
-                <button class="btn btn-function" onclick="calculateTan()">tan</button>
-                <button class="btn btn-function" onclick="calculateExp()">e^x</button>
-                <button class="btn btn-operator" onclick="appendOperator('÷')">÷</button>
-
-                <!-- Row 3 -->
-                <button class="btn btn-function" onclick="calculateLog()">log</button>
-                <button class="btn btn-function" onclick="calculateLn()">ln</button>
-                <button class="btn btn-function" onclick="calculateSqrt()">√</button>
-                <button class="btn btn-function" onclick="calculatePower()">x^2</button>
-                <button class="btn btn-operator" onclick="appendOperator('×')">×</button>
-
-                <!-- Row 4 -->
-                <button class="btn btn-number" onclick="appendNumber('7')">7</button>
-                <button class="btn btn-number" onclick="appendNumber('8')">8</button>
-                <button class="btn btn-number" onclick="appendNumber('9')">9</button>
-                <button class="btn btn-function" onclick="calculateReciprocal()">1/x</button>
-                <button class="btn btn-operator" onclick="appendOperator('−')">−</button>
-
-                <!-- Row 5 -->
-                <button class="btn btn-number" onclick="appendNumber('4')">4</button>
-                <button class="btn btn-number" onclick="appendNumber('5')">5</button>
-                <button class="btn btn-number" onclick="appendNumber('6')">6</button>
-                <button class="btn btn-function" onclick="calculateFact()">x!</button>
-                <button class="btn btn-operator" onclick="appendOperator('+')">+</button>
-
-                <!-- Row 6 -->
-                <button class="btn btn-number" onclick="appendNumber('1')">1</button>
-                <button class="btn btn-number" onclick="appendNumber('2')">2</button>
-                <button class="btn btn-number" onclick="appendNumber('3')">3</button>
-                <button class="btn btn-function" onclick="toggleSign()">+/−</button>
-                <button class="btn btn-equals" onclick="calculate()">=</button>
-
-                <!-- Row 7 -->
-                <button class="btn btn-number" onclick="appendNumber('0')">0</button>
-                <button class="btn btn-number" onclick="appendNumber('.')">.</button>
-                <button class="btn btn-function" onclick="retrieveAns()">Ans</button>
-                <button class="btn btn-operator" style="background: #303030; color: #666;">()</button>
-                <button class="btn btn-operator" style="background: #303030; color: #666;">M+</button>
+            <div class="stat">
+                <div class="stat-label">難度</div>
+                <div class="stat-value" id="difficultyDisplay">簡單</div>
             </div>
+        </div>
+
+        <div class="game-board" id="gameBoard">
+            <!-- 遊戲板會被動態填充 -->
+        </div>
+
+        <div class="controls">
+            <div class="difficulty">
+                <label>難度:</label>
+                <label>
+                    <input type="radio" name="difficulty" value="easy" checked> 簡單
+                </label>
+                <label>
+                    <input type="radio" name="difficulty" value="normal"> 中等
+                </label>
+                <label>
+                    <input type="radio" name="difficulty" value="hard"> 困難
+                </label>
+            </div>
+            <button class="btn-start" id="startBtn" onclick="startGame()">開始遊戲</button>
+            <button class="btn-reset" onclick="resetGame()">重置遊戲</button>
+        </div>
+    </div>
+
+    <div class="game-over-modal" id="gameOverModal">
+        <div class="modal-content">
+            <h2>遊戲結束!</h2>
+            <p>最終分數: <span id="finalScore">0</span></p>
+            <button onclick="resetGame(); closeGameOverModal();">再玩一次</button>
         </div>
     </div>
 
     <script>
-        let display = document.getElementById('display');
-        let subDisplay = document.getElementById('subDisplay');
-        let currentValue = '0';
-        let previousValue = '';
-        let operator = '';
-        let isDegrees = true;
-        let lastAnswer = 0;
-        let shiftActive = false;
-        let alphaActive = false;
+        const gameBoard = document.getElementById('gameBoard');
+        const scoreDisplay = document.getElementById('score');
+        const timerDisplay = document.getElementById('timer');
+        const startBtn = document.getElementById('startBtn');
+        const difficultyRadios = document.querySelectorAll('input[name="difficulty"]');
+        const difficultyDisplay = document.getElementById('difficultyDisplay');
 
-        function updateDisplay() {
-            display.textContent = currentValue.length > 16 ? currentValue.substring(0, 16) : currentValue;
-        }
+        let score = 0;
+        let timeLeft = 30;
+        let gameActive = false;
+        let difficulty = 'easy';
+        let timerInterval;
+        let activeMole = null;
+        let molePopInterval;
 
-        function updateSubDisplay() {
-            if (previousValue && operator) {
-                subDisplay.textContent = previousValue + ' ' + operator;
-            } else {
-                subDisplay.textContent = '';
+        const difficultySettings = {
+            easy: { time: 30, speed: 1000, count: 9 },
+            normal: { time: 20, speed: 600, count: 12 },
+            hard: { time: 15, speed: 400, count: 16 }
+        };
+
+        // 初始化遊戲板
+        function initGameBoard() {
+            gameBoard.innerHTML = '';
+            const holeCount = difficultySettings[difficulty].count;
+            for (let i = 0; i < holeCount; i++) {
+                const hole = document.createElement('div');
+                hole.className = 'hole';
+                hole.id = `hole-${i}`;
+                hole.style.cursor = 'pointer';
+                gameBoard.appendChild(hole);
             }
         }
 
-        function clearDisplay() {
-            currentValue = '0';
-            previousValue = '';
-            operator = '';
-            updateDisplay();
-            updateSubDisplay();
-        }
+        // 創建地鼠
+        function createMole() {
+            if (!gameActive) return;
 
-        function deleteLastChar() {
-            if (currentValue.length > 1) {
-                currentValue = currentValue.slice(0, -1);
-            } else {
-                currentValue = '0';
-            }
-            updateDisplay();
-        }
-
-        function appendNumber(num) {
-            if (currentValue === '0' && num !== '.') {
-                currentValue = num;
-            } else if (num === '.' && !currentValue.includes('.')) {
-                currentValue += num;
-            } else if (num !== '.') {
-                currentValue += num;
-            }
-            updateDisplay();
-        }
-
-        function appendOperator(op) {
-            if (currentValue !== '' && currentValue !== '0') {
-                previousValue = currentValue;
-                operator = op;
-                currentValue = '0';
-                updateDisplay();
-                updateSubDisplay();
-            }
-        }
-
-        function calculate() {
-            if (previousValue === '' || operator === '') return;
-            
-            let result;
-            const prev = parseFloat(previousValue);
-            const current = parseFloat(currentValue);
-
-            switch(operator) {
-                case '+':
-                    result = prev + current;
-                    break;
-                case '−':
-                    result = prev - current;
-                    break;
-                case '×':
-                    result = prev * current;
-                    break;
-                case '÷':
-                    result = current !== 0 ? prev / current : 'Error';
-                    break;
-                default:
-                    return;
+            // 隱藏之前的地鼠
+            if (activeMole) {
+                activeMole.classList.add('hiding');
+                setTimeout(() => {
+                    activeMole.remove();
+                    activeMole = null;
+                }, 200);
             }
 
-            lastAnswer = result;
-            currentValue = result.toString();
-            operator = '';
-            previousValue = '';
-            updateDisplay();
-            updateSubDisplay();
-        }
+            // 隨機選擇一個洞
+            const holes = document.querySelectorAll('.hole');
+            const randomHole = holes[Math.floor(Math.random() * holes.length)];
 
-        function toggleSign() {
-            const num = parseFloat(currentValue);
-            currentValue = (-num).toString();
-            updateDisplay();
-        }
+            // 創建新地鼠
+            const mole = document.createElement('div');
+            mole.className = 'mole';
+            mole.innerHTML = `
+                <div class="mole-eyes">
+                    <div class="eye"><div class="pupil"></div></div>
+                    <div class="eye"><div class="pupil"></div></div>
+                </div>
+                <div class="mole-mouth"></div>
+            `;
+            mole.onclick = (e) => {
+                e.stopPropagation();
+                hitMole();
+            };
 
-        function calculateSin() {
-            const num = parseFloat(currentValue);
-            const angle = isDegrees ? num * Math.PI / 180 : num;
-            lastAnswer = Math.sin(angle);
-            currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
-            updateDisplay();
-        }
+            randomHole.appendChild(mole);
+            activeMole = mole;
 
-        function calculateCos() {
-            const num = parseFloat(currentValue);
-            const angle = isDegrees ? num * Math.PI / 180 : num;
-            lastAnswer = Math.cos(angle);
-            currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
-            updateDisplay();
-        }
-
-        function calculateTan() {
-            const num = parseFloat(currentValue);
-            const angle = isDegrees ? num * Math.PI / 180 : num;
-            lastAnswer = Math.tan(angle);
-            currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
-            updateDisplay();
-        }
-
-        function calculateArcSin() {
-            const num = parseFloat(currentValue);
-            if (num >= -1 && num <= 1) {
-                const result = Math.asin(num);
-                lastAnswer = isDegrees ? result * 180 / Math.PI : result;
-                currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
-            } else {
-                currentValue = 'Error';
-            }
-            updateDisplay();
-        }
-
-        function calculateArcCos() {
-            const num = parseFloat(currentValue);
-            if (num >= -1 && num <= 1) {
-                const result = Math.acos(num);
-                lastAnswer = isDegrees ? result * 180 / Math.PI : result;
-                currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
-            } else {
-                currentValue = 'Error';
-            }
-            updateDisplay();
-        }
-
-        function calculateArcTan() {
-            const num = parseFloat(currentValue);
-            const result = Math.atan(num);
-            lastAnswer = isDegrees ? result * 180 / Math.PI : result;
-            currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
-            updateDisplay();
-        }
-
-        function calculateSqrt() {
-            const num = parseFloat(currentValue);
-            if (num >= 0) {
-                lastAnswer = Math.sqrt(num);
-                currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
-            } else {
-                currentValue = 'Error';
-            }
-            updateDisplay();
-        }
-
-        function calculateLog() {
-            const num = parseFloat(currentValue);
-            if (num > 0) {
-                lastAnswer = Math.log10(num);
-                currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
-            } else {
-                currentValue = 'Error';
-            }
-            updateDisplay();
-        }
-
-        function calculateLn() {
-            const num = parseFloat(currentValue);
-            if (num > 0) {
-                lastAnswer = Math.log(num);
-                currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
-            } else {
-                currentValue = 'Error';
-            }
-            updateDisplay();
-        }
-
-        function calculatePower() {
-            lastAnswer = Math.pow(parseFloat(currentValue), 2);
-            currentValue = lastAnswer.toString();
-            updateDisplay();
-        }
-
-        function calculateReciprocal() {
-            const num = parseFloat(currentValue);
-            if (num !== 0) {
-                lastAnswer = 1 / num;
-                currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
-            } else {
-                currentValue = 'Error';
-            }
-            updateDisplay();
-        }
-
-        function calculateFact() {
-            const num = parseInt(currentValue);
-            if (num >= 0 && num <= 170) {
-                let result = 1;
-                for (let i = 2; i <= num; i++) {
-                    result *= i;
+            // 地鼠在洞裡停留的時間
+            const stayTime = difficultySettings[difficulty].speed + Math.random() * 500;
+            setTimeout(() => {
+                if (activeMole === mole && gameActive) {
+                    mole.classList.add('hiding');
+                    setTimeout(() => {
+                        if (mole.parentNode) {
+                            mole.remove();
+                        }
+                        activeMole = null;
+                    }, 200);
                 }
-                lastAnswer = result;
-                currentValue = result.toString();
-            } else {
-                currentValue = 'Error';
+            }, stayTime);
+        }
+
+        // 敲擊地鼠
+        function hitMole() {
+            if (!gameActive || !activeMole) return;
+            
+            score += 10;
+            scoreDisplay.textContent = score;
+            
+            activeMole.classList.add('hiding');
+            setTimeout(() => {
+                if (activeMole && activeMole.parentNode) {
+                    activeMole.remove();
+                }
+                activeMole = null;
+                createMole();
+            }, 200);
+        }
+
+        // 開始遊戲
+        function startGame() {
+            if (gameActive) return;
+
+            difficulty = document.querySelector('input[name="difficulty"]:checked').value;
+            const settings = difficultySettings[difficulty];
+            
+            const difficultyNames = { easy: '簡單', normal: '中等', hard: '困難' };
+            difficultyDisplay.textContent = difficultyNames[difficulty];
+
+            score = 0;
+            timeLeft = settings.time;
+            gameActive = true;
+            scoreDisplay.textContent = score;
+            timerDisplay.textContent = timeLeft;
+            startBtn.disabled = true;
+
+            difficultyRadios.forEach(radio => radio.disabled = true);
+
+            // 開始生成地鼠
+            createMole();
+            molePopInterval = setInterval(() => {
+                if (gameActive && !activeMole) {
+                    createMole();
+                }
+            }, 300);
+
+            // 開始計時
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        // 結束遊戲
+        function endGame() {
+            gameActive = false;
+            startBtn.disabled = false;
+            difficultyRadios.forEach(radio => radio.disabled = false);
+
+            clearInterval(timerInterval);
+            clearInterval(molePopInterval);
+
+            if (activeMole) {
+                activeMole.classList.add('hiding');
+                setTimeout(() => {
+                    if (activeMole && activeMole.parentNode) {
+                        activeMole.remove();
+                    }
+                    activeMole = null;
+                }, 200);
             }
-            updateDisplay();
+
+            showGameOverModal();
         }
 
-        function calculatePI() {
-            currentValue = Math.PI.toString();
-            lastAnswer = Math.PI;
-            updateDisplay();
+        // 重置遊戲
+        function resetGame() {
+            gameActive = false;
+            score = 0;
+            timeLeft = 30;
+            scoreDisplay.textContent = score;
+            timerDisplay.textContent = timeLeft;
+            startBtn.disabled = false;
+            difficultyRadios.forEach(radio => radio.disabled = false);
+            difficultyDisplay.textContent = '簡單';
+
+            clearInterval(timerInterval);
+            clearInterval(molePopInterval);
+
+            if (activeMole && activeMole.parentNode) {
+                activeMole.remove();
+            }
+            activeMole = null;
+
+            initGameBoard();
         }
 
-        function calculateExp() {
-            const num = parseFloat(currentValue);
-            lastAnswer = Math.exp(num);
-            currentValue = lastAnswer.toFixed(10).replace(/\.?0+$/, '');
-            updateDisplay();
+        // 顯示遊戲結束模態框
+        function showGameOverModal() {
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverModal').style.display = 'flex';
         }
 
-        function retrieveAns() {
-            currentValue = lastAnswer.toString();
-            updateDisplay();
+        // 關閉遊戲結束模態框
+        function closeGameOverModal() {
+            document.getElementById('gameOverModal').style.display = 'none';
         }
 
-        function toggleShift() {
-            shiftActive = !shiftActive;
-            document.querySelector('[onclick="toggleShift()"]').classList.toggle('active');
-        }
-
-        function toggleAlpha() {
-            alphaActive = !alphaActive;
-            document.querySelector('[onclick="toggleAlpha()"]').classList.toggle('active');
-        }
-
-        function toggleMode() {
-            isDegrees = !isDegrees;
-            alert(isDegrees ? '度數模式 (DEG)' : '弧度模式 (RAD)');
-        }
-
-        function toggleSetup() {
-            alert('設定功能選單');
-        }
-
-        // 支援鍵盤輸入
-        document.addEventListener('keydown', (e) => {
-            if (e.key >= '0' && e.key <= '9') appendNumber(e.key);
-            if (e.key === '.') appendNumber('.');
-            if (e.key === '+') appendOperator('+');
-            if (e.key === '-') appendOperator('−');
-            if (e.key === '*') appendOperator('×');
-            if (e.key === '/') { e.preventDefault(); appendOperator('÷'); }
-            if (e.key === 'Enter' || e.key === '=') calculate();
-            if (e.key === 'Backspace') deleteLastChar();
-            if (e.key === 'Escape') clearDisplay();
-        });
-
-        updateDisplay();
+        // 初始化遊戲
+        initGameBoard();
     </script>
 </body>
 </html>
