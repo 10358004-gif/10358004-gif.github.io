@@ -24,7 +24,6 @@
     .question-prompt{font-size:1.1rem;line-height:1.6}
     .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 20px;margin-top:12px;font-family:Arial,sans-serif}
     .choices label{display:flex;align-items:center;gap:8px;cursor:pointer}
-    .fill-input{width:min(100%,360px);min-height:42px;margin-top:12px;padding:8px 10px;border:1px solid #aab6af;background:#fff;font:1rem Arial,sans-serif}
     .result{margin-top:26px;padding:20px 0;border-top:3px solid var(--green)}
     .result h2{margin:0 0 8px}
     .review-item{padding:10px 0;border-bottom:1px solid var(--line);line-height:1.6}
@@ -35,7 +34,7 @@
   <header>
     <div>
       <h1>英文單字測驗</h1>
-      <p>選擇題、填充題、英翻中 · 共 20 題 · 100 分 · 限時 10 分鐘</p>
+      <p>四選一 · 共 20 題 · 100 分 · 限時 10 分鐘</p>
     </div>
     <div id="owner">張依琳</div>
   </header>
@@ -129,16 +128,12 @@
     function buildExam(vocabulary){
       const selected = vocabulary.slice();
       shuffle(selected);
-      return selected.slice(0,QUESTION_COUNT).map((entry,index)=>{
-        const type = index < 8 ? 'multiple' : index < 14 ? 'fill' : 'translate';
-        const question = {...entry,type};
-        if(type === 'multiple'){
-          const distractors = vocabulary.filter(item=>item.word !== entry.word && item.meaning !== entry.meaning);
-          shuffle(distractors);
-          question.choices = [entry.meaning,...distractors.slice(0,3).map(item=>item.meaning)];
-          shuffle(question.choices);
-        }
-        return question;
+      return selected.slice(0,QUESTION_COUNT).map(entry=>{
+        const distractors = [...new Set(vocabulary.filter(item=>item.word !== entry.word && item.meaning !== entry.meaning).map(item=>item.meaning))];
+        shuffle(distractors);
+        const choices = [entry.meaning,...distractors.slice(0,3)];
+        shuffle(choices);
+        return {...entry,type:'multiple',choices};
       });
     }
 
@@ -149,14 +144,12 @@
         
         const typeLabel = document.createElement('div');
         typeLabel.className='question-type';
-        if(q.type==='multiple') typeLabel.textContent='選擇題';
-        else if(q.type==='fill') typeLabel.textContent='填充題';
-        else typeLabel.textContent='英翻中';
+        typeLabel.textContent='選擇題';
         div.appendChild(typeLabel);
         
         const qDiv = document.createElement('div');
         qDiv.className='question-prompt';
-        qDiv.textContent = `第 ${i+1} 題（${POINTS_PER_QUESTION} 分）：${q.type === 'fill' ? `請寫出「${q.meaning}」的英文單字` : q.type === 'translate' ? `請將「${q.word}」翻譯成中文` : `請選出「${q.word}」的中文意思`}`;
+        qDiv.textContent = `第 ${i+1} 題（${POINTS_PER_QUESTION} 分）：請選出「${q.word}」的中文意思`;
         div.appendChild(qDiv);
         
         if(q.type === 'multiple'){
@@ -170,24 +163,6 @@
             choicesDiv.appendChild(lab);
           });
           div.appendChild(choicesDiv);
-        } else if(q.type === 'fill'){
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.className = 'fill-input';
-          input.id = `q${i}_fill`;
-          input.value = userAnswers[i] || '';
-          input.placeholder = '請填入英文單字';
-          input.addEventListener('input',()=>{ userAnswers[i] = input.value; });
-          div.appendChild(input);
-        } else if(q.type === 'translate'){
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.className = 'fill-input';
-          input.id = `q${i}_translate`;
-          input.value = userAnswers[i] || '';
-          input.placeholder = '請填入中文意思';
-          input.addEventListener('input',()=>{ userAnswers[i] = input.value; });
-          div.appendChild(input);
         }
         
         container.appendChild(div);
@@ -224,7 +199,7 @@
       for(let i=0;i<currentQuestions.length;i++){
         const q = currentQuestions[i];
         const userAns = userAnswers[i] || '';
-        const expected = q.type === 'fill' ? q.word : q.meaning;
+        const expected = q.meaning;
         
         const normalizeAnswer = value=>value.trim().toLowerCase().replace(/\s+/g,'');
         const accepted = [normalizeAnswer(expected),...expected.split(/[、，,；;\/]/).map(normalizeAnswer)];
