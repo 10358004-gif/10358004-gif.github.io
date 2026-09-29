@@ -5,26 +5,37 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>英文單字測驗</title>
   <style>
-    body{font-family:Arial,Helvetica,sans-serif;max-width:900px;margin:24px auto;padding:0 16px;color:#222}
-    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-    h1{margin:0 0 8px 0;font-size:1.5rem}
-    #owner{font-weight:700;font-size:1.1rem}
-    .controls{margin:16px 0;padding:12px;background:#f0f0f0;border-radius:4px}
-    .question{border-bottom:1px solid #ddd;padding:16px 0;margin:12px 0}
-    .question-type{background:#e8f4f8;padding:4px 8px;display:inline-block;border-radius:3px;font-size:0.9rem;margin-bottom:8px}
-    .choices label{display:block;margin:8px 0;cursor:pointer}
-    .fill-input{border:1px solid #999;padding:6px;width:200px}
-    #timer{font-size:1.2rem;font-weight:700;color:#d00;margin-left:20px}
-    button{padding:8px 16px;margin-right:8px;cursor:pointer;background:#007;color:#fff;border:none;border-radius:3px}
-    button:disabled{background:#ccc}
-    .result{margin-top:20px;padding:16px;border:2px solid #007;background:#e8f4ff;border-radius:4px}
+    :root{color-scheme:light;--ink:#172b36;--muted:#61737b;--paper:#f6f5ef;--line:#d9dfd9;--green:#175b4a;--orange:#cf653e}
+    *{box-sizing:border-box}
+    body{font-family:Georgia,"Noto Serif TC",serif;max-width:900px;margin:0 auto;padding:32px 20px 56px;background:var(--paper);color:var(--ink)}
+    header{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;padding:0 0 24px;border-bottom:2px solid var(--ink)}
+    h1{margin:0 0 8px;font-size:clamp(1.7rem,4vw,2.4rem)}
+    header p{margin:0;color:var(--muted);font-family:Arial,sans-serif}
+    #owner{font-weight:700;white-space:nowrap;border-top:3px solid var(--orange);padding-top:8px}
+    .controls{margin:22px 0;padding:18px 0;border-bottom:1px solid var(--line);font-family:Arial,sans-serif}
+    .controls-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    select,button{min-height:42px;padding:0 14px;font:inherit;border:1px solid var(--line);background:#fff;color:var(--ink)}
+    button{background:var(--green);border-color:var(--green);color:#fff;font-weight:700;cursor:pointer}
+    button:disabled{background:#a5b0aa;border-color:#a5b0aa;cursor:not-allowed}
+    #timer{margin-left:auto;font:700 1.25rem Arial,sans-serif;color:var(--orange);font-variant-numeric:tabular-nums}
+    #status{margin:12px 0 0;color:var(--muted);font-size:.9rem}
+    .question{padding:20px 0;border-bottom:1px solid var(--line)}
+    .question-type{display:inline-block;margin-bottom:9px;color:var(--green);font:700 .78rem Arial,sans-serif;text-transform:uppercase}
+    .question-prompt{font-size:1.1rem;line-height:1.6}
+    .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 20px;margin-top:12px;font-family:Arial,sans-serif}
+    .choices label{display:flex;align-items:center;gap:8px;cursor:pointer}
+    .fill-input{width:min(100%,360px);min-height:42px;margin-top:12px;padding:8px 10px;border:1px solid #aab6af;background:#fff;font:1rem Arial,sans-serif}
+    .result{margin-top:26px;padding:20px 0;border-top:3px solid var(--green)}
+    .result h2{margin:0 0 8px}
+    .review-item{padding:10px 0;border-bottom:1px solid var(--line);line-height:1.6}
+    @media(max-width:560px){body{padding:22px 16px 40px}.choices{grid-template-columns:1fr}#timer{width:100%;margin:4px 0 0}}
   </style>
 </head>
 <body>
   <header>
     <div>
       <h1>英文單字測驗</h1>
-      <div>選擇題、填充題、中翻英 — 共 100 分 — 時間限制 20 分鐘</div>
+      <p>選擇題、填充題、英翻中 · 共 20 題 · 100 分 · 限時 10 分鐘</p>
     </div>
     <div id="owner">張依琳</div>
   </header>
@@ -33,16 +44,17 @@
     <div>
       <label>選擇難度：
         <select id="level">
-          <option value="all">全部（預設）</option>
+          <option value="all">全部難度</option>
           <option value="初級">初級</option>
           <option value="中級">中級</option>
           <option value="高級">高級</option>
         </select>
       </label>
-      <button id="startBtn">開始測驗</button>
-      <button id="submitBtn" disabled>繳交</button>
-      <span id="timer">20:00</span>
+      <button id="startBtn" disabled>開始測驗</button>
+      <button id="submitBtn" disabled>繳交答案</button>
+      <span id="timer" aria-live="polite">10:00</span>
     </div>
+    <p id="status" role="status">正在載入試算表單字…</p>
   </div>
 
   <main id="quiz"></main>
@@ -51,8 +63,10 @@
 
   <script>
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/1fXQbM-9gAE_KGmzl11YqkTzTP0qa8nVuLI8xLjmJyJw/export?format=csv&gid=71115281';
-    const TIME_SECONDS = 20*60;
+    const TIME_SECONDS = 10*60;
     const TOTAL_POINTS = 100;
+    const QUESTION_COUNT = 20;
+    const POINTS_PER_QUESTION = TOTAL_POINTS / QUESTION_COUNT;
 
     let allQuestions = [];
     let currentQuestions = [];
@@ -84,52 +98,49 @@
       return rows;
     }
 
-    function rowsToObjects(rows){
-      if(!rows.length) return [];
-      const header = rows[0].map(h=>h.trim().toLowerCase());
-      const objs = [];
-      for(let i=1;i<rows.length;i++){
-        const r = rows[i]; if(r.every(c=>c==='') ) continue;
-        const obj = {};
-        for(let j=0;j<header.length;j++) obj[header[j]] = (r[j]||'').trim();
-        objs.push(obj);
-      }
-      return objs;
-    }
-
-    function normalizeChoiceFields(obj){
-      const choices = [];
-      const tryKeys = ['a','b','c','d','e','choice1','choice2','choice3','choice4','choice5','option1','option2','option3','option4','option5'];
-      for(const k of tryKeys){ if(obj[k]) choices.push(obj[k]); if(choices.length===5) break; }
-      return choices.filter(s=>s&&s.length);
-    }
-
-    function prepareQuestions(objs){
-      return objs.map((o,idx)=>{
-        const q_text = o['question'] || o['word'] || o['prompt'] || o['題目'] || '';
-        const q_type = (o['type'] || o['題型'] || 'multiple choice').trim().toLowerCase();
-        const choices = normalizeChoiceFields(o);
-        const answer = (o['answer']||o['ans']||o['correct']||'').trim();
-        const chinese = (o['chinese'] || o['中文'] || '').trim();
-        const difficulty = (o['difficulty']||o['level']||o['等級']||'').trim() || '初級';
-        
-        let type = 'multiple';
-        if(q_type.includes('fill') || q_type.includes('blank')) type = 'fill';
-        else if(q_type.includes('chinese') || q_type.includes('中文') || q_type.includes('翻譯')) type = 'chinese';
-        
-        return {
-          id: idx, 
-          question: q_text, 
-          type, 
-          choices, 
-          answer,
-          chinese,
-          difficulty
-        };
-      }).filter(x=>x.question && (x.type!=='multiple' || x.choices.length>=2));
-    }
-
     function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} }
+
+    function normalizeHeader(value){ return value.replace(/^\uFEFF/,'').trim().toLowerCase(); }
+
+    function prepareVocabulary(rows){
+      if(rows.length < 2) return [];
+      const headers = rows[0].map(normalizeHeader);
+      const findColumn = names => headers.findIndex(header=>names.includes(header));
+      const englishColumn = findColumn(['english','英文','word','單字','英文字']);
+      const chineseColumn = findColumn(['chinese','中文','meaning','translation','翻譯','中文意思']);
+      const levelColumn = findColumn(['difficulty','level','等級','難度']);
+      const wordColumn = englishColumn >= 0 ? englishColumn : 0;
+      const meaningColumn = chineseColumn >= 0 ? chineseColumn : 1;
+      const dataRows = rows.slice(1).filter(row=>row[wordColumn] && row[meaningColumn]);
+
+      return dataRows.map((row,index)=>{
+        let difficulty = levelColumn >= 0 ? row[levelColumn].trim() : '';
+        if(!difficulty){
+          const tier = Math.min(2,Math.floor(index * 3 / dataRows.length));
+          difficulty = ['初級','中級','高級'][tier];
+        } else if(/beginner|basic|easy|初級/i.test(difficulty)){ difficulty = '初級'; }
+        else if(/intermediate|中級/i.test(difficulty)){ difficulty = '中級'; }
+        else if(/advanced|高級/i.test(difficulty)){ difficulty = '高級'; }
+
+        return { word:row[wordColumn].trim().replace(/^\d+[.)、]\s*/,''), meaning:row[meaningColumn].trim(), difficulty };
+      });
+    }
+
+    function buildExam(vocabulary){
+      const selected = vocabulary.slice();
+      shuffle(selected);
+      return selected.slice(0,QUESTION_COUNT).map((entry,index)=>{
+        const type = index < 8 ? 'multiple' : index < 14 ? 'fill' : 'translate';
+        const question = {...entry,type};
+        if(type === 'multiple'){
+          const distractors = vocabulary.filter(item=>item.word !== entry.word && item.meaning !== entry.meaning);
+          shuffle(distractors);
+          question.choices = [entry.meaning,...distractors.slice(0,3).map(item=>item.meaning)];
+          shuffle(question.choices);
+        }
+        return question;
+      });
+    }
 
     function renderQuestions(){
       const container = document.getElementById('quiz'); container.innerHTML='';
@@ -140,20 +151,22 @@
         typeLabel.className='question-type';
         if(q.type==='multiple') typeLabel.textContent='選擇題';
         else if(q.type==='fill') typeLabel.textContent='填充題';
-        else typeLabel.textContent='中翻英';
+        else typeLabel.textContent='英翻中';
         div.appendChild(typeLabel);
         
         const qDiv = document.createElement('div');
-        qDiv.innerHTML = `<strong>第 ${i+1} 題 (${getQPoints(q)}分)</strong>： ${q.question}`;
+        qDiv.className='question-prompt';
+        qDiv.textContent = `第 ${i+1} 題（${POINTS_PER_QUESTION} 分）：${q.type === 'fill' ? `請寫出「${q.meaning}」的英文單字` : q.type === 'translate' ? `請將「${q.word}」翻譯成中文` : `請選出「${q.word}」的中文意思`}`;
         div.appendChild(qDiv);
         
         if(q.type === 'multiple'){
           const choicesDiv = document.createElement('div'); choicesDiv.className='choices';
           q.choices.forEach((c,ci)=>{
-            const id = `q${i}_c${ci}`;
             const lab = document.createElement('label');
-            const checked = userAnswers[i] === c ? 'checked' : '';
-            lab.innerHTML = `<input type="radio" name="q${i}" value="${c}" id="${id}" ${checked}> ${String.fromCharCode(65+ci)}. ${c}`;
+            const input = document.createElement('input');
+            input.type='radio'; input.name=`q${i}`; input.value=c; input.checked=userAnswers[i]===c;
+            input.addEventListener('change',()=>{ userAnswers[i]=c; });
+            lab.append(input,document.createTextNode(` ${String.fromCharCode(65+ci)}. ${c}`));
             choicesDiv.appendChild(lab);
           });
           div.appendChild(choicesDiv);
@@ -163,20 +176,17 @@
           input.className = 'fill-input';
           input.id = `q${i}_fill`;
           input.value = userAnswers[i] || '';
-          input.placeholder = '請填入答案';
-          input.onchange = ()=>{ userAnswers[i] = input.value; };
+          input.placeholder = '請填入英文單字';
+          input.addEventListener('input',()=>{ userAnswers[i] = input.value; });
           div.appendChild(input);
-        } else if(q.type === 'chinese'){
-          const p = document.createElement('p');
-          p.textContent = `中文意思：${q.chinese}`;
-          div.appendChild(p);
+        } else if(q.type === 'translate'){
           const input = document.createElement('input');
           input.type = 'text';
           input.className = 'fill-input';
-          input.id = `q${i}_chinese`;
+          input.id = `q${i}_translate`;
           input.value = userAnswers[i] || '';
-          input.placeholder = '請填入英文';
-          input.onchange = ()=>{ userAnswers[i] = input.value; };
+          input.placeholder = '請填入中文意思';
+          input.addEventListener('input',()=>{ userAnswers[i] = input.value; });
           div.appendChild(input);
         }
         
@@ -184,16 +194,12 @@
       });
     }
 
-    function getQPoints(q){
-      if(q.type==='multiple') return 25;
-      else if(q.type==='fill') return 25;
-      else return 50;
-    }
-
     function startTimer(){
       remaining = TIME_SECONDS; 
       document.getElementById('submitBtn').disabled=false;
       document.getElementById('startBtn').disabled=true;
+      document.getElementById('level').disabled=true;
+      document.getElementById('status').textContent='作答中';
       updateTimerDisplay();
       timerId = setInterval(()=>{
         remaining--; updateTimerDisplay(); if(remaining<=0){ clearInterval(timerId); doSubmit(); }
@@ -208,38 +214,43 @@
     function doSubmit(){
       if(timerId) clearInterval(timerId);
       document.getElementById('submitBtn').disabled=true;
+      document.getElementById('status').textContent='測驗已繳交';
+      document.querySelectorAll('#quiz input').forEach(input=>{ input.disabled=true; });
       
       let score = 0;
-      const details = [];
+      const result = document.getElementById('result');
+      result.replaceChildren();
       
       for(let i=0;i<currentQuestions.length;i++){
         const q = currentQuestions[i];
         const userAns = userAnswers[i] || '';
-        const points = getQPoints(q);
-        const expected = q.answer || q.chinese || (q.choices && q.choices[0]) || '';
+        const expected = q.type === 'fill' ? q.word : q.meaning;
         
-        const isCorrect = userAns.trim().toLowerCase() === expected.trim().toLowerCase();
-        if(isCorrect) score += points;
-        
-        const status = isCorrect ? '<span style="color:green">✓</span>' : '<span style="color:red">✗</span>';
-        details.push(`題 ${i+1}: ${status} 你的答案：「${userAns}」 正確答案：「${expected}」`);
+        const normalizeAnswer = value=>value.trim().toLowerCase().replace(/\s+/g,'');
+        const accepted = [normalizeAnswer(expected),...expected.split(/[、，,；;\/]/).map(normalizeAnswer)];
+        const isCorrect = accepted.includes(normalizeAnswer(userAns));
+        if(isCorrect) score += POINTS_PER_QUESTION;
+
+        const detail = document.createElement('p');
+        detail.className='review-item';
+        detail.textContent=`${isCorrect ? '✓' : '✗'} 第 ${i+1} 題　你的答案：${userAns || '未作答'}　正確答案：${expected}`;
+        result.appendChild(detail);
       }
       
-      const div = document.getElementById('result');
-      div.style.display='block';
-      div.innerHTML = `<strong>最終成績：${score} / ${TOTAL_POINTS}</strong><br><br>`;
-      details.forEach(d=>{ div.innerHTML += d + '<br>'; });
+      const heading = document.createElement('h2');
+      heading.textContent=`測驗結果：${score} / ${TOTAL_POINTS} 分`;
+      result.prepend(heading);
+      result.style.display='block';
     }
 
     document.getElementById('startBtn').addEventListener('click',()=>{
       const level = document.getElementById('level').value;
       let pool = allQuestions.slice();
-      if(level !== 'all') pool = pool.filter(q=> q.difficulty.indexOf(level)!==-1 );
+      if(level !== 'all') pool = pool.filter(q=>q.difficulty === level);
       
-      if(pool.length === 0){ alert('試算表無題目或篩選後無題目，請檢查試算表或難度選擇'); return; }
-      
-      shuffle(pool);
-      currentQuestions = pool;
+      if(pool.length < QUESTION_COUNT){ alert(`此難度目前只有 ${pool.length} 個單字，至少需要 ${QUESTION_COUNT} 個才能開始測驗。`); return; }
+
+      currentQuestions = buildExam(pool);
       userAnswers = {};
       renderQuestions();
       startTimer();
@@ -252,13 +263,15 @@
       return r.text();
     }).then(text=>{
       const rows = parseCSV(text);
-      const objs = rowsToObjects(rows);
-      allQuestions = prepareQuestions(objs);
-      console.log('載入題數：', allQuestions.length);
+      allQuestions = prepareVocabulary(rows);
+      if(allQuestions.length < QUESTION_COUNT) throw new Error('試算表至少需要 20 組英文與中文單字');
+      document.getElementById('startBtn').disabled=false;
+      document.getElementById('status').textContent=`已載入 ${allQuestions.length} 個單字`;
     }).catch(err=>{
       console.error(err);
       const main = document.getElementById('quiz');
-      main.innerHTML = '<p style="color:#a00">無法自動載入試算表內容。請確認該試算表已「公開」或分享權限改為「任何有連結的人可檢視」。</p>';
+      document.getElementById('status').textContent='無法載入試算表，請確認分享權限已設為「知道連結的任何人都可以檢視」。';
+      main.replaceChildren();
     });
   </script>
 </body>
