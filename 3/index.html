@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>英文單字測驗</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;max-width:900px;margin:24px auto;padding:0 16px;color:#222}
+    header{display:flex;justify-content:space-between;align-items:center}
+    h1{margin:0 0 8px 0}
+    #owner{font-weight:600}
+    .controls{margin:12px 0}
+    .question{border-bottom:1px solid #eee;padding:12px 0}
+    .choices label{display:block;margin:6px 0}
+    #timer{font-size:1.1rem;font-weight:700}
+    button{padding:8px 12px;margin-right:8px}
+    .result{margin-top:16px;padding:12px;border:1px solid #ccc;background:#f9f9f9}
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>英文單字測驗（20題，共100分）</h1>
+      <div>每題 5 分 — 時間限制 10 分鐘</div>
+    </div>
+    <div id="owner">張依琳</div>
+  </header>
+
+  <div class="controls">
+    <label>選擇難度：
+      <select id="level">
+        <option value="all">全部（預設）</option>
+        <option value="初級">初級</option>
+        <option value="中級">中級</option>
+        <option value="高級">高級</option>
+      </select>
+    </label>
+    <button id="startBtn">開始測驗</button>
+    <button id="submitBtn" disabled>繳交</button>
+    <span id="timer">10:00</span>
+  </div>
+
+  <main id="quiz"></main>
+
+  <div id="result" class="result" style="display:none"></div>
+
+  <script>
+    // 會嘗試下載使用者提供的 Google 試算表（CSV 匯出）；需公開或允許存取
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/1fXQbM-9gAE_KGmzl11YqkTzTP0qa8nVuLI8xLjmJyJw/export?format=csv&gid=71115281';
+    const QUESTIONS_N = 20;
+    const TIME_SECONDS = 10*60;
+
+    let allQuestions = [];
+    let currentQuestions = [];
+    let timerId = null;
+    let remaining = TIME_SECONDS;
+
+    // 簡單 CSV 解析器（含處理雙引號）
+    function parseCSV(text){
+      const rows = [];
+      let row = [];
+      let cur = '';
+      let inQuotes = false;
+      for(let i=0;i<text.length;i++){
+        const ch = text[i];
+        if(inQuotes){
+          if(ch === '"'){
+            if(text[i+1] === '"'){ cur += '"'; i++; } else { inQuotes = false; }
+          } else { cur += ch; }
+        } else {
+          if(ch === '"'){ inQuotes = true; }
+          else if(ch === ','){ row.push(cur); cur=''; }
+          else if(ch === '\r'){ continue; }
+          else if(ch === '\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
+          else { cur += ch; }
+        }
+      }
+      if(cur !== '' || row.length) row.push(cur);
+      if(row.length) rows.push(row);
+      return rows;
+    }
+
+    function rowsToObjects(rows){
+      if(!rows.length) return [];
+      const header = rows[0].map(h=>h.trim().toLowerCase());
+      const objs = [];
+      for(let i=1;i<rows.length;i++){
+        const r = rows[i]; if(r.every(c=>c==='') ) continue;
+        const obj = {};
+        for(let j=0;j<header.length;j++) obj[header[j]] = (r[j]||'').trim();
+        objs.push(obj);
+      }
+      return objs;
+    }
+
+    function normalizeChoiceFields(obj){
+      // 支援多種欄位命名：a,b,c,d,e 或 choice1..5 或 option1..5
+      const choices = [];
+      const tryKeys = ['a','b','c','d','e','choice1','choice2','choice3','choice4','choice5','option1','option2','option3','option4','option5'];
+      for(const k of tryKeys){ if(obj[k]) choices.push(obj[k]); if(choices.length===5) break; }
+      return choices.filter(s=>s&&s.length);
+    }
+
+    function prepareQuestions(objs){
+      return objs.map(o=>{
+        const q = o['question'] || o['word'] || o['prompt'] || o['題目'] || '';
+        const choices = normalizeChoiceFields(o);
+        const answer = (o['answer']||o['ans']||o['correct']||'').trim();
+        const difficulty = (o['difficulty']||o['level']||o['等級']||'').trim() || '初級';
+        return {raw:o, question:q, choices, answer, difficulty};
+      }).filter(x=>x.question && x.choices.length>=2);
+    }
+
+    function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} }
+
+    function renderQuestions(){
+      const container = document.getElementById('quiz'); container.innerHTML='';
+      currentQuestions.forEach((q,i)=>{
+        const div = document.createElement('div'); div.className='question';
+        const num = document.createElement('div'); num.innerHTML = `<strong>第 ${i+1} 題</strong>： ${q.question}`;
+        div.appendChild(num);
+        const choicesDiv = document.createElement('div'); choicesDiv.className='choices';
+        q.choices.forEach((c,ci)=>{
+          const id = `q${i}_c${ci}`;
+          const lab = document.createElement('label');
+          lab.innerHTML = `<input type="radio" name="q${i}" value="${c}" id="${id}"> ${String.fromCharCode(65+ci)}. ${c}`;
+          choicesDiv.appendChild(lab);
+        });
+        div.appendChild(choicesDiv);
+        container.appendChild(div);
+      });
+    }
+
+    function startTimer(){
+      remaining = TIME_SECONDS; document.getElementById('submitBtn').disabled=false;
+      document.getElementById('startBtn').disabled=true;
+      updateTimerDisplay();
+      timerId = setInterval(()=>{
+        remaining--; updateTimerDisplay(); if(remaining<=0){ clearInterval(timerId); doSubmit(); }
+      },1000);
+    }
+
+    function updateTimerDisplay(){
+      const m = Math.floor(remaining/60); const s = remaining%60; document.getElementById('timer').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+
+    function doSubmit(){
+      if(timerId) clearInterval(timerId);
+      document.getElementById('submitBtn').disabled=true;
+      const answers = [];
+      for(let i=0;i<currentQuestions.length;i++){
+        const els = document.getElementsByName('q'+i);
+        let val = '';
+        for(const e of els) if(e.checked) { val = e.value; break; }
+        answers.push(val);
+      }
+      let correctCount = 0;
+      for(let i=0;i<currentQuestions.length;i++){
+        const q = currentQuestions[i];
+        const expected = q.answer || q.choices[0];
+        if(answers[i] && answers[i].trim().toLowerCase() === expected.trim().toLowerCase()) correctCount++;
+      }
+      const score = correctCount * 5;
+      const div = document.getElementById('result');
+      div.style.display='block';
+      div.innerHTML = `<strong>成績：${score} / 100</strong><br>答對：${correctCount} 題（每題 5 分）`;
+    }
+
+    document.getElementById('startBtn').addEventListener('click',()=>{
+      const level = document.getElementById('level').value;
+      let pool = allQuestions.slice();
+      if(level !== 'all') pool = pool.filter(q=> (q.difficulty||'').indexOf(level)!==-1 );
+      if(pool.length < QUESTIONS_N){ alert('題庫數量不足：請確認試算表含足夠題目或選擇全部難度。'); return; }
+      shuffle(pool); currentQuestions = pool.slice(0,QUESTIONS_N);
+      renderQuestions(); startTimer();
+    });
+
+    document.getElementById('submitBtn').addEventListener('click', ()=>{ if(confirm('確定要繳交嗎？')) doSubmit(); });
+
+    // 下載 CSV 並準備題庫
+    fetch(CSV_URL).then(r=>{
+      if(!r.ok) throw new Error('無法存取試算表，請確認已公開或有權限。');
+      return r.text();
+    }).then(text=>{
+      const rows = parseCSV(text);
+      const objs = rowsToObjects(rows);
+      allQuestions = prepareQuestions(objs);
+      // 若解析不到 answer 欄位，有時答案在第一個選項，這裡不另處理
+      console.log('載入題數：', allQuestions.length);
+    }).catch(err=>{
+      console.error(err);
+      const main = document.getElementById('quiz');
+      main.innerHTML = '<p style="color:#a00">無法自動載入試算表內容。請確認該試算表已「公開」或提供 CSV 檔案，或將試算表分享權限改為「任何有連結的人可檢視」。</p>';
+    });
+  </script>
+</body>
+</html>
