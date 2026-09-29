@@ -6,38 +6,43 @@
   <title>英文單字測驗</title>
   <style>
     body{font-family:Arial,Helvetica,sans-serif;max-width:900px;margin:24px auto;padding:0 16px;color:#222}
-    header{display:flex;justify-content:space-between;align-items:center}
-    h1{margin:0 0 8px 0}
-    #owner{font-weight:600}
-    .controls{margin:12px 0}
-    .question{border-bottom:1px solid #eee;padding:12px 0}
-    .choices label{display:block;margin:6px 0}
-    #timer{font-size:1.1rem;font-weight:700}
-    button{padding:8px 12px;margin-right:8px}
-    .result{margin-top:16px;padding:12px;border:1px solid #ccc;background:#f9f9f9}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    h1{margin:0 0 8px 0;font-size:1.5rem}
+    #owner{font-weight:700;font-size:1.1rem}
+    .controls{margin:16px 0;padding:12px;background:#f0f0f0;border-radius:4px}
+    .question{border-bottom:1px solid #ddd;padding:16px 0;margin:12px 0}
+    .question-type{background:#e8f4f8;padding:4px 8px;display:inline-block;border-radius:3px;font-size:0.9rem;margin-bottom:8px}
+    .choices label{display:block;margin:8px 0;cursor:pointer}
+    .fill-input{border:1px solid #999;padding:6px;width:200px}
+    #timer{font-size:1.2rem;font-weight:700;color:#d00;margin-left:20px}
+    button{padding:8px 16px;margin-right:8px;cursor:pointer;background:#007;color:#fff;border:none;border-radius:3px}
+    button:disabled{background:#ccc}
+    .result{margin-top:20px;padding:16px;border:2px solid #007;background:#e8f4ff;border-radius:4px}
   </style>
 </head>
 <body>
   <header>
     <div>
-      <h1>英文單字測驗（20題，共100分）</h1>
-      <div>每題 5 分 — 時間限制 10 分鐘</div>
+      <h1>英文單字測驗</h1>
+      <div>選擇題、填充題、中翻英 — 共 100 分 — 時間限制 20 分鐘</div>
     </div>
     <div id="owner">張依琳</div>
   </header>
 
   <div class="controls">
-    <label>選擇難度：
-      <select id="level">
-        <option value="all">全部（預設）</option>
-        <option value="初級">初級</option>
-        <option value="中級">中級</option>
-        <option value="高級">高級</option>
-      </select>
-    </label>
-    <button id="startBtn">開始測驗</button>
-    <button id="submitBtn" disabled>繳交</button>
-    <span id="timer">10:00</span>
+    <div>
+      <label>選擇難度：
+        <select id="level">
+          <option value="all">全部（預設）</option>
+          <option value="初級">初級</option>
+          <option value="中級">中級</option>
+          <option value="高級">高級</option>
+        </select>
+      </label>
+      <button id="startBtn">開始測驗</button>
+      <button id="submitBtn" disabled>繳交</button>
+      <span id="timer">20:00</span>
+    </div>
   </div>
 
   <main id="quiz"></main>
@@ -45,17 +50,16 @@
   <div id="result" class="result" style="display:none"></div>
 
   <script>
-    // 會嘗試下載使用者提供的 Google 試算表（CSV 匯出）；需公開或允許存取
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/1fXQbM-9gAE_KGmzl11YqkTzTP0qa8nVuLI8xLjmJyJw/export?format=csv&gid=71115281';
-    const QUESTIONS_N = 20;
-    const TIME_SECONDS = 10*60;
+    const TIME_SECONDS = 20*60;
+    const TOTAL_POINTS = 100;
 
     let allQuestions = [];
     let currentQuestions = [];
     let timerId = null;
     let remaining = TIME_SECONDS;
+    let userAnswers = {};
 
-    // 簡單 CSV 解析器（含處理雙引號）
     function parseCSV(text){
       const rows = [];
       let row = [];
@@ -94,7 +98,6 @@
     }
 
     function normalizeChoiceFields(obj){
-      // 支援多種欄位命名：a,b,c,d,e 或 choice1..5 或 option1..5
       const choices = [];
       const tryKeys = ['a','b','c','d','e','choice1','choice2','choice3','choice4','choice5','option1','option2','option3','option4','option5'];
       for(const k of tryKeys){ if(obj[k]) choices.push(obj[k]); if(choices.length===5) break; }
@@ -102,13 +105,28 @@
     }
 
     function prepareQuestions(objs){
-      return objs.map(o=>{
-        const q = o['question'] || o['word'] || o['prompt'] || o['題目'] || '';
+      return objs.map((o,idx)=>{
+        const q_text = o['question'] || o['word'] || o['prompt'] || o['題目'] || '';
+        const q_type = (o['type'] || o['題型'] || 'multiple choice').trim().toLowerCase();
         const choices = normalizeChoiceFields(o);
         const answer = (o['answer']||o['ans']||o['correct']||'').trim();
+        const chinese = (o['chinese'] || o['中文'] || '').trim();
         const difficulty = (o['difficulty']||o['level']||o['等級']||'').trim() || '初級';
-        return {raw:o, question:q, choices, answer, difficulty};
-      }).filter(x=>x.question && x.choices.length>=2);
+        
+        let type = 'multiple';
+        if(q_type.includes('fill') || q_type.includes('blank')) type = 'fill';
+        else if(q_type.includes('chinese') || q_type.includes('中文') || q_type.includes('翻譯')) type = 'chinese';
+        
+        return {
+          id: idx, 
+          question: q_text, 
+          type, 
+          choices, 
+          answer,
+          chinese,
+          difficulty
+        };
+      }).filter(x=>x.question && (x.type!=='multiple' || x.choices.length>=2));
     }
 
     function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} }
@@ -117,22 +135,64 @@
       const container = document.getElementById('quiz'); container.innerHTML='';
       currentQuestions.forEach((q,i)=>{
         const div = document.createElement('div'); div.className='question';
-        const num = document.createElement('div'); num.innerHTML = `<strong>第 ${i+1} 題</strong>： ${q.question}`;
-        div.appendChild(num);
-        const choicesDiv = document.createElement('div'); choicesDiv.className='choices';
-        q.choices.forEach((c,ci)=>{
-          const id = `q${i}_c${ci}`;
-          const lab = document.createElement('label');
-          lab.innerHTML = `<input type="radio" name="q${i}" value="${c}" id="${id}"> ${String.fromCharCode(65+ci)}. ${c}`;
-          choicesDiv.appendChild(lab);
-        });
-        div.appendChild(choicesDiv);
+        
+        const typeLabel = document.createElement('div');
+        typeLabel.className='question-type';
+        if(q.type==='multiple') typeLabel.textContent='選擇題';
+        else if(q.type==='fill') typeLabel.textContent='填充題';
+        else typeLabel.textContent='中翻英';
+        div.appendChild(typeLabel);
+        
+        const qDiv = document.createElement('div');
+        qDiv.innerHTML = `<strong>第 ${i+1} 題 (${getQPoints(q)}分)</strong>： ${q.question}`;
+        div.appendChild(qDiv);
+        
+        if(q.type === 'multiple'){
+          const choicesDiv = document.createElement('div'); choicesDiv.className='choices';
+          q.choices.forEach((c,ci)=>{
+            const id = `q${i}_c${ci}`;
+            const lab = document.createElement('label');
+            const checked = userAnswers[i] === c ? 'checked' : '';
+            lab.innerHTML = `<input type="radio" name="q${i}" value="${c}" id="${id}" ${checked}> ${String.fromCharCode(65+ci)}. ${c}`;
+            choicesDiv.appendChild(lab);
+          });
+          div.appendChild(choicesDiv);
+        } else if(q.type === 'fill'){
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'fill-input';
+          input.id = `q${i}_fill`;
+          input.value = userAnswers[i] || '';
+          input.placeholder = '請填入答案';
+          input.onchange = ()=>{ userAnswers[i] = input.value; };
+          div.appendChild(input);
+        } else if(q.type === 'chinese'){
+          const p = document.createElement('p');
+          p.textContent = `中文意思：${q.chinese}`;
+          div.appendChild(p);
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'fill-input';
+          input.id = `q${i}_chinese`;
+          input.value = userAnswers[i] || '';
+          input.placeholder = '請填入英文';
+          input.onchange = ()=>{ userAnswers[i] = input.value; };
+          div.appendChild(input);
+        }
+        
         container.appendChild(div);
       });
     }
 
+    function getQPoints(q){
+      if(q.type==='multiple') return 25;
+      else if(q.type==='fill') return 25;
+      else return 50;
+    }
+
     function startTimer(){
-      remaining = TIME_SECONDS; document.getElementById('submitBtn').disabled=false;
+      remaining = TIME_SECONDS; 
+      document.getElementById('submitBtn').disabled=false;
       document.getElementById('startBtn').disabled=true;
       updateTimerDisplay();
       timerId = setInterval(()=>{
@@ -141,56 +201,64 @@
     }
 
     function updateTimerDisplay(){
-      const m = Math.floor(remaining/60); const s = remaining%60; document.getElementById('timer').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      const m = Math.floor(remaining/60); const s = remaining%60; 
+      document.getElementById('timer').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     }
 
     function doSubmit(){
       if(timerId) clearInterval(timerId);
       document.getElementById('submitBtn').disabled=true;
-      const answers = [];
-      for(let i=0;i<currentQuestions.length;i++){
-        const els = document.getElementsByName('q'+i);
-        let val = '';
-        for(const e of els) if(e.checked) { val = e.value; break; }
-        answers.push(val);
-      }
-      let correctCount = 0;
+      
+      let score = 0;
+      const details = [];
+      
       for(let i=0;i<currentQuestions.length;i++){
         const q = currentQuestions[i];
-        const expected = q.answer || q.choices[0];
-        if(answers[i] && answers[i].trim().toLowerCase() === expected.trim().toLowerCase()) correctCount++;
+        const userAns = userAnswers[i] || '';
+        const points = getQPoints(q);
+        const expected = q.answer || q.chinese || (q.choices && q.choices[0]) || '';
+        
+        const isCorrect = userAns.trim().toLowerCase() === expected.trim().toLowerCase();
+        if(isCorrect) score += points;
+        
+        const status = isCorrect ? '<span style="color:green">✓</span>' : '<span style="color:red">✗</span>';
+        details.push(`題 ${i+1}: ${status} 你的答案：「${userAns}」 正確答案：「${expected}」`);
       }
-      const score = correctCount * 5;
+      
       const div = document.getElementById('result');
       div.style.display='block';
-      div.innerHTML = `<strong>成績：${score} / 100</strong><br>答對：${correctCount} 題（每題 5 分）`;
+      div.innerHTML = `<strong>最終成績：${score} / ${TOTAL_POINTS}</strong><br><br>`;
+      details.forEach(d=>{ div.innerHTML += d + '<br>'; });
     }
 
     document.getElementById('startBtn').addEventListener('click',()=>{
       const level = document.getElementById('level').value;
       let pool = allQuestions.slice();
-      if(level !== 'all') pool = pool.filter(q=> (q.difficulty||'').indexOf(level)!==-1 );
-      if(pool.length < QUESTIONS_N){ alert('題庫數量不足：請確認試算表含足夠題目或選擇全部難度。'); return; }
-      shuffle(pool); currentQuestions = pool.slice(0,QUESTIONS_N);
-      renderQuestions(); startTimer();
+      if(level !== 'all') pool = pool.filter(q=> q.difficulty.indexOf(level)!==-1 );
+      
+      if(pool.length === 0){ alert('試算表無題目或篩選後無題目，請檢查試算表或難度選擇'); return; }
+      
+      shuffle(pool);
+      currentQuestions = pool;
+      userAnswers = {};
+      renderQuestions();
+      startTimer();
     });
 
     document.getElementById('submitBtn').addEventListener('click', ()=>{ if(confirm('確定要繳交嗎？')) doSubmit(); });
 
-    // 下載 CSV 並準備題庫
     fetch(CSV_URL).then(r=>{
-      if(!r.ok) throw new Error('無法存取試算表，請確認已公開或有權限。');
+      if(!r.ok) throw new Error('無法存取試算表');
       return r.text();
     }).then(text=>{
       const rows = parseCSV(text);
       const objs = rowsToObjects(rows);
       allQuestions = prepareQuestions(objs);
-      // 若解析不到 answer 欄位，有時答案在第一個選項，這裡不另處理
       console.log('載入題數：', allQuestions.length);
     }).catch(err=>{
       console.error(err);
       const main = document.getElementById('quiz');
-      main.innerHTML = '<p style="color:#a00">無法自動載入試算表內容。請確認該試算表已「公開」或提供 CSV 檔案，或將試算表分享權限改為「任何有連結的人可檢視」。</p>';
+      main.innerHTML = '<p style="color:#a00">無法自動載入試算表內容。請確認該試算表已「公開」或分享權限改為「任何有連結的人可檢視」。</p>';
     });
   </script>
 </body>
