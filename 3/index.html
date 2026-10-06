@@ -1,253 +1,648 @@
-<!doctype html>
-<html lang="zh-Hant">
+<!DOCTYPE html>
+<html lang="zh-TW">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>英文單字測驗</title>
-  <style>
-    :root{color-scheme:light;--ink:#172b36;--muted:#61737b;--paper:#f6f5ef;--line:#d9dfd9;--green:#175b4a;--orange:#cf653e}
-    *{box-sizing:border-box}
-    body{font-family:Georgia,"Noto Serif TC",serif;max-width:900px;margin:0 auto;padding:32px 20px 56px;background:var(--paper);color:var(--ink)}
-    header{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;padding:0 0 24px;border-bottom:2px solid var(--ink)}
-    h1{margin:0 0 8px;font-size:clamp(1.7rem,4vw,2.4rem)}
-    header p{margin:0;color:var(--muted);font-family:Arial,sans-serif}
-    #owner{font-weight:700;white-space:nowrap;border-top:3px solid var(--orange);padding-top:8px}
-    .controls{margin:22px 0;padding:18px 0;border-bottom:1px solid var(--line);font-family:Arial,sans-serif}
-    .controls-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-    select,button{min-height:42px;padding:0 14px;font:inherit;border:1px solid var(--line);background:#fff;color:var(--ink)}
-    button{background:var(--green);border-color:var(--green);color:#fff;font-weight:700;cursor:pointer}
-    button:disabled{background:#a5b0aa;border-color:#a5b0aa;cursor:not-allowed}
-    #timer{margin-left:auto;font:700 1.25rem Arial,sans-serif;color:var(--orange);font-variant-numeric:tabular-nums}
-    #status{margin:12px 0 0;color:var(--muted);font-size:.9rem}
-    .question{padding:20px 0;border-bottom:1px solid var(--line)}
-    .question-type{display:inline-block;margin-bottom:9px;color:var(--green);font:700 .78rem Arial,sans-serif;text-transform:uppercase}
-    .question-prompt{font-size:1.1rem;line-height:1.6}
-    .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 20px;margin-top:12px;font-family:Arial,sans-serif}
-    .choices label{display:flex;align-items:center;gap:8px;cursor:pointer}
-    .result{margin-top:26px;padding:20px 0;border-top:3px solid var(--green)}
-    .result h2{margin:0 0 8px}
-    .review-item{padding:10px 0;border-bottom:1px solid var(--line);line-height:1.6}
-    @media(max-width:560px){body{padding:22px 16px 40px}.choices{grid-template-columns:1fr}#timer{width:100%;margin:4px 0 0}}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文單字測驗</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 18px;
+            color: white;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 60px auto 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .title h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .score-info {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .question-container {
+            display: none;
+            animation: slideIn 0.3s ease-in;
+        }
+
+        .question-container.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .progress {
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-number {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f5f5f5;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .option label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .option.correct {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .option.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .btn-next:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-submit {
+            background: #4caf50;
+            color: white;
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .btn-submit:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+            animation: slideIn 0.3s ease-in;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .score-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .score-message {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .result-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            margin-top: 20px;
+        }
+
+        .result-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .answer-review {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .answer-item {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            border-radius: 3px;
+        }
+
+        .answer-item.correct {
+            border-left-color: #4caf50;
+        }
+
+        .answer-item.incorrect {
+            border-left-color: #f44336;
+        }
+
+        .answer-item-question {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .answer-item-details {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <div>
-      <h1>英文單字測驗</h1>
-      <p>四選一 · 共 20 題 · 100 分 · 限時 10 分鐘</p>
+    <div class="header">張依琳</div>
+
+    <div class="container">
+        <div class="title">
+            <h1>📚 英文單字測驗</h1>
+            <div class="score-info">20 題選擇題，共 100 分</div>
+        </div>
+
+        <div class="content">
+            <!-- 測驗部分 -->
+            <div id="quiz-section">
+                <div class="progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text">
+                        第 <span id="currentQuestion">1</span> / 20 題
+                    </div>
+                </div>
+
+                <form id="quizForm">
+                    <div id="questionsContainer"></div>
+
+                    <div class="buttons">
+                        <button type="button" class="btn-next" id="prevBtn" style="display:none;">← 上一題</button>
+                        <button type="button" class="btn-next" id="nextBtn">下一題 →</button>
+                        <button type="submit" class="btn-submit" id="submitBtn" style="display:none;">提交答卷</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 結果部分 -->
+            <div id="results-section" class="results"></div>
+        </div>
     </div>
-    <div id="owner">張依琳</div>
-  </header>
 
-  <div class="controls">
-    <div>
-      <label>選擇難度：
-        <select id="level">
-          <option value="all">全部難度</option>
-          <option value="初級">初級</option>
-          <option value="中級">中級</option>
-          <option value="高級">高級</option>
-        </select>
-      </label>
-      <button id="startBtn" disabled>開始測驗</button>
-      <button id="submitBtn" disabled>繳交答案</button>
-      <span id="timer" aria-live="polite">10:00</span>
-    </div>
-    <p id="status" role="status">正在載入試算表單字…</p>
-  </div>
+    <script>
+        // 題庫資料 - 根據 Google Sheets 題庫整理
+        const quizData = [
+            {
+                question: "What does 'ability' mean?",
+                options: ["Disability", "Power or skill to do something", "Weakness", "Uncertainty"],
+                correct: 1,
+                translation: "能力"
+            },
+            {
+                question: "Which word means 'to receive and agree to something'?",
+                options: ["Reject", "Accept", "Ignore", "Refuse"],
+                correct: 1,
+                translation: "接受"
+            },
+            {
+                question: "What does 'accident' refer to?",
+                options: ["Planned event", "Unexpected event causing damage", "Celebration", "Meeting"],
+                correct: 1,
+                translation: "事故"
+            },
+            {
+                question: "'Achieve' means to ___?",
+                options: ["Fail", "Succeed in reaching a goal", "Avoid", "Forget"],
+                correct: 1,
+                translation: "達成"
+            },
+            {
+                question: "What is an 'activity'?",
+                options: ["Laziness", "An action or task that you do", "Sleep", "Boredom"],
+                correct: 1,
+                translation: "活動"
+            },
+            {
+                question: "The word 'actually' means ___?",
+                options: ["Maybe", "In reality or in fact", "Supposedly", "Probably not"],
+                correct: 1,
+                translation: "實際上"
+            },
+            {
+                question: "What does 'advice' mean?",
+                options: ["A warning", "Suggestions or recommendations", "A rule", "A joke"],
+                correct: 1,
+                translation: "建議"
+            },
+            {
+                question: "'Afford' in the sentence 'I cannot afford this phone' means ___?",
+                options: ["To like", "To dislike", "To have enough money for", "To want"],
+                correct: 2,
+                translation: "負擔得起"
+            },
+            {
+                question: "To 'agree' with someone means to ___?",
+                options: ["Argue with them", "Have the same opinion", "Ignore them", "Forget them"],
+                correct: 1,
+                translation: "同意"
+            },
+            {
+                question: "What does 'allow' mean?",
+                options: ["To stop", "To permit or let something happen", "To refuse", "To prevent"],
+                correct: 1,
+                translation: "允許"
+            },
+            {
+                question: "'Amazing' describes something that is ___?",
+                options: ["Boring", "Ordinary", "Surprising and wonderful", "Average"],
+                correct: 2,
+                translation: "令人驚奇的"
+            },
+            {
+                question: "To 'announce' means to ___?",
+                options: ["Keep secret", "Make something known publicly", "Hide", "Forget"],
+                correct: 1,
+                translation: "宣布"
+            },
+            {
+                question: "What does 'appear' mean?",
+                options: ["To disappear", "To become visible", "To hide", "To think"],
+                correct: 1,
+                translation: "出現"
+            },
+            {
+                question: "To 'apply' for something means to ___?",
+                options: ["To use it", "To request it formally", "To reject it", "To ignore it"],
+                correct: 1,
+                translation: "申請"
+            },
+            {
+                question: "An 'appointment' is a ___?",
+                options: ["Surprise gift", "Arranged time to meet", "Decoration", "Punishment"],
+                correct: 1,
+                translation: "約會；預約"
+            },
+            {
+                question: "To 'arrange' something means to ___?",
+                options: ["Break it", "To organize and plan it", "To forget it", "To sell it"],
+                correct: 1,
+                translation: "安排"
+            },
+            {
+                question: "'Attend' means to ___?",
+                options: ["To ignore", "To be present at", "To cancel", "To avoid"],
+                correct: 1,
+                translation: "參加"
+            },
+            {
+                question: "What does 'attention' mean?",
+                options: ["Ignorance", "Interest and focus", "Distraction", "Sleep"],
+                correct: 1,
+                translation: "注意"
+            },
+            {
+                question: "Something that is 'available' is ___?",
+                options: ["Broken", "Unavailable", "Able to be used or obtained", "Lost"],
+                correct: 2,
+                translation: "可取得的；有空的"
+            },
+            {
+                question: "'Average' means ___?",
+                options: ["Excellent", "Terrible", "Typical or mean value", "Unique"],
+                correct: 2,
+                translation: "平均的"
+            }
+        ];
 
-  <main id="quiz"></main>
+        let currentQuestionIndex = 0;
+        const userAnswers = new Array(quizData.length).fill(null);
 
-  <div id="result" class="result" style="display:none"></div>
-
-  <script>
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/1fXQbM-9gAE_KGmzl11YqkTzTP0qa8nVuLI8xLjmJyJw/export?format=csv&gid=71115281';
-    const TIME_SECONDS = 10*60;
-    const TOTAL_POINTS = 100;
-    const QUESTION_COUNT = 20;
-    const POINTS_PER_QUESTION = TOTAL_POINTS / QUESTION_COUNT;
-
-    let allQuestions = [];
-    let currentQuestions = [];
-    let timerId = null;
-    let remaining = TIME_SECONDS;
-    let userAnswers = {};
-
-    function parseCSV(text){
-      const rows = [];
-      let row = [];
-      let cur = '';
-      let inQuotes = false;
-      for(let i=0;i<text.length;i++){
-        const ch = text[i];
-        if(inQuotes){
-          if(ch === '"'){
-            if(text[i+1] === '"'){ cur += '"'; i++; } else { inQuotes = false; }
-          } else { cur += ch; }
-        } else {
-          if(ch === '"'){ inQuotes = true; }
-          else if(ch === ','){ row.push(cur); cur=''; }
-          else if(ch === '\r'){ continue; }
-          else if(ch === '\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
-          else { cur += ch; }
+        // 隨機打亂陣列
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
         }
-      }
-      if(cur !== '' || row.length) row.push(cur);
-      if(row.length) rows.push(row);
-      return rows;
-    }
 
-    function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} }
-
-    function normalizeHeader(value){ return value.replace(/^\uFEFF/,'').trim().toLowerCase(); }
-
-    function prepareVocabulary(rows){
-      if(rows.length < 2) return [];
-      const headers = rows[0].map(normalizeHeader);
-      const findColumn = names => headers.findIndex(header=>names.includes(header));
-      const englishColumn = findColumn(['english','英文','word','單字','英文字']);
-      const chineseColumn = findColumn(['chinese','中文','meaning','translation','翻譯','中文意思']);
-      const levelColumn = findColumn(['difficulty','level','等級','難度']);
-      const wordColumn = englishColumn >= 0 ? englishColumn : 0;
-      const meaningColumn = chineseColumn >= 0 ? chineseColumn : 1;
-      const dataRows = rows.slice(1).filter(row=>row[wordColumn] && row[meaningColumn]);
-
-      return dataRows.map((row,index)=>{
-        let difficulty = levelColumn >= 0 ? row[levelColumn].trim() : '';
-        if(!difficulty){
-          const tier = Math.min(2,Math.floor(index * 3 / dataRows.length));
-          difficulty = ['初級','中級','高級'][tier];
-        } else if(/beginner|basic|easy|初級/i.test(difficulty)){ difficulty = '初級'; }
-        else if(/intermediate|中級/i.test(difficulty)){ difficulty = '中級'; }
-        else if(/advanced|高級/i.test(difficulty)){ difficulty = '高級'; }
-
-        return { word:row[wordColumn].trim().replace(/^\d+[.)、]\s*/,''), meaning:row[meaningColumn].trim(), difficulty };
-      });
-    }
-
-    function buildExam(vocabulary){
-      const selected = vocabulary.slice();
-      shuffle(selected);
-      return selected.slice(0,QUESTION_COUNT).map(entry=>{
-        const distractors = [...new Set(vocabulary.filter(item=>item.word !== entry.word && item.meaning !== entry.meaning).map(item=>item.meaning))];
-        shuffle(distractors);
-        const choices = [entry.meaning,...distractors.slice(0,3)];
-        shuffle(choices);
-        return {...entry,type:'multiple',choices};
-      });
-    }
-
-    function renderQuestions(){
-      const container = document.getElementById('quiz'); container.innerHTML='';
-      currentQuestions.forEach((q,i)=>{
-        const div = document.createElement('div'); div.className='question';
-        
-        const typeLabel = document.createElement('div');
-        typeLabel.className='question-type';
-        typeLabel.textContent='選擇題';
-        div.appendChild(typeLabel);
-        
-        const qDiv = document.createElement('div');
-        qDiv.className='question-prompt';
-        qDiv.textContent = `第 ${i+1} 題（${POINTS_PER_QUESTION} 分）：請選出「${q.word}」的中文意思`;
-        div.appendChild(qDiv);
-        
-        if(q.type === 'multiple'){
-          const choicesDiv = document.createElement('div'); choicesDiv.className='choices';
-          q.choices.forEach((c,ci)=>{
-            const lab = document.createElement('label');
-            const input = document.createElement('input');
-            input.type='radio'; input.name=`q${i}`; input.value=c; input.checked=userAnswers[i]===c;
-            input.addEventListener('change',()=>{ userAnswers[i]=c; });
-            lab.append(input,document.createTextNode(` ${String.fromCharCode(65+ci)}. ${c}`));
-            choicesDiv.appendChild(lab);
-          });
-          div.appendChild(choicesDiv);
+        // 隨機打亂題目和選項
+        function randomizeQuiz() {
+            // 隨機打亂題目順序
+            const shuffledIndices = shuffleArray(Array.from({length: quizData.length}, (_, i) => i));
+            const randomizedQuizData = shuffledIndices.map(i => quizData[i]);
+            
+            // 隨機打亂每個題目的選項順序
+            randomizedQuizData.forEach(question => {
+                const optionsWithIndex = question.options.map((option, index) => ({
+                    option,
+                    originalIndex: index
+                }));
+                
+                const shuffledOptions = shuffleArray(optionsWithIndex);
+                
+                // 找到正確答案的新位置
+                const newCorrectIndex = shuffledOptions.findIndex(
+                    item => item.originalIndex === question.correct
+                );
+                
+                question.options = shuffledOptions.map(item => item.option);
+                question.correct = newCorrectIndex;
+            });
+            
+            return randomizedQuizData;
         }
-        
-        container.appendChild(div);
-      });
-    }
 
-    function startTimer(){
-      remaining = TIME_SECONDS; 
-      document.getElementById('submitBtn').disabled=false;
-      document.getElementById('startBtn').disabled=true;
-      document.getElementById('level').disabled=true;
-      document.getElementById('status').textContent='作答中';
-      updateTimerDisplay();
-      timerId = setInterval(()=>{
-        remaining--; updateTimerDisplay(); if(remaining<=0){ clearInterval(timerId); doSubmit(); }
-      },1000);
-    }
+        // 初始化測驗
+        function initQuiz() {
+            // 隨機打亂題目和選項
+            const randomizedData = randomizeQuiz();
+            quizData.length = 0;
+            quizData.push(...randomizedData);
+            
+            renderQuestion();
+            setupEventListeners();
+        }
 
-    function updateTimerDisplay(){
-      const m = Math.floor(remaining/60); const s = remaining%60; 
-      document.getElementById('timer').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    }
+        // 渲染當前問題
+        function renderQuestion() {
+            const container = document.getElementById('questionsContainer');
+            const data = quizData[currentQuestionIndex];
+            
+            let html = `
+                <div class="question-container active">
+                    <div class="question-number">第 ${currentQuestionIndex + 1} 題 (${data.translation})</div>
+                    <div class="question-text">${data.question}</div>
+                    <div class="options">
+            `;
 
-    function doSubmit(){
-      if(timerId) clearInterval(timerId);
-      document.getElementById('submitBtn').disabled=true;
-      document.getElementById('status').textContent='測驗已繳交';
-      document.querySelectorAll('#quiz input').forEach(input=>{ input.disabled=true; });
-      
-      let score = 0;
-      const result = document.getElementById('result');
-      result.replaceChildren();
-      
-      for(let i=0;i<currentQuestions.length;i++){
-        const q = currentQuestions[i];
-        const userAns = userAnswers[i] || '';
-        const expected = q.meaning;
-        
-        const normalizeAnswer = value=>value.trim().toLowerCase().replace(/\s+/g,'');
-        const accepted = [normalizeAnswer(expected),...expected.split(/[、，,；;\/]/).map(normalizeAnswer)];
-        const isCorrect = accepted.includes(normalizeAnswer(userAns));
-        if(isCorrect) score += POINTS_PER_QUESTION;
+            data.options.forEach((option, index) => {
+                const isSelected = userAnswers[currentQuestionIndex] === index;
+                html += `
+                    <div class="option ${isSelected ? 'selected' : ''}">
+                        <label>
+                            <input type="radio" name="answer" value="${index}" 
+                                   ${isSelected ? 'checked' : ''}
+                                   onchange="selectAnswer(${index})">
+                            <span>${String.fromCharCode(65 + index)}. ${option}</span>
+                        </label>
+                    </div>
+                `;
+            });
 
-        const detail = document.createElement('p');
-        detail.className='review-item';
-        detail.textContent=`${isCorrect ? '✓' : '✗'} 第 ${i+1} 題　你的答案：${userAns || '未作答'}　正確答案：${expected}`;
-        result.appendChild(detail);
-      }
-      
-      const heading = document.createElement('h2');
-      heading.textContent=`測驗結果：${score} / ${TOTAL_POINTS} 分`;
-      result.prepend(heading);
-      result.style.display='block';
-    }
+            html += `</div></div>`;
+            container.innerHTML = html;
 
-    document.getElementById('startBtn').addEventListener('click',()=>{
-      const level = document.getElementById('level').value;
-      let pool = allQuestions.slice();
-      if(level !== 'all') pool = pool.filter(q=>q.difficulty === level);
-      
-      if(pool.length < QUESTION_COUNT){ alert(`此難度目前只有 ${pool.length} 個單字，至少需要 ${QUESTION_COUNT} 個才能開始測驗。`); return; }
+            updateProgress();
+            updateButtons();
+        }
 
-      currentQuestions = buildExam(pool);
-      userAnswers = {};
-      renderQuestions();
-      startTimer();
-    });
+        // 選擇答案
+        function selectAnswer(index) {
+            userAnswers[currentQuestionIndex] = index;
+        }
 
-    document.getElementById('submitBtn').addEventListener('click', ()=>{ if(confirm('確定要繳交嗎？')) doSubmit(); });
+        // 更新進度條
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / quizData.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+        }
 
-    fetch(CSV_URL).then(r=>{
-      if(!r.ok) throw new Error('無法存取試算表');
-      return r.text();
-    }).then(text=>{
-      const rows = parseCSV(text);
-      allQuestions = prepareVocabulary(rows);
-      if(allQuestions.length < QUESTION_COUNT) throw new Error('試算表至少需要 20 組英文與中文單字');
-      document.getElementById('startBtn').disabled=false;
-      document.getElementById('status').textContent=`已載入 ${allQuestions.length} 個單字`;
-    }).catch(err=>{
-      console.error(err);
-      const main = document.getElementById('quiz');
-      document.getElementById('status').textContent='無法載入試算表，請確認分享權限已設為「知道連結的任何人都可以檢視」。';
-      main.replaceChildren();
-    });
-  </script>
+        // 更新按鈕
+        function updateButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+
+            prevBtn.style.display = currentQuestionIndex > 0 ? 'block' : 'none';
+            
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'block';
+            } else {
+                nextBtn.style.display = 'block';
+                submitBtn.style.display = 'none';
+            }
+        }
+
+        // 設置事件監聽
+        function setupEventListeners() {
+            document.getElementById('prevBtn').onclick = () => {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    renderQuestion();
+                }
+            };
+
+            document.getElementById('nextBtn').onclick = () => {
+                if (currentQuestionIndex < quizData.length - 1) {
+                    currentQuestionIndex++;
+                    renderQuestion();
+                }
+            };
+
+            document.getElementById('quizForm').onsubmit = (e) => {
+                e.preventDefault();
+                submitQuiz();
+            };
+        }
+
+        // 提交測驗
+        function submitQuiz() {
+            let score = 0;
+            userAnswers.forEach((answer, index) => {
+                if (answer === quizData[index].correct) {
+                    score += 5; // 每題 5 分
+                }
+            });
+
+            showResults(score);
+        }
+
+        // 顯示結果
+        function showResults(score) {
+            document.getElementById('quiz-section').style.display = 'none';
+            const resultsSection = document.getElementById('results-section');
+            resultsSection.classList.add('show');
+
+            let message = '';
+            if (score === 100) {
+                message = '🎉 完美滿分！你是英文高手！';
+            } else if (score >= 80) {
+                message = '🌟 非常出色！';
+            } else if (score >= 60) {
+                message = '👍 不錯！繼續加油！';
+            } else {
+                message = '📚 需要加強練習！';
+            }
+
+            let reviewHtml = '<div class="answer-review"><h3 style="margin-bottom:15px;">答題檢視</h3>';
+            userAnswers.forEach((answer, index) => {
+                const isCorrect = answer === quizData[index].correct;
+                const className = isCorrect ? 'correct' : 'incorrect';
+                const status = isCorrect ? '✓ 正確' : '✗ 錯誤';
+                const userAnswer = answer !== null ? quizData[index].options[answer] : '未作答';
+                const correctAnswer = quizData[index].options[quizData[index].correct];
+
+                reviewHtml += `
+                    <div class="answer-item ${className}">
+                        <div class="answer-item-question">${status} 第 ${index + 1} 題 (${quizData[index].translation})</div>
+                        <div class="answer-item-details">
+                            <div>題目: ${quizData[index].question}</div>
+                            <div>你的答案: ${userAnswer}</div>
+                            ${!isCorrect ? `<div style="color:#4caf50;">正確答案: ${correctAnswer}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            reviewHtml += '</div>';
+
+            resultsSection.innerHTML = `
+                <div style="text-align:center;">
+                    <h2 style="margin-top:30px;color:#333;">測驗完成！</h2>
+                    <div class="score-display">${score} / 100</div>
+                    <div class="score-message">${message}</div>
+                </div>
+                ${reviewHtml}
+                <div style="text-align:center;margin-top:30px;">
+                    <button class="result-button" onclick="location.reload();">重新測驗</button>
+                </div>
+            `;
+        }
+
+        // 頁面加載時初始化
+        window.onload = initQuiz;
+    </script>
 </body>
 </html>
