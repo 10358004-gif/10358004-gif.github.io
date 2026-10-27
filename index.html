@@ -1,172 +1,804 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>個人首頁</title>
+    <meta name="description" content="探索互動遊戲、工程計算機與英文學習工具，歡迎瀏覽我的五個網頁作品。">
+    <title>作品集 — 張依琳</title>
     <style>
+        :root {
+            color-scheme: light;
+            --ink: #1d2925;
+            --muted: #65736c;
+            --paper: #f5f4ee;
+            --card: #fffefa;
+            --green: #2f614d;
+            --orange: #e78351;
+            --line: #dedfd6;
+        }
+
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
+            margin: 0;
+            background:
+                radial-gradient(ellipse at 86% 9%, rgba(232, 199, 144, 0.21), transparent 28rem),
+                var(--paper);
+            color: var(--ink);
+            font-family: "Segoe UI", "Noto Sans TC", sans-serif;
+            line-height: 1.65;
         }
 
-        header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        a {
+            color: inherit;
+        }
+
+        .page {
+            width: min(1120px, calc(100% - 48px));
+            margin: 0 auto;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--ink);
+            font-size: 0.92rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-decoration: none;
+        }
+
+        .brand-mark {
+            display: grid;
+            width: 34px;
+            height: 34px;
+            place-items: center;
+            border-radius: 11px;
+            background: var(--green);
             color: white;
-            padding: 4rem 2rem;
-            text-align: center;
-        }
-
-        header h1 {
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
-        }
-
-        header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
+            font-size: 0.8rem;
         }
 
         nav {
-            background-color: #f8f9fa;
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        nav ul {
-            list-style: none;
             display: flex;
-            justify-content: center;
-            gap: 2rem;
-            flex-wrap: wrap;
+            gap: 26px;
         }
 
         nav a {
+            color: var(--muted);
+            font-size: 0.9rem;
+            font-weight: 650;
             text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: color 0.3s;
+            transition: color 160ms ease;
         }
 
         nav a:hover {
-            color: #667eea;
+            color: var(--orange);
         }
 
-        main {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 3rem 2rem;
+        .hero {
+            position: relative;
+            padding: 88px 0 74px;
         }
 
-        section {
-            margin-bottom: 3rem;
+        .hero::after {
+            position: absolute;
+            top: 72px;
+            right: 7%;
+            width: 126px;
+            height: 126px;
+            border: 1px solid rgba(47, 97, 77, 0.18);
+            border-radius: 50%;
+            content: "";
+            box-shadow: 0 0 0 16px rgba(47, 97, 77, 0.035), 0 0 0 33px rgba(47, 97, 77, 0.025);
+            pointer-events: none;
         }
 
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
+        .eyebrow {
+            margin: 0 0 14px;
+            color: var(--green);
+            font-size: 0.78rem;
+            font-weight: 850;
+            letter-spacing: 0.18em;
         }
 
-        .card {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
+        h1 {
+            max-width: 700px;
+            margin: 0;
+            font-size: clamp(2.6rem, 7vw, 5.2rem);
+            font-weight: 850;
+            letter-spacing: -0.065em;
+            line-height: 1.12;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        h1 span {
+            color: var(--green);
         }
 
-        .card h3 {
-            color: #667eea;
-            margin-bottom: 1rem;
+        .hero-copy {
+            max-width: 570px;
+            margin: 22px 0 0;
+            color: var(--muted);
+            font-size: clamp(1rem, 2vw, 1.12rem);
         }
 
-        footer {
-            background-color: #2d3436;
-            color: white;
-            text-align: center;
-            padding: 2rem;
-            margin-top: 3rem;
-        }
-
-        footer a {
-            color: #667eea;
+        .hero-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 28px;
+            color: var(--green);
+            font-size: 0.95rem;
+            font-weight: 800;
             text-decoration: none;
         }
 
-        footer a:hover {
-            text-decoration: underline;
+        .hero-link span {
+            display: grid;
+            width: 31px;
+            height: 31px;
+            place-items: center;
+            border: 1px solid #bdcfc2;
+            border-radius: 50%;
+            transition: transform 160ms ease, background 160ms ease;
+        }
+
+        .hero-link:hover span {
+            transform: translateY(3px);
+            background: #e3ebe1;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+            font-size: clamp(1.6rem, 3vw, 2rem);
+            letter-spacing: -0.04em;
+        }
+
+        .section-heading p {
+            margin: 0 0 4px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 20px;
+            padding-bottom: 74px;
+        }
+
+        .project-card {
+            grid-column: span 2;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: var(--card);
+            text-decoration: none;
+            box-shadow: 0 4px 14px rgba(36, 48, 40, 0.035);
+            transition: transform 190ms ease, box-shadow 190ms ease, border-color 190ms ease;
+        }
+
+        .project-card:nth-child(4) {
+            grid-column: 2 / span 2;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            border-color: #bbc9bc;
+            box-shadow: 0 16px 34px rgba(36, 48, 40, 0.11);
+        }
+
+        .project-card:focus-visible,
+        nav a:focus-visible,
+        .hero-link:focus-visible {
+            outline: 3px solid var(--orange);
+            outline-offset: 4px;
+        }
+
+        .art {
+            position: relative;
+            display: grid;
+            height: 190px;
+            overflow: hidden;
+            place-items: center;
+        }
+
+        .art::before,
+        .art::after {
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            border-radius: 50%;
+            content: "";
+        }
+
+        .art::before {
+            width: 185px;
+            height: 185px;
+        }
+
+        .art::after {
+            width: 230px;
+            height: 230px;
+        }
+
+        .art-mole {
+            background: linear-gradient(135deg, #f8d987, #e99b61);
+        }
+
+        .art-calc {
+            background: linear-gradient(135deg, #293e45, #172b33);
+        }
+
+        .art-quiz {
+            background: linear-gradient(135deg, #d7cdf8, #a999e6);
+        }
+
+        .art-exam {
+            background: linear-gradient(135deg, #bfd7c7, #84b39b);
+        }
+
+        .art-stick {
+            background: linear-gradient(135deg, #bce7e6, #73c2be);
+        }
+
+        .mini-window {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            width: 138px;
+            min-height: 91px;
+            padding: 12px;
+            place-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.72);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: 0 13px 28px rgba(38, 53, 43, 0.14);
+        }
+
+        .art-calc .mini-window {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: #172229;
+            box-shadow: 0 13px 28px rgba(0, 0, 0, 0.25);
+        }
+
+        .mole-face {
+            display: grid;
+            width: 57px;
+            height: 57px;
+            place-items: center;
+            border-radius: 50%;
+            background: #a86039;
+            font-size: 1.9rem;
+            box-shadow: inset -5px -5px 0 rgba(74, 40, 25, 0.15);
+        }
+
+        .calc-display {
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 5px 7px;
+            border-radius: 5px;
+            background: #27343a;
+            color: #9ee5d0;
+            font-family: monospace;
+            font-size: 1.08rem;
+            text-align: right;
+        }
+
+        .calc-keys {
+            display: grid;
+            width: 100%;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+
+        .calc-keys i {
+            height: 9px;
+            border-radius: 3px;
+            background: #52646b;
+        }
+
+        .calc-keys i:nth-child(4n) {
+            background: #e9a86b;
+        }
+
+        .quiz-sheet {
+            width: 100%;
+            color: #34285c;
+        }
+
+        .quiz-word {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.15rem;
+            font-weight: 850;
+            text-align: center;
+        }
+
+        .quiz-option {
+            display: block;
+            height: 7px;
+            margin-top: 5px;
+            border-radius: 5px;
+            background: #e7e1fb;
+        }
+
+        .quiz-option:nth-child(3) {
+            width: 76%;
+            background: #a999e6;
+        }
+
+        .exam-paper {
+            width: 100%;
+            color: #244e3c;
+        }
+
+        .exam-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 9px;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+
+        .exam-top b {
+            color: #db754e;
+        }
+
+        .exam-line {
+            height: 7px;
+            margin-top: 7px;
+            border-radius: 5px;
+            background: #dfece2;
+        }
+
+        .exam-line:nth-child(3) {
+            width: 76%;
+            background: #8db79c;
+        }
+
+        .exam-line:nth-child(4) {
+            width: 88%;
+        }
+
+        .stick-figure {
+            position: relative;
+            z-index: 1;
+            width: 92px;
+            height: 118px;
+        }
+
+        .stick-head {
+            position: absolute;
+            top: 4px;
+            left: 36px;
+            width: 23px;
+            height: 23px;
+            border: 5px solid #172b36;
+            border-radius: 50%;
+            background: transparent;
+        }
+
+        .stick-body,
+        .stick-arm,
+        .stick-leg {
+            position: absolute;
+            height: 5px;
+            border-radius: 5px;
+            background: #172b36;
+            transform-origin: left center;
+        }
+
+        .stick-body {
+            top: 29px;
+            left: 47px;
+            width: 49px;
+            transform: rotate(90deg);
+        }
+
+        .stick-arm {
+            top: 54px;
+            left: 47px;
+            width: 32px;
+            transform: rotate(-37deg);
+        }
+
+        .stick-arm.two {
+            transform: rotate(37deg);
+        }
+
+        .stick-leg {
+            top: 75px;
+            left: 47px;
+            width: 38px;
+            transform: rotate(-51deg);
+        }
+
+        .stick-leg.two {
+            transform: rotate(51deg);
+        }
+
+        .platform {
+            position: absolute;
+            right: -15px;
+            bottom: 8px;
+            left: -15px;
+            height: 10px;
+            border-radius: 5px;
+            background: #368b6c;
+        }
+
+        .card-content {
+            padding: 19px 20px 21px;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 7px;
+            color: var(--green);
+            font-size: 0.74rem;
+            font-weight: 850;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .card-number {
+            color: #97a198;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .card-content h3 {
+            margin: 0;
+            font-size: 1.24rem;
+            letter-spacing: -0.035em;
+        }
+
+        .card-description {
+            min-height: 52px;
+            margin: 8px 0 14px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .feature-list li {
+            padding: 4px 9px;
+            border: 1px solid #e4e6de;
+            border-radius: 999px;
+            background: #f7f7f2;
+            color: #58675e;
+            font-size: 0.74rem;
+            font-weight: 650;
+        }
+
+        .card-action {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 18px;
+            padding-top: 13px;
+            border-top: 1px solid #ecece5;
+            color: var(--green);
+            font-size: 0.86rem;
+            font-weight: 800;
+        }
+
+        .card-action span:last-child {
+            font-size: 1.1rem;
+            transition: transform 160ms ease;
+        }
+
+        .project-card:hover .card-action span:last-child {
+            transform: translateX(4px);
+        }
+
+        .about {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 64px;
+            padding: 26px 28px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: rgba(255, 254, 250, 0.72);
+        }
+
+        .about h2 {
+            margin: 0 0 4px;
+            font-size: 1.2rem;
+        }
+
+        .about p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .project-count {
+            flex: 0 0 auto;
+            color: var(--green);
+            font-size: 0.85rem;
+            font-weight: 800;
+        }
+
+        footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 20px 0 27px;
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 0.82rem;
+        }
+
+        @media (max-width: 800px) {
+            .project-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .project-card,
+            .project-card:nth-child(4) {
+                grid-column: auto;
+            }
+
+            .project-card:last-child {
+                grid-column: 1 / -1;
+            }
+
+            .hero::after {
+                right: 4%;
+                width: 90px;
+                height: 90px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .page {
+                width: min(100% - 32px, 430px);
+            }
+
+            .topbar {
+                padding: 17px 0;
+            }
+
+            nav {
+                gap: 14px;
+            }
+
+            nav a {
+                font-size: 0.82rem;
+            }
+
+            .hero {
+                padding: 64px 0 52px;
+            }
+
+            .hero::after {
+                top: 38px;
+                right: 0;
+                width: 54px;
+                height: 54px;
+                box-shadow: 0 0 0 9px rgba(47, 97, 77, 0.035);
+            }
+
+            .section-heading {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 2px;
+            }
+
+            .project-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding-bottom: 50px;
+            }
+
+            .project-card:last-child {
+                grid-column: auto;
+            }
+
+            .art {
+                height: 165px;
+            }
+
+            .card-description {
+                min-height: 0;
+            }
+
+            .about {
+                align-items: flex-start;
+                flex-direction: column;
+                margin-bottom: 44px;
+                padding: 21px;
+            }
+
+            footer {
+                flex-direction: column;
+                gap: 2px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>歡迎來到我的網站</h1>
-        <p>成大南工學生 | 程式設計愛好者</p>
-    </header>
+    <div class="page">
+        <header class="topbar" id="top">
+            <a class="brand" href="#top" aria-label="張依琳作品集首頁">
+                <span class="brand-mark">YI</span>
+                <span>張依琳・作品集</span>
+            </a>
+            <nav aria-label="主要導覽">
+                <a href="#projects">作品一覽</a>
+                <a href="#about">關於作品集</a>
+            </nav>
+        </header>
 
-    <nav>
-        <ul>
-            <li><a href="#home">首頁</a></li>
-            <li><a href="#about">關於</a></li>
-            <li><a href="#projects">項目</a></li>
-            <li><a href="#contact">聯繫</a></li>
-        </ul>
-    </nav>
+        <main>
+            <section class="hero" aria-labelledby="hero-title">
+                <p class="eyebrow">MY SELECTED WORKS · 2026</p>
+                <h1 id="hero-title">用互動，讓點子<br><span>變得好玩。</span></h1>
+                <p class="hero-copy">你好！這裡整理了我的五個網頁作品，從互動遊戲、工程計算到英文學習工具。點選作品圖卡，立即開始體驗。</p>
+                <a class="hero-link" href="#projects"><span aria-hidden="true">↓</span>探索所有作品</a>
+            </section>
 
-    <main>
-        <section id="about">
-            <h2>關於我</h2>
-            <p>你好！我是一名來自國立成功大學南臺灣工程學位學程的學生。我對程式設計充滿熱情，專長包括軟體開發、演算法設計和系統架構。</p>
-            <p style="margin-top: 1rem;">在這個網站中，我分享我的學習成果、個人項目和技術心得。歡迎瀏覽我的作品，並與我交流討論有關程式設計的任何想法。</p>
-        </section>
-
-        <section id="projects">
-            <h2>我的專長</h2>
-            <div class="cards">
-                <div class="card">
-                    <h3>💻 軟體開發</h3>
-                    <p>熟悉多種程式語言，具備開發功能完整的應用程式的能力。從前端到後端，我都在不斷學習和精進。</p>
+            <section id="projects" aria-labelledby="projects-title">
+                <div class="section-heading">
+                    <h2 id="projects-title">精選作品</h2>
+                    <p>每個作品都是一個可以親自體驗的小工具。</p>
                 </div>
-                <div class="card">
-                    <h3>🔧 演算法設計</h3>
-                    <p>對資料結構和演算法有深入理解，能夠設計高效的解決方案來解決複雜問題。</p>
-                </div>
-                <div class="card">
-                    <h3>🏗️ 系統架構</h3>
-                    <p>了解軟體設計原則，能夠規劃和構建可維護的系統架構。</p>
-                </div>
-            </div>
-        </section>
 
-        <section id="contact">
-            <h2>聯繫方式</h2>
-            <p>如果你有任何問題或建議，歡迎透過以下方式與我聯繫：</p>
-            <ul style="margin-top: 1rem; margin-left: 2rem;">
-                <li>Email: your.email@example.com</li>
-                <li>GitHub: <a href="https://github.com" style="color: #667eea;">github.com/yourprofile</a></li>
-            </ul>
-        </section>
-    </main>
+                <div class="project-grid">
+                    <a class="project-card" href="1/index.html" aria-label="開啟打地鼠遊戲">
+                        <div class="art art-mole" aria-hidden="true">
+                            <div class="mini-window"><span class="mole-face">●</span></div>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-meta"><span>互動遊戲</span><span class="card-number">01 / 05</span></div>
+                            <h3>打地鼠遊戲</h3>
+                            <p class="card-description">把握地鼠冒出洞口的時機點擊得分，在倒數時間內挑戰更高紀錄。</p>
+                            <ul class="feature-list" aria-label="主要功能">
+                                <li>計時挑戰</li><li>難度選擇</li><li>即時記分</li>
+                            </ul>
+                            <div class="card-action"><span>開始遊玩</span><span aria-hidden="true">→</span></div>
+                        </div>
+                    </a>
 
-    <footer>
-        <p>&copy; 2024 成大南工學生. 保留所有權利。</p>
-        <p>由 <a href="https://pages.github.com/">GitHub Pages</a> 提供支持</p>
-    </footer>
+                    <a class="project-card" href="2/index.html" aria-label="開啟工程用計算機">
+                        <div class="art art-calc" aria-hidden="true">
+                            <div class="mini-window">
+                                <div class="calc-display">123.456</div>
+                                <div class="calc-keys"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-meta"><span>實用工具</span><span class="card-number">02 / 05</span></div>
+                            <h3>工程用計算機</h3>
+                            <p class="card-description">以 Casio FX-991ES PLUS 為靈感打造的計算機介面，滿足日常與工程計算需求。</p>
+                            <ul class="feature-list" aria-label="主要功能">
+                                <li>三角函數</li><li>角度模式</li><li>科學運算</li>
+                            </ul>
+                            <div class="card-action"><span>開啟計算機</span><span aria-hidden="true">→</span></div>
+                        </div>
+                    </a>
+
+                    <a class="project-card" href="3/index.html" aria-label="開啟英文單字測驗">
+                        <div class="art art-quiz" aria-hidden="true">
+                            <div class="mini-window">
+                                <div class="quiz-sheet">
+                                    <span class="quiz-word">Vocabulary</span>
+                                    <i class="quiz-option"></i><i class="quiz-option"></i><i class="quiz-option"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-meta"><span>英文學習</span><span class="card-number">03 / 05</span></div>
+                            <h3>英文單字測驗</h3>
+                            <p class="card-description">透過隨機排列的選擇題練習英文單字，完成測驗後查看成績與答案解析。</p>
+                            <ul class="feature-list" aria-label="主要功能">
+                                <li>隨機題目</li><li>作答進度</li><li>答案檢視</li>
+                            </ul>
+                            <div class="card-action"><span>開始測驗</span><span aria-hidden="true">→</span></div>
+                        </div>
+                    </a>
+
+                    <a class="project-card" href="4/index.html" aria-label="開啟限時英文單字測驗">
+                        <div class="art art-exam" aria-hidden="true">
+                            <div class="mini-window">
+                                <div class="exam-paper">
+                                    <div class="exam-top"><span>單字測驗</span><b>10:00</b></div>
+                                    <i class="exam-line"></i><i class="exam-line"></i><i class="exam-line"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-meta"><span>英文學習</span><span class="card-number">04 / 05</span></div>
+                            <h3>限時單字挑戰</h3>
+                            <p class="card-description">從試算表載入單字題庫，選擇難度並在限時內完成一場完整測驗。</p>
+                            <ul class="feature-list" aria-label="主要功能">
+                                <li>難度選擇</li><li>20 道題目</li><li>計時與評分</li>
+                            </ul>
+                            <div class="card-action"><span>挑戰測驗</span><span aria-hidden="true">→</span></div>
+                        </div>
+                    </a>
+
+                    <a class="project-card" href="5/index.html" aria-label="開啟火柴人冒險闖關遊戲">
+                        <div class="art art-stick" aria-hidden="true">
+                            <div class="stick-figure">
+                                <span class="stick-head"></span><span class="stick-body"></span>
+                                <span class="stick-arm"></span><span class="stick-arm two"></span>
+                                <span class="stick-leg"></span><span class="stick-leg two"></span>
+                                <span class="platform"></span>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-meta"><span>動作闖關</span><span class="card-number">05 / 05</span></div>
+                            <h3>火柴人冒險</h3>
+                            <p class="card-description">操控黑色火柴人跨越平台與尖刺、收集金幣，朝終點旗幟一路前進。</p>
+                            <ul class="feature-list" aria-label="主要功能">
+                                <li>鍵盤操作</li><li>金幣收集</li><li>檢查點存檔</li>
+                            </ul>
+                            <div class="card-action"><span>進入關卡</span><span aria-hidden="true">→</span></div>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <section class="about" id="about" aria-labelledby="about-title">
+                <div>
+                    <h2 id="about-title">關於這份作品集</h2>
+                    <p>持續累積網頁設計與互動程式的練習，每個圖卡都能直接開啟對應作品。</p>
+                </div>
+                <span class="project-count">目前收錄 05 件作品</span>
+            </section>
+        </main>
+
+        <footer>
+            <span>張依琳的網頁作品集</span>
+            <a href="#top">回到頁首 ↑</a>
+        </footer>
+    </div>
 </body>
 </html>
