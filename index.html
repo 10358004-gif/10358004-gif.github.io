@@ -221,234 +221,369 @@
         .art {
             position: relative;
             display: grid;
-            height: 190px;
+            height: 210px;
             overflow: hidden;
+            isolation: isolate;
             place-items: center;
-        }
-
-        .art::before,
-        .art::after {
-            position: absolute;
-            border: 1px solid rgba(255, 255, 255, 0.45);
-            border-radius: 50%;
-            content: "";
         }
 
         .art::before {
-            width: 185px;
-            height: 185px;
+            position: absolute;
+            top: -80px;
+            right: -25px;
+            z-index: -1;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.34);
+            content: "";
+            pointer-events: none;
         }
 
         .art::after {
-            width: 230px;
-            height: 230px;
+            position: absolute;
+            z-index: -1;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            height: 34px;
+            background: rgba(255, 255, 255, 0.16);
+            content: "";
         }
 
         .art-mole {
-            background: linear-gradient(135deg, #f8d987, #e99b61);
+            background:
+                radial-gradient(circle at 16% 26%, rgba(255, 255, 255, 0.95) 0 4px, transparent 5px),
+                radial-gradient(circle at 84% 38%, rgba(255, 255, 255, 0.9) 0 5px, transparent 6px),
+                linear-gradient(145deg, #fff6a8 0%, #ffe36d 48%, #ff9a54 100%);
         }
 
         .art-calc {
-            background: linear-gradient(135deg, #293e45, #172b33);
+            background:
+                radial-gradient(circle at 14% 25%, rgba(255, 255, 255, 0.95) 0 5px, transparent 6px),
+                radial-gradient(circle at 84% 68%, rgba(255, 255, 255, 0.9) 0 4px, transparent 5px),
+                linear-gradient(145deg, #c3fff1, #72e6d1);
         }
 
         .art-quiz {
-            background: linear-gradient(135deg, #d7cdf8, #a999e6);
+            background:
+                radial-gradient(circle at 13% 73%, rgba(255, 255, 255, 0.95) 0 5px, transparent 6px),
+                radial-gradient(circle at 85% 22%, rgba(255, 255, 255, 0.94) 0 4px, transparent 5px),
+                linear-gradient(145deg, #ffd8fb, #bc9cff);
         }
 
         .art-exam {
-            background: linear-gradient(135deg, #bfd7c7, #84b39b);
+            background:
+                radial-gradient(circle at 14% 28%, rgba(255, 255, 255, 0.96) 0 5px, transparent 6px),
+                radial-gradient(circle at 85% 73%, rgba(255, 255, 255, 0.92) 0 4px, transparent 5px),
+                linear-gradient(145deg, #ffffa8, #a9ef78);
         }
 
         .art-stick {
-            background: linear-gradient(135deg, #bce7e6, #73c2be);
+            background:
+                radial-gradient(circle at 50% 50%, #b8ffff 0, #72f5ff 38%, #13cde9 72%, #28b7ee 100%);
         }
 
-        .mini-window {
+        .stick-illustration {
             position: relative;
             z-index: 1;
-            display: grid;
-            width: 138px;
-            min-height: 91px;
-            padding: 12px;
-            place-items: center;
-            border: 1px solid rgba(255, 255, 255, 0.72);
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.82);
-            box-shadow: 0 13px 28px rgba(38, 53, 43, 0.14);
+            display: block;
+            width: min(278px, 96%);
+            height: auto;
+            overflow: visible;
+            filter: drop-shadow(0 8px 12px rgba(0, 94, 143, 0.2));
         }
 
-        .art-calc .mini-window {
-            border-color: rgba(255, 255, 255, 0.15);
-            background: #172229;
-            box-shadow: 0 13px 28px rgba(0, 0, 0, 0.25);
+        .mole-scene {
+            position: relative;
+            z-index: 1;
+            width: min(282px, 86%);
+            padding: 12px 14px 0;
+            filter: drop-shadow(0 11px 13px rgba(149, 98, 42, 0.16));
+        }
+
+        .scene-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #80502e;
+            font-size: 0.65rem;
+            font-weight: 900;
+            letter-spacing: 0.11em;
+        }
+
+        .scene-top b {
+            padding: 4px 8px;
+            border: 1px solid rgba(148, 88, 42, 0.15);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.58);
+            font-size: 0.65rem;
+            letter-spacing: 0;
+        }
+
+        .mole-board {
+            display: flex;
+            align-items: end;
+            justify-content: space-around;
+            height: 105px;
+            padding: 0 18px 11px;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-radius: 54% 54% 14px 14px;
+            background: linear-gradient(180deg, #a4d873, #64ad65);
+            box-shadow: inset 0 9px 0 rgba(255, 255, 255, 0.2), 0 9px 16px rgba(107, 71, 41, 0.15);
+        }
+
+        .mole-hole {
+            position: relative;
+            display: block;
+            width: 58px;
+            height: 25px;
+            border: 3px solid #76513a;
+            border-radius: 50%;
+            background: #64432f;
+            box-shadow: inset 0 4px 5px rgba(25, 16, 11, 0.35);
+        }
+
+        .mole-hole.active {
+            height: 29px;
         }
 
         .mole-face {
-            display: grid;
-            width: 57px;
-            height: 57px;
-            place-items: center;
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            width: 43px;
+            height: 49px;
+            border: 2px solid rgba(96, 51, 30, 0.25);
+            border-radius: 50% 50% 42% 42%;
+            background: linear-gradient(145deg, #e4a36a, #b86c43);
+            box-shadow: inset 3px 3px 0 rgba(255, 220, 174, 0.25), inset -4px -4px 0 rgba(72, 39, 24, 0.13);
+            transform: translateX(-50%);
+        }
+
+        .mole-face::before {
+            position: absolute;
+            top: 17px;
+            left: 10px;
+            width: 5px;
+            height: 6px;
             border-radius: 50%;
-            background: #a86039;
-            font-size: 1.9rem;
-            box-shadow: inset -5px -5px 0 rgba(74, 40, 25, 0.15);
+            background: #30221d;
+            box-shadow: 16px 0 #30221d, 8px 10px 0 2px #f0b2a1;
+            content: "";
+        }
+
+        .calc-device {
+            position: relative;
+            z-index: 1;
+            width: 172px;
+            padding: 12px 13px 13px;
+            border: 1px solid #96a9a0;
+            border-radius: 14px;
+            background: linear-gradient(145deg, #fff, #e8eee8);
+            box-shadow: 0 14px 25px rgba(47, 105, 89, 0.2), inset 0 1px 0 #fff;
+            transform: rotate(-3deg);
+        }
+
+        .calc-brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 7px;
+            color: #41504f;
+            font-size: 0.53rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+        }
+
+        .calc-brand b {
+            color: #518a73;
+            font-size: 0.57rem;
+            letter-spacing: 0.02em;
         }
 
         .calc-display {
             width: 100%;
             margin-bottom: 8px;
-            padding: 5px 7px;
-            border-radius: 5px;
-            background: #27343a;
-            color: #9ee5d0;
+            padding: 8px 9px;
+            border: 2px solid #9eafa3;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #e9f4d9, #d4e6cc);
+            color: #273d36;
             font-family: monospace;
             font-size: 1.08rem;
+            font-weight: 700;
             text-align: right;
+            box-shadow: inset 0 2px 4px rgba(66, 91, 72, 0.1);
         }
 
         .calc-keys {
             display: grid;
             width: 100%;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 4px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
         }
 
         .calc-keys i {
-            height: 9px;
-            border-radius: 3px;
-            background: #52646b;
+            height: 13px;
+            border: 1px solid #c5d0c8;
+            border-radius: 4px;
+            background: linear-gradient(#fff, #e7ece7);
+            box-shadow: 0 2px 1px rgba(43, 55, 49, 0.12);
         }
 
-        .calc-keys i:nth-child(4n) {
-            background: #e9a86b;
+        .calc-keys i:nth-child(5n),
+        .calc-keys i:nth-child(4) {
+            background: linear-gradient(#ffd7a3, #f2b779);
         }
 
         .quiz-sheet {
-            width: 100%;
+            position: relative;
+            z-index: 1;
+            width: 192px;
+            padding: 14px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 13px;
+            background: #fffefa;
             color: #34285c;
+            box-shadow: 0 15px 26px rgba(91, 71, 148, 0.18);
+            transform: rotate(-2deg);
         }
 
         .quiz-word {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 1.15rem;
-            font-weight: 850;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 0.92rem;
+            font-weight: 900;
+        }
+
+        .quiz-word small {
+            color: #8d7fbd;
+            font-size: 0.58rem;
+            letter-spacing: 0.08em;
+        }
+
+        .quiz-prompt {
+            margin: 0 0 8px;
+            color: #796e9c;
+            font-size: 0.61rem;
         }
 
         .quiz-option {
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 20px;
+            margin-top: 6px;
+            padding: 0 7px;
+            border: 1px solid #ece8f8;
+            border-radius: 6px;
+            background: #faf9ff;
+        }
+
+        .quiz-option i {
+            width: 7px;
             height: 7px;
-            margin-top: 5px;
+            border: 1px solid #b5acd6;
+            border-radius: 50%;
+        }
+
+        .quiz-option b {
+            width: 63px;
+            height: 4px;
             border-radius: 5px;
-            background: #e7e1fb;
+            background: #ded8f2;
         }
 
         .quiz-option:nth-child(3) {
-            width: 76%;
-            background: #a999e6;
+            border-color: #b6a8ee;
+            background: #eeeafd;
+        }
+
+        .quiz-option:nth-child(3) i {
+            border: 2px solid #7d68cd;
+            background: #7d68cd;
+            box-shadow: inset 0 0 0 1px white;
+        }
+
+        .quiz-option:nth-child(3) b {
+            background: #9d8cde;
         }
 
         .exam-paper {
-            width: 100%;
+            position: relative;
+            z-index: 1;
+            width: 196px;
+            padding: 14px 15px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 11px;
+            background: #fffefa;
             color: #244e3c;
+            box-shadow: 0 15px 26px rgba(60, 110, 67, 0.17);
+            transform: rotate(2deg);
         }
 
         .exam-top {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 9px;
+            margin-bottom: 4px;
             font-size: 0.75rem;
             font-weight: 800;
         }
 
         .exam-top b {
+            padding: 3px 6px;
+            border-radius: 5px;
+            background: #fff0e7;
             color: #db754e;
+            font-size: 0.65rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .exam-subtitle {
+            margin: 0 0 7px;
+            color: #839287;
+            font-size: 0.58rem;
         }
 
         .exam-line {
-            height: 7px;
-            margin-top: 7px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 19px;
+            margin-top: 5px;
+            padding: 0 6px;
+            border: 1px solid #edf1e9;
             border-radius: 5px;
-            background: #dfece2;
+            background: #fbfcf8;
         }
 
-        .exam-line:nth-child(3) {
-            width: 76%;
-            background: #8db79c;
-        }
-
-        .exam-line:nth-child(4) {
-            width: 88%;
-        }
-
-        .stick-figure {
-            position: relative;
-            z-index: 1;
-            width: 92px;
-            height: 118px;
-        }
-
-        .stick-head {
-            position: absolute;
-            top: 4px;
-            left: 36px;
-            width: 23px;
-            height: 23px;
-            border: 5px solid #172b36;
+        .exam-line i {
+            width: 6px;
+            height: 6px;
+            border: 1px solid #9eb4a0;
             border-radius: 50%;
-            background: transparent;
         }
 
-        .stick-body,
-        .stick-arm,
-        .stick-leg {
-            position: absolute;
-            height: 5px;
+        .exam-line b {
+            width: 77px;
+            height: 4px;
             border-radius: 5px;
-            background: #172b36;
-            transform-origin: left center;
+            background: #dce8dd;
         }
 
-        .stick-body {
-            top: 29px;
-            left: 47px;
-            width: 49px;
-            transform: rotate(90deg);
+        .exam-line:nth-last-child(1) {
+            border-color: #9ac5a5;
+            background: #edf6ed;
         }
 
-        .stick-arm {
-            top: 54px;
-            left: 47px;
-            width: 32px;
-            transform: rotate(-37deg);
-        }
-
-        .stick-arm.two {
-            transform: rotate(37deg);
-        }
-
-        .stick-leg {
-            top: 75px;
-            left: 47px;
-            width: 38px;
-            transform: rotate(-51deg);
-        }
-
-        .stick-leg.two {
-            transform: rotate(51deg);
-        }
-
-        .platform {
-            position: absolute;
-            right: -15px;
-            bottom: 8px;
-            left: -15px;
-            height: 10px;
-            border-radius: 5px;
-            background: #368b6c;
+        .exam-line:nth-last-child(1) i {
+            border-color: #55976a;
+            background: #55976a;
         }
 
         .card-content {
@@ -633,7 +768,7 @@
             }
 
             .art {
-                height: 165px;
+                height: 180px;
             }
 
             .card-description {
@@ -693,7 +828,14 @@
                 <div class="project-grid">
                     <a class="project-card" href="1/index.html" aria-label="開啟打地鼠遊戲">
                         <div class="art art-mole" aria-hidden="true">
-                            <div class="mini-window"><span class="mole-face">●</span></div>
+                            <div class="mole-scene">
+                                <div class="scene-top"><span>WHACK A MOLE</span><b>00:24</b></div>
+                                <div class="mole-board">
+                                    <span class="mole-hole"></span>
+                                    <span class="mole-hole active"><i class="mole-face"></i></span>
+                                    <span class="mole-hole"></span>
+                                </div>
+                            </div>
                         </div>
                         <div class="card-content">
                             <div class="card-meta"><span>互動遊戲</span><span class="card-number">01 / 05</span></div>
@@ -708,9 +850,14 @@
 
                     <a class="project-card" href="2/index.html" aria-label="開啟工程用計算機">
                         <div class="art art-calc" aria-hidden="true">
-                            <div class="mini-window">
-                                <div class="calc-display">123.456</div>
-                                <div class="calc-keys"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                            <div class="calc-device">
+                                <div class="calc-brand"><span>SCIENTIFIC CALCULATOR</span><b>fx-991ES</b></div>
+                                <div class="calc-display">sin(30) = 0.5</div>
+                                <div class="calc-keys">
+                                    <i></i><i></i><i></i><i></i><i></i>
+                                    <i></i><i></i><i></i><i></i><i></i>
+                                    <i></i><i></i><i></i><i></i><i></i>
+                                </div>
                             </div>
                         </div>
                         <div class="card-content">
@@ -726,11 +873,12 @@
 
                     <a class="project-card" href="3/index.html" aria-label="開啟英文單字測驗">
                         <div class="art art-quiz" aria-hidden="true">
-                            <div class="mini-window">
-                                <div class="quiz-sheet">
-                                    <span class="quiz-word">Vocabulary</span>
-                                    <i class="quiz-option"></i><i class="quiz-option"></i><i class="quiz-option"></i>
-                                </div>
+                            <div class="quiz-sheet">
+                                <span class="quiz-word">BRAVE <small>QUESTION 08</small></span>
+                                <p class="quiz-prompt">Choose the correct meaning</p>
+                                <span class="quiz-option"><i></i><b></b></span>
+                                <span class="quiz-option"><i></i><b></b></span>
+                                <span class="quiz-option"><i></i><b></b></span>
                             </div>
                         </div>
                         <div class="card-content">
@@ -746,11 +894,12 @@
 
                     <a class="project-card" href="4/index.html" aria-label="開啟限時英文單字測驗">
                         <div class="art art-exam" aria-hidden="true">
-                            <div class="mini-window">
-                                <div class="exam-paper">
-                                    <div class="exam-top"><span>單字測驗</span><b>10:00</b></div>
-                                    <i class="exam-line"></i><i class="exam-line"></i><i class="exam-line"></i>
-                                </div>
+                            <div class="exam-paper">
+                                <div class="exam-top"><span>英文單字測驗</span><b>09:42</b></div>
+                                <p class="exam-subtitle">選出下列單字的正確意思</p>
+                                <span class="exam-line"><i></i><b></b></span>
+                                <span class="exam-line"><i></i><b></b></span>
+                                <span class="exam-line"><i></i><b></b></span>
                             </div>
                         </div>
                         <div class="card-content">
@@ -766,12 +915,52 @@
 
                     <a class="project-card" href="5/index.html" aria-label="開啟火柴人冒險闖關遊戲">
                         <div class="art art-stick" aria-hidden="true">
-                            <div class="stick-figure">
-                                <span class="stick-head"></span><span class="stick-body"></span>
-                                <span class="stick-arm"></span><span class="stick-arm two"></span>
-                                <span class="stick-leg"></span><span class="stick-leg two"></span>
-                                <span class="platform"></span>
-                            </div>
+                            <svg class="stick-illustration" viewBox="0 0 280 210" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <radialGradient id="energy" cx="47%" cy="47%" r="62%">
+                                        <stop offset="0" stop-color="#f5ffff"/>
+                                        <stop offset=".58" stop-color="#9effff"/>
+                                        <stop offset="1" stop-color="#30dcf4" stop-opacity="0"/>
+                                    </radialGradient>
+                                    <linearGradient id="wood" x1="0" y1="1" x2="1" y2="0">
+                                        <stop stop-color="#874725"/>
+                                        <stop offset=".48" stop-color="#d49254"/>
+                                        <stop offset="1" stop-color="#f0bd73"/>
+                                    </linearGradient>
+                                    <linearGradient id="crystal" x1="0" y1="1" x2="1" y2="0">
+                                        <stop stop-color="#00b8ed"/>
+                                        <stop offset=".55" stop-color="#65f7ff"/>
+                                        <stop offset="1" stop-color="#eaffff"/>
+                                    </linearGradient>
+                                    <filter id="cyanGlow" x="-80%" y="-80%" width="260%" height="260%">
+                                        <feGaussianBlur stdDeviation="5" result="blur"/>
+                                        <feMerge>
+                                            <feMergeNode in="blur"/>
+                                            <feMergeNode in="SourceGraphic"/>
+                                        </feMerge>
+                                    </filter>
+                                </defs>
+
+                                <circle cx="139" cy="106" r="95" fill="url(#energy)"/>
+                                <path d="M20 190q-8-19 5-34-4-17 10-35 3 19 13 25-2-23 13-43 1 24 16 34 8-20 23-33-3 23 10 37 10-16 15-31 16 21 5 42 17-11 20-30 15 18 4 39 15-14 17-31 16 20 2 39 18-10 20-29 12 22 1 42 16-7 20-25 9 30-14 51z" fill="#ff7a42" opacity=".91"/>
+                                <path d="M37 188q-5-17 7-31 2 13 12 19-1-18 12-31 1 18 12 26 6-16 19-24-2 20 12 29 10-14 11-27 12 18 3 35 17-11 18-23 11 15 3 28 14-7 18-19 8 18-4 30z" fill="#ffd34e"/>
+                                <path d="M58 185q-3-12 8-22 2 11 10 14 2-13 12-20 0 15 9 20 7-11 13-15-1 13 7 22zM165 185q-4-13 7-25 1 13 10 18 4-15 14-21 0 15 10 21 7-12 12-17 0 15 7 24z" fill="#fff39a"/>
+                                <path d="m21 104 14-22m32-48 18-18m131 12 14-18m8 115 19-21" stroke="#edffff" stroke-width="5" stroke-linecap="round" opacity=".95" filter="url(#cyanGlow)"/>
+                                <path d="M219 99 250 42" fill="none" stroke="#58341f" stroke-width="13" stroke-linecap="round"/>
+                                <path d="M219 99 250 42" fill="none" stroke="url(#wood)" stroke-width="8" stroke-linecap="round"/>
+                                <path d="m210 99 14 8" stroke="#593720" stroke-width="8" stroke-linecap="round"/>
+                                <path d="m213 97 9 5" stroke="#f0bd73" stroke-width="4" stroke-linecap="round"/>
+                                <path d="m248 45-6-10 20-28-4 33-15 19z" fill="#008ebf" stroke="#183848" stroke-width="4" stroke-linejoin="round"/>
+                                <path d="m248 44-5-8 17-24-4 27-12 17z" fill="url(#crystal)" stroke="#d7ffff" stroke-width="2" stroke-linejoin="round"/>
+                                <path d="m246 39 10-16-3 18-7 10z" fill="#fff" opacity=".9"/>
+
+                                <path d="M97 115 73 143 49 132M136 119l31 25q12 8 22-3l11-25" fill="none" stroke="#071018" stroke-width="21" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M103 122q5 38 14 92" fill="none" stroke="#050d14" stroke-width="33" stroke-linecap="round"/>
+                                <path d="M96 105q-20 10-34 34l-14-6" fill="none" stroke="#020910" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="m56 145-8-13" fill="none" stroke="#020910" stroke-width="12" stroke-linecap="round"/>
+                                <circle cx="211" cy="111" r="9" fill="#020910" stroke="#152c3a" stroke-width="3"/>
+                                <circle cx="111" cy="83" r="42" fill="#020810" stroke="#09263e" stroke-width="5"/>
+                            </svg>
                         </div>
                         <div class="card-content">
                             <div class="card-meta"><span>動作闖關</span><span class="card-number">05 / 05</span></div>
