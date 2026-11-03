@@ -150,6 +150,7 @@
             touch-action: none;
             user-select: none;
             -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .touch-button {
@@ -179,8 +180,11 @@
 
         .joystick {
             position: relative;
+            display: grid;
             width: 118px;
             height: 118px;
+            flex: 0 0 auto;
+            padding: 0;
             border: 2px solid rgba(255, 255, 255, 0.5);
             border-radius: 50%;
             background: rgba(26, 48, 57, 0.38);
@@ -605,6 +609,7 @@
                 position: fixed;
                 top: 50%;
                 left: 50%;
+                width: 100vh;
                 width: 100dvh;
                 height: 100vw;
                 transform: translate(-50%, -50%) rotate(90deg);
@@ -683,7 +688,6 @@
             "use strict";
 
             const canvas = document.getElementById("game-canvas");
-            const game = canvas.closest(".game");
             const gameScreen = canvas.parentElement;
             const ctx = canvas.getContext("2d");
             const levelDisplay = document.getElementById("level-display");
@@ -864,6 +868,7 @@
             let audioContext = null;
             let audioEnabled = true;
             let landscapeRequested = false;
+            let audioGestureUnlocked = false;
 
             function unlockAudio() {
                 if (!audioEnabled) return;
@@ -878,6 +883,13 @@
                 if (audioContext.state === "suspended") {
                     audioContext.resume().catch((error) => console.error("無法啟用遊戲音效：", error));
                 }
+            }
+
+            function startAudioFromGesture() {
+                unlockAudio();
+                if (audioGestureUnlocked || !audioEnabled || !audioContext) return;
+                audioGestureUnlocked = true;
+                playSound("coin");
             }
 
             function playSound(kind) {
@@ -944,14 +956,10 @@
                 const radius = Math.min(bounds.width, bounds.height) / 2;
                 let dx = (event.clientX - (bounds.left + bounds.width / 2)) / radius;
                 let dy = (event.clientY - (bounds.top + bounds.height / 2)) / radius;
-                const transform = getComputedStyle(game).transform;
-                if (transform !== "none") {
-                    const matrix = new DOMMatrix(transform);
-                    const determinant = matrix.a * matrix.d - matrix.b * matrix.c;
-                    const localX = (matrix.d * dx - matrix.c * dy) / determinant;
-                    const localY = (-matrix.b * dx + matrix.a * dy) / determinant;
-                    dx = localX;
-                    dy = localY;
+                if (window.matchMedia("(orientation: portrait) and (pointer: coarse), (orientation: portrait) and (max-width: 760px)").matches) {
+                    const screenX = dx;
+                    dx = dy;
+                    dy = -screenX;
                 }
                 const magnitude = Math.hypot(dx, dy);
                 if (magnitude > 1) {
@@ -1651,7 +1659,7 @@
             }
 
             window.addEventListener("keydown", (event) => {
-                unlockAudio();
+                startAudioFromGesture();
                 if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space"].includes(event.code)) {
                     event.preventDefault();
                 }
@@ -1675,7 +1683,7 @@
                 let activePointerId = null;
                 const press = (event) => {
                     event.preventDefault();
-                    unlockAudio();
+                    startAudioFromGesture();
                     if (!landscapeRequested) {
                         landscapeRequested = true;
                         requestLandscape();
@@ -1727,8 +1735,7 @@
                 soundToggle.setAttribute("aria-label", audioEnabled ? "關閉遊戲音效" : "開啟遊戲音效");
                 soundToggle.setAttribute("aria-pressed", String(audioEnabled));
                 if (audioEnabled) {
-                    unlockAudio();
-                    playSound("coin");
+                    startAudioFromGesture();
                 }
             });
             restartButton.addEventListener("click", restartLevel);
@@ -1736,10 +1743,14 @@
             retryButton.addEventListener("click", restartLevel);
 
             window.addEventListener("resize", resizeCanvas);
+            window.addEventListener("orientationchange", () => requestAnimationFrame(resizeCanvas));
             if (window.visualViewport) {
                 window.visualViewport.addEventListener("resize", resizeCanvas);
             }
             new ResizeObserver(resizeCanvas).observe(gameScreen);
+            if (window.matchMedia("(pointer: coarse)").matches) {
+                requestLandscape();
+            }
             resizeCanvas();
             resetActors();
             requestAnimationFrame(loop);
