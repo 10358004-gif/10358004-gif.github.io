@@ -136,6 +136,87 @@
             box-shadow: 0 7px 21px rgba(34, 76, 84, 0.15);
         }
 
+        .touch-controls {
+            position: absolute;
+            z-index: 2;
+            inset: 0;
+            display: none;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding: 12px;
+            pointer-events: none;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .direction-pad {
+            display: grid;
+            grid-template: repeat(3, 48px) / repeat(3, 48px);
+            gap: 3px;
+            align-items: center;
+            justify-items: center;
+        }
+
+        .touch-button {
+            display: grid;
+            width: 48px;
+            height: 48px;
+            place-items: center;
+            padding: 0;
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            border-radius: 15px;
+            background: rgba(26, 48, 57, 0.58);
+            color: white;
+            font-size: 1.35rem;
+            font-weight: 850;
+            box-shadow: 0 3px 8px rgba(15, 35, 42, 0.2);
+            pointer-events: auto;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .touch-button:active,
+        .touch-button.is-pressed {
+            background: rgba(49, 132, 100, 0.9);
+            transform: scale(0.94);
+        }
+
+        .direction-pad .touch-button {
+            border-radius: 50%;
+        }
+
+        .direction-pad .empty {
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .action-pad {
+            display: flex;
+            align-items: flex-end;
+            gap: 9px;
+        }
+
+        .action-button {
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            font-size: 0.82rem;
+        }
+
+        .action-button.skill {
+            width: 68px;
+            height: 68px;
+            background: rgba(170, 76, 57, 0.78);
+        }
+
+        @media (pointer: coarse), (max-width: 760px) {
+            .touch-controls {
+                display: flex;
+            }
+        }
+
         canvas {
             display: block;
             width: 100%;
@@ -309,6 +390,40 @@
             .screen {
                 border-width: 3px;
             }
+
+            .touch-controls {
+                padding: 8px;
+            }
+
+            .direction-pad {
+                grid-template: repeat(3, 40px) / repeat(3, 40px);
+                gap: 2px;
+            }
+
+            .touch-button {
+                width: 40px;
+                height: 40px;
+                border-radius: 12px;
+            }
+
+            .direction-pad .touch-button {
+                border-radius: 50%;
+            }
+
+            .action-pad {
+                gap: 6px;
+            }
+
+            .action-button {
+                width: 52px;
+                height: 52px;
+                font-size: 0.74rem;
+            }
+
+            .action-button.skill {
+                width: 58px;
+                height: 58px;
+            }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -338,7 +453,24 @@
         </section>
 
         <section class="screen" aria-label="火柴人闖關遊戲畫面">
-            <canvas id="game-canvas" width="960" height="540" aria-label="方向鍵移動、空白鍵跳躍"></canvas>
+            <canvas id="game-canvas" width="960" height="540" aria-label="使用方向鍵或觸控按鈕移動、跳躍與施放技能"></canvas>
+            <div class="touch-controls" aria-label="觸控遊戲操作">
+                <div class="direction-pad" aria-label="方向輪盤">
+                    <span class="touch-button empty" aria-hidden="true"></span>
+                    <button class="touch-button" type="button" data-key="ArrowUp" aria-label="向上／跳躍">▲</button>
+                    <span class="touch-button empty" aria-hidden="true"></span>
+                    <button class="touch-button" type="button" data-key="ArrowLeft" aria-label="向左">◀</button>
+                    <span class="touch-button empty" aria-hidden="true"></span>
+                    <button class="touch-button" type="button" data-key="ArrowRight" aria-label="向右">▶</button>
+                    <span class="touch-button empty" aria-hidden="true"></span>
+                    <button class="touch-button" type="button" data-key="ArrowDown" aria-label="向下">▼</button>
+                    <span class="touch-button empty" aria-hidden="true"></span>
+                </div>
+                <div class="action-pad">
+                    <button class="touch-button action-button" type="button" data-action="jump">跳躍</button>
+                    <button class="touch-button action-button skill" type="button" data-action="skill">技能</button>
+                </div>
+            </div>
             <div class="level-label" id="level-name">第 1 關・新手訓練</div>
             <div class="overlay" id="overlay" hidden>
                 <div class="overlay-panel">
@@ -358,6 +490,7 @@
             <div class="key-list" aria-label="遊戲操作">
                 <kbd>←</kbd><kbd>→</kbd><span>移動</span>
                 <kbd>Space</kbd><span>跳躍</span>
+                <kbd>X</kbd><span>施放技能</span>
                 <kbd>R</kbd><span>重玩本關</span>
             </div>
         </div>
@@ -380,6 +513,7 @@
             const nextButton = document.getElementById("next-level");
             const retryButton = document.getElementById("retry");
             const restartButton = document.getElementById("restart");
+            const touchButtons = document.querySelectorAll(".touch-button[data-key], .touch-button[data-action]");
 
             const WIDTH = canvas.width;
             const HEIGHT = canvas.height;
@@ -505,7 +639,7 @@
 
             const keys = new Set();
             const collectedCoins = new Set();
-            const player = { x: 58, y: FLOOR - PLAYER_HEIGHT, vx: 0, vy: 0, grounded: false, invulnerable: 0, supportMover: -1 };
+            const player = { x: 58, y: FLOOR - PLAYER_HEIGHT, vx: 0, vy: 0, grounded: false, invulnerable: 0, supportMover: -1, facing: 1 };
 
             let levelIndex = 0;
             let lives = 3;
@@ -514,6 +648,9 @@
             let cameraX = 0;
             let lastTime = 0;
             let jumpQueued = false;
+            let skillQueued = false;
+            let skillCooldown = 0;
+            let skillEffect = 0;
             let gameState = "playing";
             let animationTime = 0;
 
@@ -553,9 +690,14 @@
                 player.grounded = false;
                 player.invulnerable = 0.9;
                 player.supportMover = -1;
+                player.facing = 1;
                 cameraX = 0;
                 gameState = "playing";
                 jumpQueued = false;
+                skillQueued = false;
+                skillCooldown = 0;
+                skillEffect = 0;
+                keys.clear();
                 overlay.hidden = true;
                 updateHud();
             }
@@ -663,6 +805,8 @@
                 const step = Math.min(delta, 0.032);
                 animationTime += step;
                 player.invulnerable = Math.max(0, player.invulnerable - step);
+                skillCooldown = Math.max(0, skillCooldown - step);
+                skillEffect = Math.max(0, skillEffect - step);
                 updateMovers(step);
                 updateTraps(step);
 
@@ -677,6 +821,10 @@
                 const left = keys.has("ArrowLeft") || keys.has("KeyA");
                 const right = keys.has("ArrowRight") || keys.has("KeyD");
                 player.vx = (Number(right) - Number(left)) * SPEED;
+                if (player.vx !== 0) player.facing = Math.sign(player.vx);
+
+                if (skillQueued) castSkill();
+                skillQueued = false;
 
                 if (jumpQueued && player.grounded) {
                     player.vy = -JUMP;
@@ -684,6 +832,9 @@
                     player.supportMover = -1;
                 }
                 jumpQueued = false;
+                if (keys.has("ArrowDown") && !player.grounded) {
+                    player.vy = Math.max(player.vy, JUMP * 0.65);
+                }
 
                 const solids = buildSolids();
                 player.x += player.vx * step;
@@ -750,6 +901,37 @@
                         updateHud();
                     }
                 }
+            }
+
+            function castSkill() {
+                if (gameState !== "playing" || skillCooldown > 0) return;
+                skillCooldown = 0.8;
+                skillEffect = 0.22;
+                const reach = 165;
+                const playerCenterX = player.x + PLAYER_WIDTH / 2;
+                const playerCenterY = player.y + PLAYER_HEIGHT / 2;
+                for (const enemy of level.enemies) {
+                    if (!enemy.alive) continue;
+                    const targetX = enemy.x + enemy.w / 2;
+                    const inFront = (targetX - playerCenterX) * player.facing >= 0;
+                    if (inFront && Math.abs(targetX - playerCenterX) <= reach &&
+                        Math.abs(enemy.y + enemy.h / 2 - playerCenterY) <= 55) {
+                        enemy.alive = false;
+                        score += 150;
+                    }
+                }
+
+                const boss = level.boss;
+                if (boss && boss.hp > 0) {
+                    const targetX = boss.x + boss.w / 2;
+                    const inFront = (targetX - playerCenterX) * player.facing >= 0;
+                    if (inFront && Math.abs(targetX - playerCenterX) <= reach &&
+                        Math.abs(boss.y + boss.h / 2 - playerCenterY) <= 65) {
+                        boss.hp -= 1;
+                        score += 250;
+                    }
+                }
+                updateHud();
             }
 
             function handleHazards() {
@@ -1037,6 +1219,21 @@
                 ctx.restore();
             }
 
+            function drawSkillEffect() {
+                if (skillEffect <= 0) return;
+                const progress = 1 - skillEffect / 0.22;
+                const x = player.x + PLAYER_WIDTH / 2 + player.facing * (24 + progress * 35) - cameraX;
+                const y = player.y + PLAYER_HEIGHT / 2;
+                ctx.save();
+                ctx.globalAlpha = 1 - progress;
+                ctx.strokeStyle = "#ffdb70";
+                ctx.lineWidth = 6 - progress * 3;
+                ctx.beginPath();
+                ctx.arc(x, y, 15 + progress * 22, -Math.PI * 0.72, Math.PI * 0.72);
+                ctx.stroke();
+                ctx.restore();
+            }
+
             function drawExit() {
                 const x = level.width - 64 - cameraX;
                 ctx.strokeStyle = "#39535d";
@@ -1073,6 +1270,7 @@
                 drawCoins();
                 drawEnemies();
                 drawExit();
+                drawSkillEffect();
                 drawPlayer();
             }
 
@@ -1103,15 +1301,16 @@
             }
 
             window.addEventListener("keydown", (event) => {
-                if (["ArrowLeft", "ArrowRight", "Space", "ArrowUp"].includes(event.code)) {
+                if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space"].includes(event.code)) {
                     event.preventDefault();
                 }
                 if (event.code === "KeyR") {
                     restartLevel();
                     return;
                 }
-                if (event.code === "Space" && !event.repeat) jumpQueued = true;
-                if (["ArrowLeft", "ArrowRight", "ArrowUp", "Space", "KeyA", "KeyD", "KeyW"].includes(event.code)) {
+                if (["Space", "ArrowUp"].includes(event.code) && !event.repeat) jumpQueued = true;
+                if (event.code === "KeyX" && !event.repeat) skillQueued = true;
+                if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space", "KeyA", "KeyD", "KeyW"].includes(event.code)) {
                     keys.add(event.code);
                 }
             });
@@ -1121,6 +1320,30 @@
             });
 
             window.addEventListener("blur", () => keys.clear());
+            touchButtons.forEach((button) => {
+                const press = (event) => {
+                    event.preventDefault();
+                    button.classList.add("is-pressed");
+                    if (button.dataset.key) {
+                        keys.add(button.dataset.key);
+                        if (button.dataset.key === "ArrowUp") jumpQueued = true;
+                    } else if (button.dataset.action === "jump") {
+                        jumpQueued = true;
+                    } else if (button.dataset.action === "skill") {
+                        skillQueued = true;
+                    }
+                    if (button.setPointerCapture) button.setPointerCapture(event.pointerId);
+                };
+                const release = (event) => {
+                    event.preventDefault();
+                    button.classList.remove("is-pressed");
+                    if (button.dataset.key) keys.delete(button.dataset.key);
+                };
+                button.addEventListener("pointerdown", press);
+                button.addEventListener("pointerup", release);
+                button.addEventListener("pointercancel", release);
+                button.addEventListener("lostpointercapture", release);
+            });
             restartButton.addEventListener("click", restartLevel);
             nextButton.addEventListener("click", advanceLevel);
             retryButton.addEventListener("click", restartLevel);
