@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="操控黑色火柴人，挑戰五個逐漸升級的平台闖關與最終 Boss。">
     <title>火柴人勇者：五大試煉</title>
     <style>
@@ -426,6 +426,134 @@
             }
         }
 
+        @media (pointer: coarse), (max-width: 760px) {
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+                min-height: 100%;
+                overflow: hidden;
+            }
+
+            body {
+                padding: 0;
+                background: #a9e3ed;
+            }
+
+            .game {
+                display: flex;
+                width: 100%;
+                height: 100vh;
+                height: 100dvh;
+                min-height: 0;
+                flex-direction: column;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+                border: 0;
+                border-radius: 0;
+                background: #a9e3ed;
+                box-shadow: none;
+            }
+
+            .game header,
+            .instructions {
+                display: none;
+            }
+
+            .screen {
+                flex: 1;
+                min-height: 0;
+                border: 0;
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            .screen canvas {
+                width: 100%;
+                height: 100%;
+                aspect-ratio: auto;
+            }
+
+            .hud {
+                position: absolute;
+                z-index: 2;
+                top: max(8px, env(safe-area-inset-top));
+                right: max(8px, env(safe-area-inset-right));
+                left: max(8px, env(safe-area-inset-left));
+                gap: 5px;
+                margin: 0;
+                pointer-events: none;
+            }
+
+            .hud-item {
+                min-width: 0;
+                min-height: 36px;
+                padding: 4px 5px;
+                border-color: rgba(255, 255, 255, 0.72);
+                background: rgba(255, 255, 255, 0.78);
+                font-size: clamp(0.65rem, 3vw, 0.82rem);
+            }
+
+            .hud-item strong {
+                font-size: clamp(0.72rem, 3.4vw, 0.9rem);
+            }
+
+            .touch-controls {
+                padding:
+                    8px
+                    max(10px, env(safe-area-inset-right))
+                    max(10px, env(safe-area-inset-bottom))
+                    max(10px, env(safe-area-inset-left));
+            }
+
+            .direction-pad {
+                grid-template: repeat(3, clamp(42px, 13vw, 58px)) / repeat(3, clamp(42px, 13vw, 58px));
+                gap: 3px;
+            }
+
+            .direction-pad .touch-button {
+                width: clamp(42px, 13vw, 58px);
+                height: clamp(42px, 13vw, 58px);
+                font-size: clamp(1.05rem, 5vw, 1.4rem);
+            }
+
+            .action-pad {
+                position: relative;
+                display: block;
+                width: clamp(132px, 36vw, 168px);
+                height: clamp(142px, 39vw, 178px);
+            }
+
+            .action-button,
+            .action-button.skill {
+                position: absolute;
+                display: grid;
+                width: clamp(58px, 17vw, 72px);
+                height: clamp(58px, 17vw, 72px);
+                border: 2px solid rgba(255, 255, 255, 0.85);
+                border-radius: 50%;
+                font-size: clamp(0.72rem, 3.5vw, 0.9rem);
+            }
+
+            .action-button {
+                bottom: 0;
+                left: 0;
+                background: rgba(49, 103, 133, 0.82);
+            }
+
+            .action-button.skill {
+                right: 0;
+                bottom: clamp(68px, 19vw, 86px);
+                background: rgba(170, 76, 57, 0.86);
+            }
+
+            .level-label {
+                top: max(54px, calc(env(safe-area-inset-top) + 46px));
+                left: max(10px, env(safe-area-inset-left));
+            }
+        }
+
         @media (prefers-reduced-motion: reduce) {
             *,
             *::before,
@@ -446,14 +574,13 @@
             <button class="restart" id="restart" type="button" title="重新開始目前關卡 (R)">重新開始本關 ↻</button>
         </header>
 
-        <section class="hud" aria-label="遊戲狀態" aria-live="polite">
-            <div class="hud-item">關卡 <strong id="level-display">1 / 5</strong></div>
-            <div class="hud-item">生命 <strong id="lives">♥ ♥ ♥</strong></div>
-            <div class="hud-item">分數 <strong id="score">0</strong></div>
-        </section>
-
         <section class="screen" aria-label="火柴人闖關遊戲畫面">
             <canvas id="game-canvas" width="960" height="540" aria-label="使用方向鍵或觸控按鈕移動、跳躍與施放技能"></canvas>
+            <section class="hud" aria-label="遊戲狀態" aria-live="polite">
+                <div class="hud-item">關卡 <strong id="level-display">1 / 5</strong></div>
+                <div class="hud-item">生命 <strong id="lives">♥ ♥ ♥</strong></div>
+                <div class="hud-item">分數 <strong id="score">0</strong></div>
+            </section>
             <div class="touch-controls" aria-label="觸控遊戲操作">
                 <div class="direction-pad" aria-label="方向輪盤">
                     <span class="touch-button empty" aria-hidden="true"></span>
@@ -501,6 +628,7 @@
             "use strict";
 
             const canvas = document.getElementById("game-canvas");
+            const screen = canvas.parentElement;
             const ctx = canvas.getContext("2d");
             const levelDisplay = document.getElementById("level-display");
             const livesDisplay = document.getElementById("lives");
@@ -515,7 +643,7 @@
             const restartButton = document.getElementById("restart");
             const touchButtons = document.querySelectorAll(".touch-button[data-key], .touch-button[data-action]");
 
-            const WIDTH = canvas.width;
+            let WIDTH = canvas.width;
             const HEIGHT = canvas.height;
             const FLOOR = 470;
             const GRAVITY = 1550;
@@ -527,113 +655,135 @@
             const levelTemplates = [
                 {
                     name: "新手訓練",
-                    width: 1500,
-                    ground: [[0, 480], [580, 990], [1090, 1500]],
+                    width: 2100,
+                    ground: [[0, 480], [580, 990], [1090, 1500], [1580, 1770], [1860, 2100]],
                     platforms: [
                         { x: 260, y: 390, w: 118 }, { x: 690, y: 380, w: 125 },
-                        { x: 825, y: 325, w: 110 }, { x: 1160, y: 385, w: 120 }
+                        { x: 825, y: 325, w: 110 }, { x: 1160, y: 385, w: 120 },
+                        { x: 1510, y: 390, w: 110 }, { x: 1690, y: 350, w: 110 },
+                        { x: 1810, y: 390, w: 100 }, { x: 1940, y: 340, w: 120 }
                     ],
                     spikes: [],
                     movers: [],
                     traps: [],
                     enemies: [],
-                    coins: [{ x: 185, y: 420 }, { x: 320, y: 350 }, { x: 635, y: 430 }, { x: 865, y: 285 }, { x: 1195, y: 345 }]
+                    coins: [{ x: 185, y: 420 }, { x: 320, y: 350 }, { x: 635, y: 430 }, { x: 865, y: 285 }, { x: 1195, y: 345 }, { x: 1550, y: 350 }, { x: 1740, y: 310 }, { x: 1985, y: 300 }]
                 },
                 {
                     name: "尖刺峽谷",
-                    width: 1800,
-                    ground: [[0, 380], [500, 930], [1080, 1350], [1485, 1800]],
+                    width: 2500,
+                    ground: [[0, 380], [500, 930], [1080, 1350], [1485, 1800], [1890, 2100], [2200, 2370], [2460, 2500]],
                     platforms: [
                         { x: 225, y: 385, w: 115 }, { x: 365, y: 330, w: 100 },
                         { x: 565, y: 390, w: 110 }, { x: 840, y: 350, w: 110 },
-                        { x: 1120, y: 395, w: 110 }, { x: 1510, y: 360, w: 125 }
+                        { x: 1120, y: 395, w: 110 }, { x: 1510, y: 360, w: 125 },
+                        { x: 1830, y: 390, w: 100 }, { x: 2010, y: 340, w: 105 },
+                        { x: 2150, y: 390, w: 100 }, { x: 2320, y: 345, w: 105 },
+                        { x: 2390, y: 390, w: 90 }
                     ],
-                    spikes: [{ x: 610, y: FLOOR - 23, w: 68, h: 23 }, { x: 1220, y: FLOOR - 23, w: 70, h: 23 }],
-                    movers: [{ x: 930, y: 380, w: 105, h: 16, min: 930, max: 1060, speed: 80, axis: "x", dir: 1 }],
+                    spikes: [{ x: 610, y: FLOOR - 23, w: 68, h: 23 }, { x: 1220, y: FLOOR - 23, w: 70, h: 23 }, { x: 1940, y: FLOOR - 23, w: 65, h: 23 }, { x: 2240, y: FLOOR - 23, w: 65, h: 23 }],
+                    movers: [{ x: 930, y: 380, w: 105, h: 16, min: 930, max: 1060, speed: 80, axis: "x", dir: 1 }, { x: 2105, y: 375, w: 95, h: 16, min: 2090, max: 2190, speed: 90, axis: "x", dir: -1 }],
                     traps: [],
                     enemies: [],
-                    coins: [{ x: 260, y: 345 }, { x: 415, y: 285 }, { x: 735, y: 420 }, { x: 980, y: 335 }, { x: 1260, y: 410 }, { x: 1550, y: 315 }]
+                    coins: [{ x: 260, y: 345 }, { x: 415, y: 285 }, { x: 735, y: 420 }, { x: 980, y: 335 }, { x: 1260, y: 410 }, { x: 1550, y: 315 }, { x: 1860, y: 340 }, { x: 2055, y: 290 }, { x: 2325, y: 295 }, { x: 2460, y: 350 }]
                 },
                 {
                     name: "敵影長谷",
-                    width: 2050,
-                    ground: [[0, 350], [500, 805], [1010, 1330], [1535, 1770], [1890, 2050]],
+                    width: 2850,
+                    ground: [[0, 350], [500, 805], [1010, 1330], [1535, 1770], [1890, 2050], [2120, 2310], [2390, 2580], [2670, 2850]],
                     platforms: [
                         { x: 215, y: 400, w: 105 }, { x: 360, y: 340, w: 105 },
                         { x: 560, y: 385, w: 105 }, { x: 700, y: 325, w: 95 },
                         { x: 1080, y: 370, w: 110 }, { x: 1215, y: 305, w: 105 },
                         { x: 1580, y: 385, w: 105 }, { x: 1735, y: 325, w: 100 },
-                        { x: 1905, y: 385, w: 100 }
+                        { x: 1905, y: 385, w: 100 }, { x: 2070, y: 390, w: 100 },
+                        { x: 2260, y: 335, w: 105 }, { x: 2350, y: 390, w: 100 },
+                        { x: 2530, y: 330, w: 100 }, { x: 2630, y: 390, w: 90 },
+                        { x: 2740, y: 340, w: 95 }
                     ],
-                    spikes: [{ x: 620, y: FLOOR - 24, w: 75, h: 24 }, { x: 1130, y: FLOOR - 24, w: 72, h: 24 }, { x: 1635, y: FLOOR - 24, w: 72, h: 24 }],
-                    movers: [{ x: 835, y: 376, w: 105, h: 16, min: 315, max: 425, speed: 105, axis: "y", dir: 1 }],
+                    spikes: [{ x: 620, y: FLOOR - 24, w: 75, h: 24 }, { x: 1130, y: FLOOR - 24, w: 72, h: 24 }, { x: 1635, y: FLOOR - 24, w: 72, h: 24 }, { x: 2160, y: FLOOR - 24, w: 68, h: 24 }, { x: 2440, y: FLOOR - 24, w: 70, h: 24 }, { x: 2700, y: FLOOR - 24, w: 65, h: 24 }],
+                    movers: [{ x: 835, y: 376, w: 105, h: 16, min: 315, max: 425, speed: 105, axis: "y", dir: 1 }, { x: 2310, y: 370, w: 100, h: 16, min: 2290, max: 2380, speed: 100, axis: "x", dir: 1 }],
                     traps: [],
                     enemies: [
                         { x: 550, y: FLOOR - 36, w: 31, h: 36, min: 520, max: 775, speed: 76, dir: 1 },
                         { x: 1080, y: FLOOR - 36, w: 31, h: 36, min: 1030, max: 1300, speed: 93, dir: -1 },
-                        { x: 1570, y: FLOOR - 36, w: 31, h: 36, min: 1545, max: 1750, speed: 110, dir: 1 }
+                        { x: 1570, y: FLOOR - 36, w: 31, h: 36, min: 1545, max: 1750, speed: 110, dir: 1 },
+                        { x: 2410, y: FLOOR - 36, w: 31, h: 36, min: 2395, max: 2550, speed: 105, dir: 1 }
                     ],
-                    coins: [{ x: 270, y: 355 }, { x: 400, y: 295 }, { x: 585, y: 340 }, { x: 885, y: 325 }, { x: 1155, y: 320 }, { x: 1260, y: 260 }, { x: 1640, y: 340 }, { x: 1940, y: 345 }]
+                    coins: [{ x: 270, y: 355 }, { x: 400, y: 295 }, { x: 585, y: 340 }, { x: 885, y: 325 }, { x: 1155, y: 320 }, { x: 1260, y: 260 }, { x: 1640, y: 340 }, { x: 1940, y: 345 }, { x: 2100, y: 340 }, { x: 2285, y: 290 }, { x: 2520, y: 285 }, { x: 2760, y: 300 }]
                 },
                 {
                     name: "移動陷阱迷宮",
-                    width: 2300,
-                    ground: [[0, 330], [470, 750], [930, 1200], [1390, 1600], [1790, 2020], [2160, 2300]],
+                    width: 3200,
+                    ground: [[0, 330], [470, 750], [930, 1200], [1390, 1600], [1790, 2020], [2160, 2300], [2390, 2570], [2660, 2820], [2910, 3070], [3150, 3200]],
                     platforms: [
                         { x: 195, y: 395, w: 105 }, { x: 330, y: 335, w: 95 },
                         { x: 520, y: 385, w: 95 }, { x: 665, y: 320, w: 85 },
                         { x: 970, y: 390, w: 95 }, { x: 1115, y: 330, w: 85 },
                         { x: 1430, y: 375, w: 95 }, { x: 1560, y: 310, w: 85 },
                         { x: 1830, y: 385, w: 95 }, { x: 1965, y: 320, w: 95 },
-                        { x: 2180, y: 375, w: 85 }
+                        { x: 2180, y: 375, w: 85 }, { x: 2340, y: 390, w: 95 },
+                        { x: 2510, y: 335, w: 95 }, { x: 2610, y: 390, w: 90 },
+                        { x: 2770, y: 325, w: 100 }, { x: 2870, y: 390, w: 95 },
+                        { x: 3015, y: 335, w: 95 }, { x: 3095, y: 390, w: 85 }
                     ],
-                    spikes: [{ x: 540, y: FLOOR - 24, w: 78, h: 24 }, { x: 990, y: FLOOR - 24, w: 80, h: 24 }, { x: 1450, y: FLOOR - 24, w: 75, h: 24 }, { x: 1850, y: FLOOR - 24, w: 76, h: 24 }],
+                    spikes: [{ x: 540, y: FLOOR - 24, w: 78, h: 24 }, { x: 990, y: FLOOR - 24, w: 80, h: 24 }, { x: 1450, y: FLOOR - 24, w: 75, h: 24 }, { x: 1850, y: FLOOR - 24, w: 76, h: 24 }, { x: 2420, y: FLOOR - 24, w: 68, h: 24 }, { x: 2680, y: FLOOR - 24, w: 68, h: 24 }, { x: 2940, y: FLOOR - 24, w: 70, h: 24 }],
                     movers: [
                         { x: 760, y: 380, w: 100, h: 16, min: 755, max: 905, speed: 125, axis: "x", dir: 1 },
-                        { x: 1620, y: 370, w: 95, h: 16, min: 290, max: 410, speed: 105, axis: "y", dir: 1 }
+                        { x: 1620, y: 370, w: 95, h: 16, min: 290, max: 410, speed: 105, axis: "y", dir: 1 },
+                        { x: 2300, y: 370, w: 95, h: 16, min: 2280, max: 2370, speed: 115, axis: "x", dir: -1 }
                     ],
                     traps: [
                         { x: 1190, y: 330, r: 17, min: 300, max: 430, speed: 95, axis: "y", dir: 1 },
-                        { x: 2045, y: 350, r: 17, min: 1960, max: 2135, speed: 110, axis: "x", dir: 1 }
+                        { x: 2045, y: 350, r: 17, min: 1960, max: 2135, speed: 110, axis: "x", dir: 1 },
+                        { x: 2820, y: 350, r: 17, min: 2730, max: 2860, speed: 105, axis: "x", dir: -1 }
                     ],
                     enemies: [
                         { x: 490, y: FLOOR - 36, w: 31, h: 36, min: 475, max: 730, speed: 110, dir: 1 },
                         { x: 1410, y: FLOOR - 36, w: 31, h: 36, min: 1395, max: 1580, speed: 128, dir: -1 },
-                        { x: 1810, y: FLOOR - 36, w: 31, h: 36, min: 1795, max: 2000, speed: 136, dir: 1 }
+                        { x: 1810, y: FLOOR - 36, w: 31, h: 36, min: 1795, max: 2000, speed: 136, dir: 1 },
+                        { x: 2680, y: FLOOR - 36, w: 31, h: 36, min: 2670, max: 2790, speed: 145, dir: -1 }
                     ],
-                    coins: [{ x: 230, y: 350 }, { x: 365, y: 295 }, { x: 600, y: 335 }, { x: 815, y: 330 }, { x: 1020, y: 345 }, { x: 1190, y: 280 }, { x: 1470, y: 330 }, { x: 1665, y: 290 }, { x: 1880, y: 340 }, { x: 2210, y: 325 }]
+                    coins: [{ x: 230, y: 350 }, { x: 365, y: 295 }, { x: 600, y: 335 }, { x: 815, y: 330 }, { x: 1020, y: 345 }, { x: 1190, y: 280 }, { x: 1470, y: 330 }, { x: 1665, y: 290 }, { x: 1880, y: 340 }, { x: 2210, y: 325 }, { x: 2370, y: 345 }, { x: 2540, y: 290 }, { x: 2790, y: 280 }, { x: 3030, y: 295 }, { x: 3160, y: 345 }]
                 },
                 {
                     name: "最終 Boss 決戰",
-                    width: 2500,
-                    ground: [[0, 340], [490, 780], [940, 1170], [1335, 1600], [1765, 2070], [2220, 2500]],
+                    width: 3500,
+                    ground: [[0, 340], [490, 780], [940, 1170], [1335, 1600], [1765, 2070], [2220, 2500], [2580, 2770], [2860, 3050], [3140, 3500]],
                     platforms: [
                         { x: 205, y: 395, w: 100 }, { x: 345, y: 330, w: 95 },
                         { x: 535, y: 380, w: 90 }, { x: 685, y: 315, w: 85 },
                         { x: 970, y: 375, w: 95 }, { x: 1110, y: 310, w: 85 },
                         { x: 1370, y: 370, w: 95 }, { x: 1530, y: 300, w: 90 },
                         { x: 1805, y: 375, w: 90 }, { x: 1955, y: 315, w: 90 },
-                        { x: 2260, y: 380, w: 95 }
+                        { x: 2260, y: 380, w: 95 }, { x: 2530, y: 390, w: 100 },
+                        { x: 2700, y: 330, w: 100 }, { x: 2800, y: 390, w: 95 },
+                        { x: 2980, y: 330, w: 100 }, { x: 3090, y: 380, w: 100 },
+                        { x: 3290, y: 365, w: 100 }
                     ],
                     spikes: [
                         { x: 560, y: FLOOR - 24, w: 82, h: 24 }, { x: 1000, y: FLOOR - 24, w: 85, h: 24 },
-                        { x: 1410, y: FLOOR - 24, w: 80, h: 24 }, { x: 1840, y: FLOOR - 24, w: 85, h: 24 }
+                        { x: 1410, y: FLOOR - 24, w: 80, h: 24 },                         { x: 1840, y: FLOOR - 24, w: 85, h: 24 }, { x: 2600, y: FLOOR - 24, w: 75, h: 24 },
+                        { x: 2890, y: FLOOR - 24, w: 80, h: 24 }
                     ],
                     movers: [
                         { x: 790, y: 378, w: 105, h: 16, min: 780, max: 920, speed: 145, axis: "x", dir: 1 },
-                        { x: 1625, y: 360, w: 95, h: 16, min: 280, max: 420, speed: 125, axis: "y", dir: 1 }
+                        { x: 1625, y: 360, w: 95, h: 16, min: 280, max: 420, speed: 125, axis: "y", dir: 1 },
+                        { x: 2780, y: 365, w: 100, h: 16, min: 2760, max: 2850, speed: 120, axis: "x", dir: 1 }
                     ],
                     traps: [
                         { x: 1180, y: 335, r: 18, min: 290, max: 440, speed: 115, axis: "y", dir: 1 },
-                        { x: 2075, y: 345, r: 18, min: 1975, max: 2180, speed: 135, axis: "x", dir: -1 }
+                        { x: 2075, y: 345, r: 18, min: 1975, max: 2180, speed: 135, axis: "x", dir: -1 },
+                        { x: 3050, y: 345, r: 18, min: 2970, max: 3110, speed: 125, axis: "x", dir: 1 }
                     ],
                     enemies: [
                         { x: 510, y: FLOOR - 36, w: 32, h: 36, min: 495, max: 755, speed: 125, dir: 1 },
                         { x: 1375, y: FLOOR - 36, w: 32, h: 36, min: 1350, max: 1570, speed: 145, dir: -1 },
-                        { x: 1790, y: FLOOR - 36, w: 32, h: 36, min: 1775, max: 2040, speed: 155, dir: 1 }
+                        { x: 1790, y: FLOOR - 36, w: 32, h: 36, min: 1775, max: 2040, speed: 155, dir: 1 },
+                        { x: 2585, y: FLOOR - 36, w: 32, h: 36, min: 2580, max: 2750, speed: 145, dir: -1 }
                     ],
-                    boss: { x: 2185, y: FLOOR - 78, w: 58, h: 78, min: 2180, max: 2390, speed: 82, dir: -1, hp: 3, maxHp: 3 },
-                    coins: [{ x: 250, y: 350 }, { x: 385, y: 290 }, { x: 595, y: 330 }, { x: 835, y: 330 }, { x: 1015, y: 330 }, { x: 1180, y: 280 }, { x: 1455, y: 325 }, { x: 1665, y: 280 }, { x: 1880, y: 330 }, { x: 2290, y: 330 }]
+                    boss: { x: 3180, y: FLOOR - 78, w: 58, h: 78, min: 3160, max: 3400, speed: 82, dir: -1, hp: 3, maxHp: 3 },
+                    coins: [{ x: 250, y: 350 }, { x: 385, y: 290 }, { x: 595, y: 330 }, { x: 835, y: 330 }, { x: 1015, y: 330 }, { x: 1180, y: 280 }, { x: 1455, y: 325 }, { x: 1665, y: 280 }, { x: 1880, y: 330 }, { x: 2290, y: 330 }, { x: 2550, y: 340 }, { x: 2730, y: 290 }, { x: 2990, y: 290 }, { x: 3300, y: 320 }]
                 }
             ];
 
@@ -653,6 +803,16 @@
             let skillEffect = 0;
             let gameState = "playing";
             let animationTime = 0;
+
+            function resizeCanvas() {
+                const bounds = screen.getBoundingClientRect();
+                if (!bounds.width || !bounds.height) return;
+                const nextWidth = Math.max(1, Math.round(HEIGHT * bounds.width / bounds.height));
+                if (canvas.width === nextWidth) return;
+                canvas.width = nextWidth;
+                WIDTH = nextWidth;
+                if (level) cameraX = Math.max(0, Math.min(level.width - WIDTH, cameraX));
+            }
 
             function rectsOverlap(a, b) {
                 return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
@@ -983,6 +1143,24 @@
                 }
             }
 
+            function drawMountainLayer(spacing, baseY, peakHeight, parallax, color, phase) {
+                const firstMountain = Math.floor(cameraX * parallax / spacing) - 1;
+                const lastMountain = Math.ceil((cameraX * parallax + WIDTH) / spacing) + 1;
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(0, HEIGHT);
+                for (let index = firstMountain; index <= lastMountain; index += 1) {
+                    const centerX = index * spacing + spacing / 2 - cameraX * parallax;
+                    const peakY = baseY - peakHeight * (0.72 + Math.sin(index * 1.7 + phase) * 0.18);
+                    ctx.lineTo(centerX - spacing / 2, baseY);
+                    ctx.lineTo(centerX, peakY);
+                    ctx.lineTo(centerX + spacing / 2, baseY);
+                }
+                ctx.lineTo(WIDTH, HEIGHT);
+                ctx.closePath();
+                ctx.fill();
+            }
+
             function drawBackground() {
                 const sky = ctx.createLinearGradient(0, 0, 0, HEIGHT);
                 sky.addColorStop(0, "#8bd8ef");
@@ -990,9 +1168,14 @@
                 ctx.fillStyle = sky;
                 ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
+                drawMountainLayer(250, 405, 150, 0.13, "#a2c9bd", 0.4);
+                drawMountainLayer(330, 420, 115, 0.25, "#81b7a5", 1.2);
+
                 ctx.fillStyle = "#fff4b8";
                 ctx.beginPath();
-                ctx.arc(790 - cameraX * 0.08, 92, 37, 0, Math.PI * 2);
+                const sunCycle = WIDTH + 200;
+                const sunX = ((790 - cameraX * 0.08) % sunCycle + sunCycle) % sunCycle - 100;
+                ctx.arc(sunX, 92, 37, 0, Math.PI * 2);
                 ctx.fill();
 
                 for (let i = 0; i < 7; i += 1) {
@@ -1348,6 +1531,12 @@
             nextButton.addEventListener("click", advanceLevel);
             retryButton.addEventListener("click", restartLevel);
 
+            window.addEventListener("resize", resizeCanvas);
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener("resize", resizeCanvas);
+            }
+            new ResizeObserver(resizeCanvas).observe(screen);
+            resizeCanvas();
             resetActors();
             requestAnimationFrame(loop);
         })();
