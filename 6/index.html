@@ -604,8 +604,68 @@
             }
         }
 
+        .orientation-choice {
+            display: none;
+        }
+
+        @media (pointer: coarse), (max-width: 760px) {
+            .orientation-choice {
+                position: fixed;
+                z-index: 20;
+                inset: 0;
+                display: grid;
+                align-content: center;
+                justify-items: center;
+                gap: 14px;
+                padding: 24px;
+                background: #193640;
+                color: white;
+                text-align: center;
+            }
+
+            .orientation-choice[hidden] {
+                display: none;
+            }
+
+            .orientation-choice h1 {
+                color: white;
+                font-size: 1.5rem;
+            }
+
+            .orientation-choice p {
+                max-width: 340px;
+                margin: 0 0 8px;
+                color: #d3e2e4;
+                line-height: 1.6;
+            }
+
+            .orientation-choice-actions {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .orientation-choice button {
+                min-height: 46px;
+                padding: 10px 18px;
+                border: 0;
+                border-radius: 12px;
+                background: #318464;
+                color: white;
+                font: inherit;
+                font-weight: 750;
+                touch-action: manipulation;
+            }
+
+            .orientation-choice button.secondary {
+                border: 1px solid rgba(255, 255, 255, 0.4);
+                background: transparent;
+            }
+        }
+
         @media (orientation: portrait) and (pointer: coarse), (orientation: portrait) and (max-width: 760px) {
-            .game {
+            .game.force-landscape {
                 position: fixed;
                 top: 50%;
                 left: 50%;
@@ -615,7 +675,6 @@
                 transform: translate(-50%, -50%) rotate(90deg);
                 transform-origin: center;
             }
-
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -683,6 +742,15 @@
             </div>
         </div>
     </main>
+    <section class="orientation-choice" id="orientation-choice" aria-label="選擇遊戲方向">
+        <div class="rotate-icon" aria-hidden="true">📱↻</div>
+        <h1>選擇遊戲方向</h1>
+        <p>建議橫向遊玩，畫面更寬、操作更舒適。點選橫向後，遊戲會嘗試全螢幕與鎖定方向；若瀏覽器不支援，會自動旋轉遊戲畫面。</p>
+        <div class="orientation-choice-actions">
+            <button id="start-landscape" type="button">橫向遊玩</button>
+            <button class="secondary" id="start-portrait" type="button">直向遊玩</button>
+        </div>
+    </section>
     <script>
         (() => {
             "use strict";
@@ -702,6 +770,10 @@
             const retryButton = document.getElementById("retry");
             const restartButton = document.getElementById("restart");
             const soundToggle = document.getElementById("sound-toggle");
+            const orientationChoice = document.getElementById("orientation-choice");
+            const startLandscapeButton = document.getElementById("start-landscape");
+            const startPortraitButton = document.getElementById("start-portrait");
+            const game = canvas.closest(".game");
             const joystick = document.getElementById("joystick");
             const touchButtons = document.querySelectorAll(".touch-button[data-key], .touch-button[data-action]");
 
@@ -867,8 +939,8 @@
             let animationTime = 0;
             let audioContext = null;
             let audioEnabled = true;
-            let landscapeRequested = false;
             let audioGestureUnlocked = false;
+            const isMobileLayout = window.matchMedia("(pointer: coarse), (max-width: 760px)").matches;
 
             function unlockAudio() {
                 if (!audioEnabled) return;
@@ -923,21 +995,33 @@
                 oscillator.stop(now + sound.duration);
             }
 
-            async function requestLandscape() {
-                if (document.documentElement.requestFullscreen) {
+            function startGame(landscape) {
+                startAudioFromGesture();
+                game.classList.toggle("force-landscape", landscape);
+
+                if (landscape && document.documentElement.requestFullscreen) {
                     try {
-                        await document.documentElement.requestFullscreen();
+                        document.documentElement.requestFullscreen().catch((error) => {
+                            console.warn("無法進入全螢幕；將以旋轉遊戲畫面繼續。", error);
+                        });
                     } catch (error) {
-                        console.warn("瀏覽器未允許進入全螢幕，請手動旋轉手機。", error);
+                        console.warn("無法進入全螢幕；將以旋轉遊戲畫面繼續。", error);
                     }
                 }
-                if (window.screen.orientation && window.screen.orientation.lock) {
+                if (landscape && window.screen.orientation && window.screen.orientation.lock) {
                     try {
-                        await window.screen.orientation.lock("landscape");
+                        window.screen.orientation.lock("landscape").catch((error) => {
+                            console.warn("無法鎖定手機方向；將以旋轉遊戲畫面繼續。", error);
+                        });
                     } catch (error) {
-                        console.warn("瀏覽器未允許鎖定橫向，請手動旋轉手機。", error);
+                        console.warn("無法鎖定手機方向；將以旋轉遊戲畫面繼續。", error);
                     }
                 }
+
+                orientationChoice.hidden = true;
+                gameState = "playing";
+                lastTime = 0;
+                requestAnimationFrame(resizeCanvas);
             }
 
             function resizeCanvas() {
@@ -1684,10 +1768,6 @@
                 const press = (event) => {
                     event.preventDefault();
                     startAudioFromGesture();
-                    if (!landscapeRequested) {
-                        landscapeRequested = true;
-                        requestLandscape();
-                    }
                     activePointerId = event.pointerId;
                     button.classList.add("is-pressed");
                     if (button.dataset.key) {
@@ -1741,6 +1821,8 @@
             restartButton.addEventListener("click", restartLevel);
             nextButton.addEventListener("click", advanceLevel);
             retryButton.addEventListener("click", restartLevel);
+            startLandscapeButton.addEventListener("click", () => startGame(true));
+            startPortraitButton.addEventListener("click", () => startGame(false));
 
             window.addEventListener("resize", resizeCanvas);
             window.addEventListener("orientationchange", () => requestAnimationFrame(resizeCanvas));
@@ -1748,11 +1830,10 @@
                 window.visualViewport.addEventListener("resize", resizeCanvas);
             }
             new ResizeObserver(resizeCanvas).observe(gameScreen);
-            if (window.matchMedia("(pointer: coarse)").matches) {
-                requestLandscape();
-            }
             resizeCanvas();
             resetActors();
+            if (isMobileLayout) gameState = "ready";
+            else orientationChoice.hidden = true;
             requestAnimationFrame(loop);
         })();
     </script>
