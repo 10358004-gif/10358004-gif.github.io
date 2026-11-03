@@ -89,7 +89,7 @@
 
         .hud {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 10px;
             margin-bottom: 12px;
         }
@@ -115,6 +115,11 @@
             font-variant-numeric: tabular-nums;
         }
 
+        .sound-toggle {
+            border: 1px solid #e1eae8;
+            cursor: pointer;
+        }
+
         #lives {
             color: #e56761;
             letter-spacing: 0.1em;
@@ -137,25 +142,14 @@
         }
 
         .touch-controls {
-            position: absolute;
-            z-index: 2;
-            inset: 0;
             display: none;
-            align-items: flex-end;
+            align-items: center;
             justify-content: space-between;
-            padding: 12px;
-            pointer-events: none;
+            padding: 8px 18px;
+            background: #193640;
             touch-action: none;
             user-select: none;
             -webkit-user-select: none;
-        }
-
-        .direction-pad {
-            display: grid;
-            grid-template: repeat(3, 48px) / repeat(3, 48px);
-            gap: 3px;
-            align-items: center;
-            justify-items: center;
         }
 
         .touch-button {
@@ -179,41 +173,102 @@
 
         .touch-button:active,
         .touch-button.is-pressed {
-            background: rgba(49, 132, 100, 0.9);
+            background: rgba(49, 132, 100, 0.62);
             transform: scale(0.94);
         }
 
-        .direction-pad .touch-button {
+        .joystick {
+            position: relative;
+            width: 118px;
+            height: 118px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
             border-radius: 50%;
+            background: rgba(26, 48, 57, 0.38);
+            touch-action: none;
         }
 
-        .direction-pad .empty {
-            visibility: hidden;
+        .joystick:active,
+        .joystick.is-pressed {
+            background: rgba(26, 48, 57, 0.5);
+        }
+
+        .joystick-arrow {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.82);
+            font-size: 0.88rem;
+            line-height: 1;
             pointer-events: none;
         }
 
+        .joystick-arrow.up {
+            top: 9px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .joystick-arrow.right {
+            top: 50%;
+            right: 9px;
+            transform: translateY(-50%);
+        }
+
+        .joystick-arrow.down {
+            bottom: 9px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .joystick-arrow.left {
+            top: 50%;
+            left: 9px;
+            transform: translateY(-50%);
+        }
+
+        .joystick-knob {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 48%;
+            height: 48%;
+            border: 1px solid rgba(255, 255, 255, 0.78);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.38);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+            transform: translate(calc(-50% + var(--stick-x, 0px)), calc(-50% + var(--stick-y, 0px)));
+        }
+
         .action-pad {
-            display: flex;
-            align-items: flex-end;
-            gap: 9px;
+            position: relative;
+            display: block;
+            width: 168px;
+            height: 142px;
         }
 
         .action-button {
+            position: absolute;
+            bottom: 0;
+            left: 0;
             width: 62px;
             height: 62px;
             border-radius: 50%;
             font-size: 0.82rem;
+            background: rgba(49, 103, 133, 0.55);
         }
 
         .action-button.skill {
+            right: 0;
+            bottom: 72px;
+            left: auto;
             width: 68px;
             height: 68px;
-            background: rgba(170, 76, 57, 0.78);
+            background: rgba(170, 76, 57, 0.58);
         }
 
         @media (pointer: coarse), (max-width: 760px) {
             .touch-controls {
                 display: flex;
+                flex: 0 0 clamp(156px, 30vh, 170px);
             }
         }
 
@@ -395,19 +450,10 @@
                 padding: 8px;
             }
 
-            .direction-pad {
-                grid-template: repeat(3, 40px) / repeat(3, 40px);
-                gap: 2px;
-            }
-
             .touch-button {
                 width: 40px;
                 height: 40px;
                 border-radius: 12px;
-            }
-
-            .direction-pad .touch-button {
-                border-radius: 50%;
             }
 
             .action-pad {
@@ -486,6 +532,10 @@
                 pointer-events: none;
             }
 
+            .sound-toggle {
+                pointer-events: auto;
+            }
+
             .hud-item {
                 min-width: 0;
                 min-height: 36px;
@@ -500,29 +550,24 @@
             }
 
             .touch-controls {
+                flex-basis: clamp(100px, 22vh, 132px);
                 padding:
-                    8px
+                    6px
                     max(10px, env(safe-area-inset-right))
-                    max(10px, env(safe-area-inset-bottom))
+                    max(6px, env(safe-area-inset-bottom))
                     max(10px, env(safe-area-inset-left));
+                border-top: 1px solid rgba(255, 255, 255, 0.16);
             }
 
-            .direction-pad {
-                grid-template: repeat(3, clamp(42px, 13vw, 58px)) / repeat(3, clamp(42px, 13vw, 58px));
-                gap: 3px;
-            }
-
-            .direction-pad .touch-button {
-                width: clamp(42px, 13vw, 58px);
-                height: clamp(42px, 13vw, 58px);
-                font-size: clamp(1.05rem, 5vw, 1.4rem);
+            .joystick {
+                width: clamp(96px, 25vh, 120px);
+                height: clamp(96px, 25vh, 120px);
+                flex: 0 0 auto;
             }
 
             .action-pad {
-                position: relative;
-                display: block;
-                width: clamp(132px, 36vw, 168px);
-                height: clamp(142px, 39vw, 178px);
+                width: clamp(132px, 22vw, 168px);
+                height: clamp(100px, 20vh, 124px);
             }
 
             .action-button,
@@ -539,18 +584,70 @@
             .action-button {
                 bottom: 0;
                 left: 0;
-                background: rgba(49, 103, 133, 0.82);
+                background: rgba(49, 103, 133, 0.55);
             }
 
             .action-button.skill {
                 right: 0;
-                bottom: clamp(68px, 19vw, 86px);
-                background: rgba(170, 76, 57, 0.86);
+                top: 0;
+                bottom: auto;
+                background: rgba(170, 76, 57, 0.58);
             }
 
             .level-label {
                 top: max(54px, calc(env(safe-area-inset-top) + 46px));
                 left: max(10px, env(safe-area-inset-left));
+            }
+        }
+
+        .orientation-prompt {
+            display: none;
+        }
+
+        @media (orientation: portrait) and (pointer: coarse), (orientation: portrait) and (max-width: 760px) {
+            .game {
+                display: none;
+            }
+
+            .orientation-prompt {
+                position: fixed;
+                z-index: 10;
+                inset: 0;
+                display: grid;
+                align-content: center;
+                justify-items: center;
+                gap: 14px;
+                padding: 24px;
+                background: #193640;
+                color: white;
+                text-align: center;
+            }
+
+            .orientation-prompt .rotate-icon {
+                font-size: 4rem;
+            }
+
+            .orientation-prompt h1 {
+                color: white;
+                font-size: 1.5rem;
+            }
+
+            .orientation-prompt p {
+                max-width: 320px;
+                margin: 0;
+                color: #d3e2e4;
+                line-height: 1.6;
+            }
+
+            .orientation-prompt button {
+                min-height: 46px;
+                padding: 10px 18px;
+                border: 0;
+                border-radius: 12px;
+                background: #318464;
+                color: white;
+                font: inherit;
+                font-weight: 750;
             }
         }
 
@@ -580,24 +677,8 @@
                 <div class="hud-item">關卡 <strong id="level-display">1 / 5</strong></div>
                 <div class="hud-item">生命 <strong id="lives">♥ ♥ ♥</strong></div>
                 <div class="hud-item">分數 <strong id="score">0</strong></div>
+                <button class="hud-item sound-toggle" id="sound-toggle" type="button" aria-label="關閉遊戲音效" aria-pressed="true">🔊 音效</button>
             </section>
-            <div class="touch-controls" aria-label="觸控遊戲操作">
-                <div class="direction-pad" aria-label="方向輪盤">
-                    <span class="touch-button empty" aria-hidden="true"></span>
-                    <button class="touch-button" type="button" data-key="ArrowUp" aria-label="向上／跳躍">▲</button>
-                    <span class="touch-button empty" aria-hidden="true"></span>
-                    <button class="touch-button" type="button" data-key="ArrowLeft" aria-label="向左">◀</button>
-                    <span class="touch-button empty" aria-hidden="true"></span>
-                    <button class="touch-button" type="button" data-key="ArrowRight" aria-label="向右">▶</button>
-                    <span class="touch-button empty" aria-hidden="true"></span>
-                    <button class="touch-button" type="button" data-key="ArrowDown" aria-label="向下">▼</button>
-                    <span class="touch-button empty" aria-hidden="true"></span>
-                </div>
-                <div class="action-pad">
-                    <button class="touch-button action-button" type="button" data-action="jump">跳躍</button>
-                    <button class="touch-button action-button skill" type="button" data-action="skill">技能</button>
-                </div>
-            </div>
             <div class="level-label" id="level-name">第 1 關・新手訓練</div>
             <div class="overlay" id="overlay" hidden>
                 <div class="overlay-panel">
@@ -611,6 +692,19 @@
                 </div>
             </div>
         </section>
+        <div class="touch-controls" aria-label="觸控遊戲操作">
+            <button class="touch-button joystick" id="joystick" type="button" data-action="joystick" aria-label="方向輪盤，拖曳以控制上下左右">
+                <span class="joystick-arrow up" aria-hidden="true">▲</span>
+                <span class="joystick-arrow right" aria-hidden="true">▶</span>
+                <span class="joystick-arrow down" aria-hidden="true">▼</span>
+                <span class="joystick-arrow left" aria-hidden="true">◀</span>
+                <span class="joystick-knob" aria-hidden="true"></span>
+            </button>
+            <div class="action-pad">
+                <button class="touch-button action-button" type="button" data-action="jump">跳躍</button>
+                <button class="touch-button action-button skill" type="button" data-action="skill">技能</button>
+            </div>
+        </div>
 
         <div class="instructions">
             <span>躲開陷阱、擊退敵人、收集金幣，勇闖五大關卡！</span>
@@ -622,13 +716,19 @@
             </div>
         </div>
     </main>
+    <section class="orientation-prompt" aria-label="請將手機轉為橫向">
+        <div class="rotate-icon" aria-hidden="true">📱↻</div>
+        <h1>請橫向使用手機</h1>
+        <p>遊戲採用橫向全螢幕畫面。點擊下方按鈕嘗試鎖定橫向；若瀏覽器不支援，請手動旋轉手機。</p>
+        <button id="landscape-button" type="button">進入橫向遊戲</button>
+    </section>
 
     <script>
         (() => {
             "use strict";
 
             const canvas = document.getElementById("game-canvas");
-            const screen = canvas.parentElement;
+            const gameScreen = canvas.parentElement;
             const ctx = canvas.getContext("2d");
             const levelDisplay = document.getElementById("level-display");
             const livesDisplay = document.getElementById("lives");
@@ -641,6 +741,9 @@
             const nextButton = document.getElementById("next-level");
             const retryButton = document.getElementById("retry");
             const restartButton = document.getElementById("restart");
+            const soundToggle = document.getElementById("sound-toggle");
+            const landscapeButton = document.getElementById("landscape-button");
+            const joystick = document.getElementById("joystick");
             const touchButtons = document.querySelectorAll(".touch-button[data-key], .touch-button[data-action]");
 
             let WIDTH = canvas.width;
@@ -803,15 +906,106 @@
             let skillEffect = 0;
             let gameState = "playing";
             let animationTime = 0;
+            let audioContext = null;
+            let audioEnabled = true;
+
+            function unlockAudio() {
+                if (!audioEnabled) return;
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) {
+                    soundToggle.disabled = true;
+                    soundToggle.textContent = "無音";
+                    soundToggle.setAttribute("aria-label", "此瀏覽器不支援遊戲音效");
+                    return;
+                }
+                if (!audioContext) audioContext = new AudioContextClass();
+                if (audioContext.state === "suspended") {
+                    audioContext.resume().catch((error) => console.error("無法啟用遊戲音效：", error));
+                }
+            }
+
+            function playSound(kind) {
+                if (!audioEnabled) return;
+                unlockAudio();
+                if (!audioContext) return;
+
+                const sounds = {
+                    jump: { start: 360, end: 620, duration: 0.13, wave: "sine" },
+                    skill: { start: 720, end: 180, duration: 0.2, wave: "sawtooth" },
+                    coin: { start: 820, end: 1180, duration: 0.11, wave: "sine" },
+                    stomp: { start: 250, end: 440, duration: 0.12, wave: "triangle" },
+                    hit: { start: 190, end: 75, duration: 0.24, wave: "triangle" },
+                    clear: { start: 520, end: 1040, duration: 0.32, wave: "sine" }
+                };
+                const sound = sounds[kind];
+                if (!sound) return;
+
+                const now = audioContext.currentTime;
+                const oscillator = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                oscillator.type = sound.wave;
+                oscillator.frequency.setValueAtTime(sound.start, now);
+                oscillator.frequency.exponentialRampToValueAtTime(sound.end, now + sound.duration);
+                gain.gain.setValueAtTime(0.0001, now);
+                gain.gain.exponentialRampToValueAtTime(0.12, now + 0.015);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + sound.duration);
+                oscillator.connect(gain);
+                gain.connect(audioContext.destination);
+                oscillator.start(now);
+                oscillator.stop(now + sound.duration);
+            }
+
+            async function requestLandscape() {
+                if (document.documentElement.requestFullscreen) {
+                    try {
+                        await document.documentElement.requestFullscreen();
+                    } catch (error) {
+                        console.warn("瀏覽器未允許進入全螢幕，請手動旋轉手機。", error);
+                    }
+                }
+                if (window.screen.orientation && window.screen.orientation.lock) {
+                    try {
+                        await window.screen.orientation.lock("landscape");
+                    } catch (error) {
+                        console.warn("瀏覽器未允許鎖定橫向，請手動旋轉手機。", error);
+                    }
+                }
+            }
 
             function resizeCanvas() {
-                const bounds = screen.getBoundingClientRect();
+                const bounds = gameScreen.getBoundingClientRect();
                 if (!bounds.width || !bounds.height) return;
                 const nextWidth = Math.max(1, Math.round(HEIGHT * bounds.width / bounds.height));
                 if (canvas.width === nextWidth) return;
                 canvas.width = nextWidth;
                 WIDTH = nextWidth;
                 if (level) cameraX = Math.max(0, Math.min(level.width - WIDTH, cameraX));
+            }
+
+            function updateJoystick(event) {
+                const bounds = joystick.getBoundingClientRect();
+                const radius = Math.min(bounds.width, bounds.height) / 2;
+                let dx = (event.clientX - (bounds.left + bounds.width / 2)) / radius;
+                let dy = (event.clientY - (bounds.top + bounds.height / 2)) / radius;
+                const magnitude = Math.hypot(dx, dy);
+                if (magnitude > 1) {
+                    dx /= magnitude;
+                    dy /= magnitude;
+                }
+
+                const wasUp = keys.has("ArrowUp");
+                keys.delete("ArrowLeft");
+                keys.delete("ArrowRight");
+                keys.delete("ArrowUp");
+                keys.delete("ArrowDown");
+                if (dx < -0.3) keys.add("ArrowLeft");
+                if (dx > 0.3) keys.add("ArrowRight");
+                if (dy < -0.3) keys.add("ArrowUp");
+                if (dy > 0.3) keys.add("ArrowDown");
+                if (!wasUp && keys.has("ArrowUp")) jumpQueued = true;
+
+                joystick.style.setProperty("--stick-x", `${dx * radius * 0.52}px`);
+                joystick.style.setProperty("--stick-y", `${dy * radius * 0.52}px`);
             }
 
             function rectsOverlap(a, b) {
@@ -887,6 +1081,7 @@
             }
 
             function completeLevel() {
+                playSound("clear");
                 if (levelIndex === levelTemplates.length - 1) {
                     showOverlay("cleared", "恭喜你完成全部關卡！", `五大試煉全部通過，最終分數 ${score} 分！`, "🏆");
                 } else {
@@ -896,6 +1091,7 @@
 
             function loseLife() {
                 if (gameState !== "playing" || player.invulnerable > 0) return;
+                playSound("hit");
                 lives -= 1;
                 updateHud();
                 if (lives <= 0) {
@@ -987,6 +1183,7 @@
                 skillQueued = false;
 
                 if (jumpQueued && player.grounded) {
+                    playSound("jump");
                     player.vy = -JUMP;
                     player.grounded = false;
                     player.supportMover = -1;
@@ -1058,6 +1255,7 @@
                         coin.collected = true;
                         collectedCoins.add(coin.id);
                         score += 100;
+                        playSound("coin");
                         updateHud();
                     }
                 }
@@ -1067,6 +1265,7 @@
                 if (gameState !== "playing" || skillCooldown > 0) return;
                 skillCooldown = 0.8;
                 skillEffect = 0.22;
+                playSound("skill");
                 const reach = 165;
                 const playerCenterX = player.x + PLAYER_WIDTH / 2;
                 const playerCenterY = player.y + PLAYER_HEIGHT / 2;
@@ -1121,6 +1320,7 @@
                         player.vy = -JUMP * 0.55;
                         player.grounded = false;
                         score += 150;
+                        playSound("stomp");
                         updateHud();
                     } else {
                         loseLife();
@@ -1136,6 +1336,7 @@
                         player.vy = -JUMP * 0.68;
                         player.grounded = false;
                         score += 250;
+                        playSound("stomp");
                         updateHud();
                     } else {
                         loseLife();
@@ -1484,6 +1685,7 @@
             }
 
             window.addEventListener("keydown", (event) => {
+                unlockAudio();
                 if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space"].includes(event.code)) {
                     event.preventDefault();
                 }
@@ -1504,12 +1706,17 @@
 
             window.addEventListener("blur", () => keys.clear());
             touchButtons.forEach((button) => {
+                let activePointerId = null;
                 const press = (event) => {
                     event.preventDefault();
+                    unlockAudio();
+                    activePointerId = event.pointerId;
                     button.classList.add("is-pressed");
                     if (button.dataset.key) {
                         keys.add(button.dataset.key);
                         if (button.dataset.key === "ArrowUp") jumpQueued = true;
+                    } else if (button.dataset.action === "joystick") {
+                        updateJoystick(event);
                     } else if (button.dataset.action === "jump") {
                         jumpQueued = true;
                     } else if (button.dataset.action === "skill") {
@@ -1517,16 +1724,44 @@
                     }
                     if (button.setPointerCapture) button.setPointerCapture(event.pointerId);
                 };
+                const move = (event) => {
+                    if (button.dataset.action === "joystick" && event.pointerId === activePointerId) {
+                        event.preventDefault();
+                        updateJoystick(event);
+                    }
+                };
                 const release = (event) => {
+                    if (activePointerId !== event.pointerId) return;
                     event.preventDefault();
                     button.classList.remove("is-pressed");
                     if (button.dataset.key) keys.delete(button.dataset.key);
+                    if (button.dataset.action === "joystick") {
+                        keys.delete("ArrowLeft");
+                        keys.delete("ArrowRight");
+                        keys.delete("ArrowUp");
+                        keys.delete("ArrowDown");
+                        joystick.style.setProperty("--stick-x", "0px");
+                        joystick.style.setProperty("--stick-y", "0px");
+                    }
+                    activePointerId = null;
                 };
                 button.addEventListener("pointerdown", press);
+                button.addEventListener("pointermove", move);
                 button.addEventListener("pointerup", release);
                 button.addEventListener("pointercancel", release);
                 button.addEventListener("lostpointercapture", release);
             });
+            soundToggle.addEventListener("click", () => {
+                audioEnabled = !audioEnabled;
+                soundToggle.textContent = audioEnabled ? "🔊 音效" : "🔇 靜音";
+                soundToggle.setAttribute("aria-label", audioEnabled ? "關閉遊戲音效" : "開啟遊戲音效");
+                soundToggle.setAttribute("aria-pressed", String(audioEnabled));
+                if (audioEnabled) {
+                    unlockAudio();
+                    playSound("coin");
+                }
+            });
+            landscapeButton.addEventListener("click", requestLandscape);
             restartButton.addEventListener("click", restartLevel);
             nextButton.addEventListener("click", advanceLevel);
             retryButton.addEventListener("click", restartLevel);
@@ -1535,7 +1770,7 @@
             if (window.visualViewport) {
                 window.visualViewport.addEventListener("resize", resizeCanvas);
             }
-            new ResizeObserver(resizeCanvas).observe(screen);
+            new ResizeObserver(resizeCanvas).observe(gameScreen);
             resizeCanvas();
             resetActors();
             requestAnimationFrame(loop);
