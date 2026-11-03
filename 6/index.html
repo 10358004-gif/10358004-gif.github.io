@@ -143,10 +143,13 @@
 
         .touch-controls {
             display: none;
+            position: absolute;
+            z-index: 2;
+            inset: 0;
             align-items: center;
             justify-content: space-between;
-            padding: 8px 18px;
-            background: #193640;
+            padding: 12px;
+            pointer-events: none;
             touch-action: none;
             user-select: none;
             -webkit-user-select: none;
@@ -170,6 +173,7 @@
             touch-action: none;
             user-select: none;
             -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .touch-button:active,
@@ -181,24 +185,25 @@
         .joystick {
             position: relative;
             display: grid;
-            width: 118px;
-            height: 118px;
+            width: 106px;
+            height: 106px;
             flex: 0 0 auto;
             padding: 0;
-            border: 2px solid rgba(255, 255, 255, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.32);
             border-radius: 50%;
-            background: rgba(26, 48, 57, 0.38);
+            background: rgba(26, 48, 57, 0.18);
+            opacity: 0.68;
             touch-action: none;
         }
 
         .joystick:active,
         .joystick.is-pressed {
-            background: rgba(26, 48, 57, 0.5);
+            background: rgba(26, 48, 57, 0.3);
         }
 
         .joystick-arrow {
             position: absolute;
-            color: rgba(255, 255, 255, 0.82);
+            color: rgba(255, 255, 255, 0.68);
             font-size: 0.88rem;
             line-height: 1;
             pointer-events: none;
@@ -245,34 +250,40 @@
         .action-pad {
             position: relative;
             display: block;
-            width: 168px;
-            height: 142px;
+            width: 132px;
+            height: 112px;
+            pointer-events: none;
         }
 
         .action-button {
             position: absolute;
             bottom: 0;
             left: 0;
-            width: 62px;
-            height: 62px;
+            width: 58px;
+            height: 58px;
             border-radius: 50%;
             font-size: 0.82rem;
-            background: rgba(49, 103, 133, 0.55);
+            background: rgba(49, 103, 133, 0.32);
+            opacity: 0.68;
         }
 
         .action-button.skill {
             right: 0;
-            bottom: 72px;
+            bottom: 54px;
             left: auto;
-            width: 68px;
-            height: 68px;
-            background: rgba(170, 76, 57, 0.58);
+            width: 58px;
+            height: 58px;
+            background: rgba(170, 76, 57, 0.34);
         }
 
         @media (pointer: coarse), (max-width: 760px) {
             .touch-controls {
                 display: flex;
-                flex: 0 0 clamp(156px, 30vh, 170px);
+                padding:
+                    12px
+                    max(12px, env(safe-area-inset-right))
+                    max(12px, env(safe-area-inset-bottom))
+                    max(12px, env(safe-area-inset-left));
             }
         }
 
@@ -450,10 +461,6 @@
                 border-width: 3px;
             }
 
-            .touch-controls {
-                padding: 8px;
-            }
-
             .touch-button {
                 width: 40px;
                 height: 40px;
@@ -554,32 +561,32 @@
             }
 
             .touch-controls {
-                flex-basis: clamp(100px, 22vh, 132px);
+                align-items: flex-end;
                 padding:
                     6px
                     max(10px, env(safe-area-inset-right))
                     max(6px, env(safe-area-inset-bottom))
                     max(10px, env(safe-area-inset-left));
-                border-top: 1px solid rgba(255, 255, 255, 0.16);
             }
 
             .joystick {
-                width: clamp(96px, 25vh, 120px);
-                height: clamp(96px, 25vh, 120px);
+                width: clamp(82px, 20vh, 106px);
+                height: clamp(82px, 20vh, 106px);
                 flex: 0 0 auto;
+                opacity: 0.58;
             }
 
             .action-pad {
-                width: clamp(132px, 22vw, 168px);
-                height: clamp(100px, 20vh, 124px);
+                width: clamp(112px, 20vw, 132px);
+                height: clamp(96px, 19vh, 112px);
             }
 
             .action-button,
             .action-button.skill {
                 position: absolute;
                 display: grid;
-                width: clamp(58px, 17vw, 72px);
-                height: clamp(58px, 17vw, 72px);
+                width: clamp(50px, 12vh, 60px);
+                height: clamp(50px, 12vh, 60px);
                 border: 2px solid rgba(255, 255, 255, 0.85);
                 border-radius: 50%;
                 font-size: clamp(0.72rem, 3.5vw, 0.9rem);
@@ -588,14 +595,15 @@
             .action-button {
                 bottom: 0;
                 left: 0;
-                background: rgba(49, 103, 133, 0.55);
+                background: rgba(49, 103, 133, 0.32);
+                opacity: 0.58;
             }
 
             .action-button.skill {
                 right: 0;
                 top: 0;
                 bottom: auto;
-                background: rgba(170, 76, 57, 0.58);
+                background: rgba(170, 76, 57, 0.34);
             }
 
             .level-label {
@@ -717,27 +725,27 @@
                     </div>
                 </div>
             </div>
-        </section>
-        <div class="touch-controls" aria-label="觸控遊戲操作">
-            <button class="touch-button joystick" id="joystick" type="button" data-action="joystick" aria-label="方向輪盤，拖曳以控制上下左右">
-                <span class="joystick-arrow up" aria-hidden="true">▲</span>
-                <span class="joystick-arrow right" aria-hidden="true">▶</span>
-                <span class="joystick-arrow down" aria-hidden="true">▼</span>
-                <span class="joystick-arrow left" aria-hidden="true">◀</span>
-                <span class="joystick-knob" aria-hidden="true"></span>
-            </button>
-            <div class="action-pad">
-                <button class="touch-button action-button" type="button" data-action="jump">跳躍</button>
-                <button class="touch-button action-button skill" type="button" data-action="skill">技能</button>
+            <div class="touch-controls" aria-label="觸控遊戲操作">
+                <button class="touch-button joystick" id="joystick" type="button" data-action="joystick" aria-label="方向輪盤，拖曳以控制上下左右">
+                    <span class="joystick-arrow up" aria-hidden="true">▲</span>
+                    <span class="joystick-arrow right" aria-hidden="true">▶</span>
+                    <span class="joystick-arrow down" aria-hidden="true">▼</span>
+                    <span class="joystick-arrow left" aria-hidden="true">◀</span>
+                    <span class="joystick-knob" aria-hidden="true"></span>
+                </button>
+                <div class="action-pad">
+                    <button class="touch-button action-button" type="button" data-action="jump">跳躍</button>
+                    <button class="touch-button action-button skill" type="button" data-action="skill">火球</button>
+                </div>
             </div>
-        </div>
+        </section>
 
         <div class="instructions">
             <span>躲開陷阱、擊退敵人、收集金幣，勇闖五大關卡！</span>
             <div class="key-list" aria-label="遊戲操作">
                 <kbd>←</kbd><kbd>→</kbd><span>移動</span>
                 <kbd>Space</kbd><span>跳躍</span>
-                <kbd>X</kbd><span>施放技能</span>
+                <kbd>X</kbd><span>發射火球</span>
                 <kbd>R</kbd><span>重玩本關</span>
             </div>
         </div>
@@ -935,6 +943,7 @@
             let skillQueued = false;
             let skillCooldown = 0;
             let skillEffect = 0;
+            let fireballs = [];
             let gameState = "playing";
             let animationTime = 0;
             let audioContext = null;
@@ -1109,6 +1118,7 @@
                 skillQueued = false;
                 skillCooldown = 0;
                 skillEffect = 0;
+                fireballs = [];
                 keys.clear();
                 overlay.hidden = true;
                 updateHud();
@@ -1223,6 +1233,7 @@
                 skillEffect = Math.max(0, skillEffect - step);
                 updateMovers(step);
                 updateTraps(step);
+                updateFireballs(step);
 
                 if (player.supportMover >= 0) {
                     const support = level.movers[player.supportMover];
@@ -1301,7 +1312,7 @@
                     return;
                 }
 
-                const targetCamera = Math.max(0, Math.min(level.width - WIDTH, player.x - WIDTH * 0.36));
+                const targetCamera = Math.max(0, Math.min(level.width - WIDTH, player.x - WIDTH * 0.48));
                 cameraX += (targetCamera - cameraX) * Math.min(1, step * 6);
             }
 
@@ -1324,31 +1335,49 @@
                 skillCooldown = 0.8;
                 skillEffect = 0.22;
                 playSound("skill");
-                const reach = 165;
-                const playerCenterX = player.x + PLAYER_WIDTH / 2;
-                const playerCenterY = player.y + PLAYER_HEIGHT / 2;
-                for (const enemy of level.enemies) {
-                    if (!enemy.alive) continue;
-                    const targetX = enemy.x + enemy.w / 2;
-                    const inFront = (targetX - playerCenterX) * player.facing >= 0;
-                    if (inFront && Math.abs(targetX - playerCenterX) <= reach &&
-                        Math.abs(enemy.y + enemy.h / 2 - playerCenterY) <= 55) {
+                fireballs.push({
+                    x: player.x + PLAYER_WIDTH / 2 + player.facing * 22,
+                    y: player.y + PLAYER_HEIGHT * 0.48,
+                    vx: player.facing * 620,
+                    vy: -24,
+                    life: 2.2
+                });
+            }
+
+            function updateFireballs(delta) {
+                for (let index = fireballs.length - 1; index >= 0; index -= 1) {
+                    const fireball = fireballs[index];
+                    fireball.x += fireball.vx * delta;
+                    fireball.y += fireball.vy * delta;
+                    fireball.vy += 70 * delta;
+                    fireball.life -= delta;
+                    const fireballBox = { x: fireball.x - 12, y: fireball.y - 12, w: 24, h: 24 };
+                    let hit = false;
+
+                    for (const enemy of level.enemies) {
+                        if (!enemy.alive || !rectsOverlap(fireballBox, enemy)) continue;
                         enemy.alive = false;
                         score += 150;
+                        hit = true;
+                        break;
                     }
-                }
 
-                const boss = level.boss;
-                if (boss && boss.hp > 0) {
-                    const targetX = boss.x + boss.w / 2;
-                    const inFront = (targetX - playerCenterX) * player.facing >= 0;
-                    if (inFront && Math.abs(targetX - playerCenterX) <= reach &&
-                        Math.abs(boss.y + boss.h / 2 - playerCenterY) <= 65) {
+                    const boss = level.boss;
+                    if (!hit && boss && boss.hp > 0 && rectsOverlap(fireballBox, boss)) {
                         boss.hp -= 1;
                         score += 250;
+                        hit = true;
+                    }
+
+                    if (hit) {
+                        playSound("stomp");
+                        updateHud();
+                    }
+
+                    if (hit || fireball.life <= 0 || fireball.x < 0 || fireball.x > level.width) {
+                        fireballs.splice(index, 1);
                     }
                 }
-                updateHud();
             }
 
             function handleHazards() {
@@ -1556,6 +1585,32 @@
                 }
             }
 
+            function drawFireballs() {
+                for (const fireball of fireballs) {
+                    const x = fireball.x - cameraX;
+                    const y = fireball.y;
+                    const flicker = Math.sin(animationTime * 30 + fireball.x) * 2;
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.scale(Math.sign(fireball.vx), 1);
+                    ctx.shadowColor = "#ff641f";
+                    ctx.shadowBlur = 18;
+                    ctx.fillStyle = "#f45128";
+                    ctx.beginPath();
+                    ctx.moveTo(-17, 0);
+                    ctx.quadraticCurveTo(-5, -12 - flicker, 8, -8);
+                    ctx.quadraticCurveTo(16, 0, 8, 8);
+                    ctx.quadraticCurveTo(-5, 12 + flicker, -17, 0);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = "#ffd45e";
+                    ctx.beginPath();
+                    ctx.ellipse(3, 0, 7, 5, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
             function drawCoins() {
                 for (const coin of level.coins) {
                     if (coin.collected) continue;
@@ -1711,6 +1766,7 @@
                 drawTraps();
                 drawCoins();
                 drawEnemies();
+                drawFireballs();
                 drawExit();
                 drawSkillEffect();
                 drawPlayer();
