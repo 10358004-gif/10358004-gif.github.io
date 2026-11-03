@@ -600,55 +600,17 @@
             }
         }
 
-        .orientation-prompt {
-            display: none;
-        }
-
         @media (orientation: portrait) and (pointer: coarse), (orientation: portrait) and (max-width: 760px) {
             .game {
-                display: none;
-            }
-
-            .orientation-prompt {
                 position: fixed;
-                z-index: 10;
-                inset: 0;
-                display: grid;
-                align-content: center;
-                justify-items: center;
-                gap: 14px;
-                padding: 24px;
-                background: #193640;
-                color: white;
-                text-align: center;
+                top: 50%;
+                left: 50%;
+                width: 100dvh;
+                height: 100vw;
+                transform: translate(-50%, -50%) rotate(90deg);
+                transform-origin: center;
             }
 
-            .orientation-prompt .rotate-icon {
-                font-size: 4rem;
-            }
-
-            .orientation-prompt h1 {
-                color: white;
-                font-size: 1.5rem;
-            }
-
-            .orientation-prompt p {
-                max-width: 320px;
-                margin: 0;
-                color: #d3e2e4;
-                line-height: 1.6;
-            }
-
-            .orientation-prompt button {
-                min-height: 46px;
-                padding: 10px 18px;
-                border: 0;
-                border-radius: 12px;
-                background: #318464;
-                color: white;
-                font: inherit;
-                font-weight: 750;
-            }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -716,18 +678,12 @@
             </div>
         </div>
     </main>
-    <section class="orientation-prompt" aria-label="請將手機轉為橫向">
-        <div class="rotate-icon" aria-hidden="true">📱↻</div>
-        <h1>請橫向使用手機</h1>
-        <p>遊戲採用橫向全螢幕畫面。點擊下方按鈕嘗試鎖定橫向；若瀏覽器不支援，請手動旋轉手機。</p>
-        <button id="landscape-button" type="button">進入橫向遊戲</button>
-    </section>
-
     <script>
         (() => {
             "use strict";
 
             const canvas = document.getElementById("game-canvas");
+            const game = canvas.closest(".game");
             const gameScreen = canvas.parentElement;
             const ctx = canvas.getContext("2d");
             const levelDisplay = document.getElementById("level-display");
@@ -742,7 +698,6 @@
             const retryButton = document.getElementById("retry");
             const restartButton = document.getElementById("restart");
             const soundToggle = document.getElementById("sound-toggle");
-            const landscapeButton = document.getElementById("landscape-button");
             const joystick = document.getElementById("joystick");
             const touchButtons = document.querySelectorAll(".touch-button[data-key], .touch-button[data-action]");
 
@@ -908,6 +863,7 @@
             let animationTime = 0;
             let audioContext = null;
             let audioEnabled = true;
+            let landscapeRequested = false;
 
             function unlockAudio() {
                 if (!audioEnabled) return;
@@ -973,9 +929,10 @@
             }
 
             function resizeCanvas() {
-                const bounds = gameScreen.getBoundingClientRect();
-                if (!bounds.width || !bounds.height) return;
-                const nextWidth = Math.max(1, Math.round(HEIGHT * bounds.width / bounds.height));
+                const width = gameScreen.offsetWidth;
+                const height = gameScreen.offsetHeight;
+                if (!width || !height) return;
+                const nextWidth = Math.max(1, Math.round(HEIGHT * width / height));
                 if (canvas.width === nextWidth) return;
                 canvas.width = nextWidth;
                 WIDTH = nextWidth;
@@ -987,6 +944,15 @@
                 const radius = Math.min(bounds.width, bounds.height) / 2;
                 let dx = (event.clientX - (bounds.left + bounds.width / 2)) / radius;
                 let dy = (event.clientY - (bounds.top + bounds.height / 2)) / radius;
+                const transform = getComputedStyle(game).transform;
+                if (transform !== "none") {
+                    const matrix = new DOMMatrix(transform);
+                    const determinant = matrix.a * matrix.d - matrix.b * matrix.c;
+                    const localX = (matrix.d * dx - matrix.c * dy) / determinant;
+                    const localY = (-matrix.b * dx + matrix.a * dy) / determinant;
+                    dx = localX;
+                    dy = localY;
+                }
                 const magnitude = Math.hypot(dx, dy);
                 if (magnitude > 1) {
                     dx /= magnitude;
@@ -1710,6 +1676,10 @@
                 const press = (event) => {
                     event.preventDefault();
                     unlockAudio();
+                    if (!landscapeRequested) {
+                        landscapeRequested = true;
+                        requestLandscape();
+                    }
                     activePointerId = event.pointerId;
                     button.classList.add("is-pressed");
                     if (button.dataset.key) {
@@ -1761,7 +1731,6 @@
                     playSound("coin");
                 }
             });
-            landscapeButton.addEventListener("click", requestLandscape);
             restartButton.addEventListener("click", restartLevel);
             nextButton.addEventListener("click", advanceLevel);
             retryButton.addEventListener("click", restartLevel);
