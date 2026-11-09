@@ -41,6 +41,15 @@
     body {
       min-height: 100vh;
       padding: 18px 14px 24px;
+      overflow: hidden;
+    }
+
+    body.force-landscape-mode {
+      overflow: hidden;
+    }
+
+    body.force-portrait-mode {
+      overflow: auto;
     }
 
     button {
@@ -1099,6 +1108,8 @@
         mobileMode: window.matchMedia("(pointer: coarse), (max-width: 760px)").matches
       };
 
+      let orientationLockMode = null;
+
       const player = {
         x: 45,
         y: FLOOR_Y - PLAYER_HEIGHT,
@@ -1386,11 +1397,12 @@
         game.started = true;
       }
 
-      function startGame(mode) {
-        ensureAudio();
-        orientationScreen.hidden = true;
+      function applyOrientationMode(mode) {
         const gameShell = document.querySelector(".game-shell");
-        if (mode === "landscape") {
+        const isLandscape = mode === "landscape";
+        orientationLockMode = mode;
+
+        if (isLandscape) {
           gameShell.classList.add("force-landscape");
           document.body.classList.add("force-landscape-mode");
           document.body.classList.remove("force-portrait-mode");
@@ -1399,11 +1411,26 @@
           document.body.classList.remove("force-landscape-mode");
           document.body.classList.add("force-portrait-mode");
         }
+      }
+
+      function startGame(mode) {
+        ensureAudio();
+        orientationScreen.hidden = true;
+        applyOrientationMode(mode);
         introOverlay.classList.remove("visible");
         game.state = "playing";
         game.started = true;
         game.canInput = true;
         resizeCanvas();
+      }
+
+      function autoStartForOrientation() {
+        if (orientationLockMode) return;
+        if (!game.mobileMode) return;
+        const isLandscapeNow = window.matchMedia("(orientation: landscape)").matches || window.innerWidth > window.innerHeight;
+        if (isLandscapeNow) {
+          startGame("landscape");
+        }
       }
 
       function trapStateMachine(trap, delta) {
@@ -2156,6 +2183,18 @@
         startLandscapeBtn.addEventListener("click", () => startGame("landscape"));
         startPortraitBtn.addEventListener("click", () => startGame("portrait"));
 
+        window.addEventListener("resize", () => {
+          if (!orientationLockMode && game.mobileMode) {
+            autoStartForOrientation();
+          }
+        });
+
+        window.addEventListener("orientationchange", () => {
+          if (!orientationLockMode && game.mobileMode) {
+            autoStartForOrientation();
+          }
+        });
+
         skipIntroBtn.addEventListener("click", () => {
           if (game.state !== "intro") return;
           game.state = "playing";
@@ -2172,6 +2211,9 @@
         bindKeyboard();
         bindTouchControls();
         resizeCanvas();
+        if (game.mobileMode) {
+          autoStartForOrientation();
+        }
         requestAnimationFrame(loop);
       }
 
