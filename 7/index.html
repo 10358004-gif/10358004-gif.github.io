@@ -757,13 +757,15 @@
 
       .game-shell {
         width: 100%;
-        min-height: 100vh;
+        min-height: 100dvh;
         margin: 0;
         padding: 0;
         border: 0;
         border-radius: 0;
         background: transparent;
         box-shadow: none;
+        display: flex;
+        flex-direction: column;
       }
 
       .game-shell header,
@@ -772,13 +774,14 @@
       }
 
       .hud {
-        position: absolute;
+        position: relative;
         z-index: 11;
-        top: max(8px, env(safe-area-inset-top));
-        left: max(8px, env(safe-area-inset-left));
-        right: max(8px, env(safe-area-inset-right));
+        top: auto;
+        left: auto;
+        right: auto;
         gap: 6px;
         margin: 0;
+        padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-left)) 0;
         pointer-events: none;
       }
 
@@ -791,9 +794,11 @@
       }
 
       .screen {
+        position: relative;
         width: 100%;
-        min-height: 100dvh;
-        height: 100dvh;
+        flex: 1 1 auto;
+        min-height: 0;
+        height: calc(100dvh - 120px);
         border: 0;
         border-radius: 0;
         box-shadow: none;
@@ -2161,7 +2166,14 @@
         let nextWidth = Math.round(rect.width);
         let nextHeight = Math.round(nextWidth / ratio);
 
-        if (nextHeight > rect.height) {
+        if (window.matchMedia("(pointer: coarse), (max-width: 780px)").matches) {
+          nextHeight = Math.max(320, Math.round(rect.height));
+          nextWidth = Math.round(nextHeight * ratio);
+          if (nextWidth > rect.width) {
+            nextWidth = Math.round(rect.width);
+            nextHeight = Math.round(nextWidth / ratio);
+          }
+        } else if (nextHeight > rect.height) {
           nextHeight = Math.round(rect.height);
           nextWidth = Math.round(nextHeight * ratio);
         }
