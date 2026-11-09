@@ -143,14 +143,53 @@
       overflow: hidden;
       background: linear-gradient(180deg, #afebff, #d7f5d7);
       box-shadow: 0 10px 24px rgba(27, 69, 84, 0.14);
+      width: 100%;
+      max-width: 100%;
+      aspect-ratio: 16 / 9;
     }
 
     canvas {
       display: block;
       width: 100%;
-      height: auto;
+      height: 100%;
       aspect-ratio: 16 / 9;
       background: linear-gradient(180deg, #c6ebff 0%, #dfeefc 40%, #d9f7db 100%);
+    }
+
+    .game-shell.force-landscape {
+      width: 100vw;
+      max-width: none;
+      min-height: 100vh;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: #bfeaff;
+      box-shadow: none;
+    }
+
+    .game-shell.force-landscape header,
+    .game-shell.force-landscape .instructions {
+      display: none;
+    }
+
+    .game-shell.force-landscape .screen {
+      width: 100vw;
+      height: 100vh;
+      max-height: 100vh;
+      min-height: 100vh;
+      border: 0;
+      border-radius: 0;
+      aspect-ratio: auto;
+    }
+
+    .game-shell.force-landscape .hud {
+      position: absolute;
+      z-index: 11;
+      top: max(10px, env(safe-area-inset-top));
+      left: max(10px, env(safe-area-inset-left));
+      right: max(10px, env(safe-area-inset-right));
+      margin: 0;
+      pointer-events: none;
     }
 
     .level-tag {
@@ -1245,11 +1284,17 @@
         orientationScreen.hidden = true;
         game.state = "intro";
         game.started = false;
+        const gameShell = document.querySelector(".game-shell");
         if (mode === "landscape") {
-          gameScreen.classList.add("force-landscape");
+          gameShell.classList.add("force-landscape");
+          document.body.classList.add("force-landscape-mode");
+          document.body.classList.remove("force-portrait-mode");
         } else {
-          gameScreen.classList.remove("force-landscape");
+          gameShell.classList.remove("force-landscape");
+          document.body.classList.remove("force-landscape-mode");
+          document.body.classList.add("force-portrait-mode");
         }
+        resizeCanvas();
         beginIntro();
       }
 
@@ -1952,10 +1997,19 @@
       function resizeCanvas() {
         const rect = gameScreen.getBoundingClientRect();
         if (!rect.width || !rect.height) return;
+
         const ratio = 16 / 9;
-        const nextWidth = Math.round(Math.min(rect.width, rect.height * ratio));
-        if (canvas.width === nextWidth) return;
+        let nextWidth = Math.round(rect.width);
+        let nextHeight = Math.round(nextWidth / ratio);
+
+        if (nextHeight > rect.height) {
+          nextHeight = Math.round(rect.height);
+          nextWidth = Math.round(nextHeight * ratio);
+        }
+
+        if (canvas.width === nextWidth && canvas.height === nextHeight) return;
         canvas.width = nextWidth;
+        canvas.height = nextHeight;
         WIDTH = canvas.width;
       }
 
