@@ -241,6 +241,12 @@
       background: rgba(29, 56, 64, 0.22);
       border: 2px solid rgba(255, 255, 255, 0.34);
       box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.08);
+      transition: background 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .joystick-wrap.is-active {
+      background: rgba(29, 56, 64, 0.34);
+      box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.12), 0 0 16px rgba(91, 168, 255, 0.28);
     }
 
     .joystick-ring {
@@ -300,7 +306,8 @@
       pointer-events: auto;
       touch-action: none;
       user-select: none;
-      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+      -webkit-user-select: none;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
     }
 
     .action-btn.jump {
@@ -316,12 +323,12 @@
 
     .action-btn.is-pressed {
       transform: scale(1.1);
-      box-shadow: 0 0 18px rgba(91, 168, 255, 0.75), 0 0 30px rgba(91, 168, 255, 0.4);
+      box-shadow: 0 0 18px rgba(91, 168, 255, 0.72), 0 0 30px rgba(91, 168, 255, 0.4);
       background: rgba(74, 150, 255, 0.42);
     }
 
     .action-btn.skill.is-pressed {
-      box-shadow: 0 0 18px rgba(93, 184, 255, 0.72), 0 0 30px rgba(52, 129, 232, 0.46);
+      box-shadow: 0 0 18px rgba(91, 168, 255, 0.72), 0 0 30px rgba(91, 168, 255, 0.4);
       background: rgba(81, 143, 255, 0.44);
     }
 
@@ -428,248 +435,6 @@
     .orientation-btn.secondary {
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .intro-overlay {
-      position: absolute;
-      z-index: 12;
-      inset: 0;
-      display: none;
-      background: radial-gradient(circle at 50% 30%, rgba(157, 209, 255, 0.4), rgba(202, 230, 255, 0.08) 35%, rgba(16, 32, 52, 0.52));
-      overflow: hidden;
-    }
-
-    .intro-overlay.visible {
-      display: block;
-      animation: introBackdropIn 0.95s ease forwards;
-    }
-
-    .intro-panel {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 26px 34px;
-      pointer-events: none;
-    }
-
-    .story-box {
-      position: relative;
-      width: min(820px, 92%);
-      padding: 30px 34px 82px;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      border-radius: 28px;
-      background: linear-gradient(180deg, rgba(203, 233, 255, 0.12), rgba(81, 121, 151, 0.14));
-      box-shadow: 0 30px 90px rgba(4, 17, 32, 0.42), inset 0 0 20px rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(1px);
-      pointer-events: auto;
-      opacity: 0;
-      transform: translateY(28px) scale(0.82) rotateX(10deg);
-      animation: storyBoxIn 1s cubic-bezier(0.17, 0.84, 0.22, 1) 0.18s forwards;
-    }
-
-    .story-box::before {
-      content: "";
-      position: absolute;
-      inset: 10px;
-      border-radius: 18px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      pointer-events: none;
-    }
-
-    .story-box::after {
-      content: "";
-      position: absolute;
-      inset: -18% 18% auto 18%;
-      height: 70%;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.21), transparent 68%);
-      filter: blur(26px);
-      pointer-events: none;
-      opacity: 0.8;
-    }
-
-    .story-title {
-      margin: 0 0 12px;
-      color: rgba(255, 255, 255, 0.94);
-      font-size: clamp(1.2rem, 2vw, 1.85rem);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      opacity: 0;
-      transform: translateY(14px);
-      animation: storyTitleIn 0.7s ease 0.48s forwards;
-    }
-
-    .story-copy {
-      margin: 0;
-      min-height: 185px;
-      color: rgba(245, 250, 255, 0.97);
-      font-size: clamp(1.12rem, 1.9vw, 1.48rem);
-      line-height: 1.95;
-      letter-spacing: 0.04em;
-      text-shadow: 0 3px 18px rgba(8, 30, 34, 0.28);
-      white-space: pre-wrap;
-      word-break: break-word;
-      opacity: 0;
-      transform: translateY(10px);
-      filter: blur(3px);
-      animation: storyTextIn 0.7s ease 0.7s forwards;
-    }
-
-    .story-cursor {
-      display: inline-block;
-      width: 0.7ch;
-      margin-left: 2px;
-      color: rgba(255, 255, 255, 0.92);
-      animation: blink 0.8s step-end infinite;
-    }
-
-    @keyframes blink {
-      0%, 50% { opacity: 1; }
-      50%, 100% { opacity: 0; }
-    }
-
-    @keyframes introBackdropIn {
-      from {
-        opacity: 0;
-        background: rgba(16, 32, 52, 0.18);
-        backdrop-filter: blur(0px);
-      }
-      to {
-        opacity: 1;
-        background: radial-gradient(circle at 50% 30%, rgba(157, 209, 255, 0.48), rgba(202, 230, 255, 0.12) 34%, rgba(16, 32, 52, 0.7));
-        backdrop-filter: blur(1px);
-      }
-    }
-
-    @keyframes storyBoxIn {
-      from {
-        opacity: 0;
-        transform: translateY(28px) scale(0.82) rotateX(10deg);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1) rotateX(0deg);
-      }
-    }
-
-    @keyframes storyTitleIn {
-      from {
-        opacity: 0;
-        transform: translateY(14px);
-        letter-spacing: 0.2em;
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-        letter-spacing: 0.12em;
-      }
-    }
-
-    @keyframes storyTextIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-        filter: blur(3px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-        filter: blur(0);
-      }
-    }
-
-    @keyframes introButtonsIn {
-      from {
-        opacity: 0;
-        transform: translateY(12px) scale(0.94);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .intro-actions {
-      position: absolute;
-      right: 26px;
-      bottom: 18px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      opacity: 0;
-      transform: translateY(10px);
-      animation: introButtonsIn 0.45s ease 1s forwards;
-    }
-
-    .skip-btn,
-    .continue-btn {
-      border: 1px solid rgba(255, 255, 255, 0.32);
-      border-radius: 999px;
-      background: linear-gradient(180deg, rgba(22, 52, 80, 0.7), rgba(11, 28, 42, 0.6));
-      color: white;
-      font-weight: 800;
-      cursor: pointer;
-      backdrop-filter: blur(2px);
-      opacity: 0;
-      transform: translateY(8px);
-      animation: introFadeIn 0.5s ease forwards;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .skip-btn:hover,
-    .continue-btn:hover {
-      transform: translateY(-1px) scale(1.02);
-      box-shadow: 0 10px 24px rgba(17, 64, 84, 0.3);
-    }
-
-    .skip-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      padding: 9px 14px;
-      font-size: 0.85rem;
-    }
-
-    .continue-btn {
-      padding: 10px 22px;
-      font-size: 0.92rem;
-    }
-
-    @keyframes introFadeIn {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .particle-layer {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.9;
-    }
-
-    .particle {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: rgba(104, 235, 146, 0.84);
-      box-shadow: 0 0 10px rgba(104, 235, 146, 0.8);
-      animation: floatUp var(--dur) ease-in infinite;
-    }
-
-    @keyframes floatUp {
-      0% {
-        transform: translate3d(0, 0, 0) scale(0.7);
-        opacity: 0;
-      }
-      10% { opacity: 1; }
-      100% {
-        transform: translate3d(var(--dx), -110px, 0) scale(1);
-        opacity: 0;
-      }
     }
 
     .overlay {
@@ -882,20 +647,6 @@
         </div>
       </div>
 
-      <div class="intro-overlay" id="introOverlay" aria-live="polite">
-        <div class="particle-layer" id="particleLayer"></div>
-        <button class="skip-btn" id="skipIntroBtn" type="button">Skip</button>
-        <div class="intro-panel">
-          <div class="story-box">
-            <h2 class="story-title">飛空島傳說</h2>
-            <p class="story-copy" id="storyText"></p>
-            <div class="intro-actions">
-              <button class="continue-btn" id="continueBtn" type="button">繼續</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div class="overlay" id="overlay" hidden>
         <div class="overlay-box">
           <div class="overlay-icon" id="overlayIcon">🏁</div>
@@ -956,13 +707,6 @@
       const orientationScreen = document.getElementById("orientationScreen");
       const startLandscapeBtn = document.getElementById("startLandscapeBtn");
       const startPortraitBtn = document.getElementById("startPortraitBtn");
-      const introOverlay = document.getElementById("introOverlay");
-      const storyText = document.getElementById("storyText");
-      const skipIntroBtn = document.getElementById("skipIntroBtn");
-      const continueBtn = document.getElementById("continueBtn");
-      const particleLayer = document.getElementById("particleLayer");
-
-      const STORY_TEXT = "飛空島的生命之樹枯萎了，島嶼開始崩塌、荊棘四起... 小樹精，請出發收集黃金露水，在島嶼高處插上綠色旗幟，喚醒黃金樹吧！";
 
       const baseLevelTemplates = [
         {
@@ -1092,6 +836,8 @@
       const JUMP_VELOCITY = 670;
       const PLAYER_WIDTH = 28;
       const PLAYER_HEIGHT = 48;
+      const FLAG_SAFE_RADIUS = 150;
+      const MAX_HAZARD_PLACEMENT_ATTEMPTS = 30;
       const game = {
         currentLevelIndex: 0,
         lives: 3,
@@ -1101,8 +847,6 @@
         lastTime: 0,
         started: false,
         state: "orientation",
-        introFinished: false,
-        canInput: false,
         jumpQueued: false,
         skillQueued: false,
         skillCooldown: 0,
@@ -1136,9 +880,7 @@
         targetY: 0,
         handleX: 0,
         handleY: 0,
-        smoothX: 0,
-        smoothY: 0,
-        radius: 34
+        jumpTriggered: false
       };
 
       function ensureAudio() {
@@ -1207,12 +949,46 @@
         game.skillCooldown = 0;
         game.fireballs = [];
         keys.clear();
+        joystickState.active = false;
+        joystickState.pointerId = null;
         joystickState.x = 0;
         joystickState.y = 0;
-        joystickState.targetX = 0;
-        joystickState.targetY = 0;
+        joystickState.handleX = 0;
+        joystickState.handleY = 0;
+        joystickState.jumpTriggered = false;
+        joystick.classList.remove("is-active");
         joystickHandle.style.setProperty("--stick-x", "0px");
         joystickHandle.style.setProperty("--stick-y", "0px");
+      }
+
+      function placeHazardSafely(hazard, levelWidth, usePatrolRange = false) {
+        const hazardWidth = hazard.w || 0;
+        const flagX = levelWidth - 38;
+        const minX = usePatrolRange && Number.isFinite(hazard.min)
+          ? Math.max(0, hazard.min)
+          : Math.max(0, hazard.x - 36);
+        const maxX = usePatrolRange && Number.isFinite(hazard.max)
+          ? Math.min(levelWidth - hazardWidth, hazard.max - hazardWidth)
+          : Math.min(levelWidth - hazardWidth, hazard.x + 36);
+        const rangeEnd = Math.max(minX, maxX);
+        const isSafe = (x) => x + hazardWidth <= flagX - FLAG_SAFE_RADIUS || x >= flagX + FLAG_SAFE_RADIUS;
+
+        for (let attempt = 0; attempt < MAX_HAZARD_PLACEMENT_ATTEMPTS; attempt += 1) {
+          const x = minX + Math.random() * (rangeEnd - minX);
+          if (isSafe(x)) return { ...hazard, x };
+        }
+
+        const safeLeftEnd = Math.min(levelWidth - hazardWidth, flagX - FLAG_SAFE_RADIUS - hazardWidth);
+        if (safeLeftEnd >= 0) {
+          return { ...hazard, x: Math.max(0, Math.min(hazard.x, safeLeftEnd)) };
+        }
+
+        const safeRightStart = flagX + FLAG_SAFE_RADIUS;
+        if (safeRightStart <= levelWidth - hazardWidth) {
+          return { ...hazard, x: Math.max(safeRightStart, Math.min(hazard.x, levelWidth - hazardWidth)) };
+        }
+
+        return null;
       }
 
       function makeLevel(template) {
@@ -1221,11 +997,16 @@
           width: template.width,
           ground: template.ground.map(([start, end]) => ({ x: start, y: FLOOR_Y, w: end - start, h: 90 })),
           platforms: template.platforms.map((p) => ({ ...p, h: 16 })),
-          spikes: template.spikes.map((spike) => ({ ...spike, dangerous: false, stateTimer: 0 })),
-          enemies: template.enemies.map((e) => ({ ...e })),
+          spikes: template.spikes
+            .map((spike) => placeHazardSafely(spike, template.width))
+            .filter(Boolean)
+            .map((spike) => ({ ...spike, isDangerous: false, state: 0, stateTimer: 0, phase: 0 })),
+          enemies: template.enemies
+            .map((enemy) => placeHazardSafely(enemy, template.width, true))
+            .filter(Boolean)
+            .map((enemy) => ({ ...enemy })),
           coins: template.coins.map((coin, index) => ({ ...coin, id: `${game.currentLevelIndex}-${index}`, collected: collectedCoinIds.has(`${game.currentLevelIndex}-${index}`) })),
           boss: template.boss ? { ...template.boss, hp: template.boss.hp, maxHp: template.boss.maxHp, alive: true } : null,
-          trapCycle: 0,
           tileSeed: Math.random() * 1024
         };
       }
@@ -1298,111 +1079,6 @@
         game.state = "playing";
       }
 
-      function addParticles() {
-        const fragmentCount = 18;
-        particleLayer.innerHTML = "";
-        for (let i = 0; i < fragmentCount; i += 1) {
-          const dot = document.createElement("span");
-          dot.className = "particle";
-          const left = Math.random() * 100;
-          const top = Math.random() * 100;
-          const dx = (Math.random() - 0.5) * 120;
-          const dur = 8 + Math.random() * 8;
-          dot.style.left = `${left}%`;
-          dot.style.top = `${top}%`;
-          dot.style.setProperty("--dx", `${dx}px`);
-          dot.style.setProperty("--dur", `${dur}s`);
-          particleLayer.appendChild(dot);
-        }
-      }
-
-      function runStorySequence() {
-        const story = STORY_TEXT;
-        let index = 0;
-        let stage = 0;
-        let speed = 42;
-        let active = true;
-        let forceComplete = false;
-        let introTransitionTimer = null;
-
-        storyText.innerHTML = "";
-        storyText.classList.remove("story-complete");
-
-        function startGameFromIntro() {
-          if (introTransitionTimer) return;
-          introTransitionTimer = setTimeout(() => {
-            game.state = "playing";
-            introOverlay.classList.remove("visible");
-            game.started = true;
-          }, 800);
-        }
-
-        function renderChar() {
-          if (!active) return;
-          if (forceComplete) {
-            storyText.innerHTML = `${story}<span class="story-cursor"></span>`;
-            storyText.classList.add("story-complete");
-            return;
-          }
-          const visible = story.slice(0, index);
-          const cursor = '<span class="story-cursor">|</span>';
-          storyText.innerHTML = `${visible}${cursor}`;
-          index += 1;
-          if (index <= story.length) {
-            const timeout = Math.max(22, speed - stage * 6);
-            setTimeout(renderChar, timeout);
-          } else {
-            storyText.innerHTML = `${story}<span class="story-cursor"></span>`;
-            storyText.classList.add("story-complete");
-            setTimeout(startGameFromIntro, 1200);
-          }
-        }
-
-        renderChar();
-
-        function finish() {
-          if (forceComplete) return;
-          forceComplete = true;
-          storyText.innerHTML = `${story}<span class="story-cursor"></span>`;
-          storyText.classList.add("story-complete");
-          active = false;
-          setTimeout(startGameFromIntro, 450);
-        }
-
-        document.addEventListener("pointerdown", (event) => {
-          if (game.state !== "intro") return;
-          if (event.target.closest("button")) return;
-          finish();
-        }, { once: false });
-
-        continueBtn.addEventListener("click", () => {
-          if (game.state !== "intro") return;
-          finish();
-        });
-
-        skipIntroBtn.addEventListener("click", () => {
-          if (game.state !== "intro") return;
-          finish();
-          setTimeout(() => {
-            game.state = "playing";
-            introOverlay.classList.remove("visible");
-            game.started = true;
-          }, 250);
-        });
-
-        setTimeout(() => {
-          if (!forceComplete) {
-            finish();
-          }
-        }, 10000);
-      }
-
-      function beginIntro() {
-        introOverlay.classList.remove("visible");
-        game.state = "playing";
-        game.started = true;
-      }
-
       function applyOrientationMode(mode) {
         const gameShell = document.querySelector(".game-shell");
         const isLandscape = mode === "landscape";
@@ -1436,45 +1112,43 @@
           } catch (error) {}
         }
 
-        introOverlay.classList.remove("visible");
         game.state = "playing";
         game.started = true;
-        game.canInput = true;
         resizeCanvas();
       }
 
       function trapStateMachine(trap, delta) {
-        if (trap.state === undefined) trap.state = 0;
         trap.stateTimer += delta;
 
         const hiddenTime = trap.cooldown || 1.5;
-        const riseTime = 0.32;
-        const holdTime = 1.1;
+        const warningTime = 0.5;
+        const riseTime = 0.14;
+        const holdTime = 0.85;
         const retractTime = 0.35;
 
         if (trap.state === 0) {
-          trap.dangerous = false;
+          trap.isDangerous = false;
           trap.phase = 0;
           if (trap.stateTimer >= hiddenTime) {
             trap.state = 1;
             trap.stateTimer = 0;
           }
         } else if (trap.state === 1) {
-          trap.dangerous = false;
-          trap.phase = Math.min(1, trap.stateTimer / riseTime);
-          if (trap.stateTimer >= riseTime) {
+          trap.isDangerous = false;
+          trap.phase = 0;
+          if (trap.stateTimer >= warningTime) {
             trap.state = 2;
             trap.stateTimer = 0;
           }
         } else if (trap.state === 2) {
-          trap.dangerous = true;
-          trap.phase = 1;
+          trap.isDangerous = true;
+          trap.phase = Math.min(1, trap.stateTimer / riseTime);
           if (trap.stateTimer >= holdTime) {
             trap.state = 3;
             trap.stateTimer = 0;
           }
         } else if (trap.state === 3) {
-          trap.dangerous = false;
+          trap.isDangerous = false;
           trap.phase = 1 - Math.min(1, trap.stateTimer / retractTime);
           if (trap.stateTimer >= retractTime) {
             trap.state = 0;
@@ -1630,7 +1304,8 @@
       function checkSpikes() {
         const box = { x: player.x + 4, y: player.y + 3, w: PLAYER_WIDTH - 8, h: PLAYER_HEIGHT - 6 };
         for (const spike of game.level.spikes) {
-          if (spike.dangerous && rectsOverlap(box, spike)) {
+          const collisionBox = { x: spike.x + 2, y: FLOOR_Y - spike.h, w: spike.w - 4, h: spike.h + 8 };
+          if (spike.isDangerous && rectsOverlap(box, collisionBox)) {
             loseLife();
             return;
           }
@@ -1668,12 +1343,22 @@
 
         player.vx = moveRequest * SPEED;
 
+        if (joystickState.y < -0.6 && !joystickState.jumpTriggered) {
+          game.jumpQueued = true;
+          joystickState.jumpTriggered = true;
+        } else if (joystickState.y > -0.25) {
+          joystickState.jumpTriggered = false;
+        }
+
         if (game.jumpQueued && player.grounded) {
           player.vy = -JUMP_VELOCITY;
           player.grounded = false;
           playTone("jump");
         }
         game.jumpQueued = false;
+        if (joystickState.y > 0.65 && !player.grounded) {
+          player.vy = Math.max(player.vy, JUMP_VELOCITY * 0.65);
+        }
 
         if (game.skillQueued) {
           castFireball();
@@ -1720,16 +1405,13 @@
       }
 
       function update(delta) {
-        if (game.state === "intro") {
-          return;
-        }
-
         if (game.state !== "playing") {
           return;
         }
 
         const step = Math.min(delta, 0.033);
         game.animationTime += step;
+        updateJoystickHandle(step);
         player.invulnerable = Math.max(0, player.invulnerable - step);
         updateSpikes(step);
         updateControls(step);
@@ -1770,30 +1452,27 @@
       }
 
       function drawCrackedStoneTile(x, y, w, h) {
-        ctx.fillStyle = "#5f6975";
+        const seed = Math.abs(Math.sin(x * 12.9898 + y * 78.233 + game.level.tileSeed) * 43758.5453) % 1;
+        let randomState = seed || 0.5;
+        const random = () => {
+          randomState = (randomState * 9301 + 49297) % 233280;
+          return randomState / 233280;
+        };
+        ctx.fillStyle = "#48515c";
         ctx.fillRect(x, y, w, h);
-        ctx.fillStyle = "#6d7985";
-        ctx.fillRect(x, y + 2, w, 4);
-
-        const cracks = [
-          [0.18, 0.18, 0.72, 0.42],
-          [0.54, 0.22, 0.75, 0.68],
-          [0.14, 0.62, 0.6, 0.8],
-          [0.72, 0.2, 0.9, 0.45],
-          [0.35, 0.12, 0.42, 0.76],
-          [0.8, 0.58, 0.92, 0.88]
-        ];
-
-        ctx.strokeStyle = "rgba(30, 36, 42, 0.45)";
-        ctx.lineWidth = 1.2;
-        for (const crack of cracks) {
-          const ax = x + w * crack[0];
-          const ay = y + h * crack[1];
-          const bx = x + w * crack[2];
-          const by = y + h * crack[3];
+        ctx.strokeStyle = "rgba(25, 30, 36, 0.75)";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x + 0.5, y + 0.5, Math.max(0, w - 1), Math.max(0, h - 1));
+        ctx.strokeStyle = "rgba(28, 34, 41, 0.75)";
+        ctx.lineWidth = 1.25;
+        const crackCount = 1 + Math.floor(random() * 3);
+        for (let index = 0; index < crackCount; index += 1) {
+          const startX = x + 5 + random() * Math.max(1, w - 12);
+          const startY = y + 3 + random() * Math.max(1, h - 8);
           ctx.beginPath();
-          ctx.moveTo(ax, ay);
-          ctx.lineTo(bx, by);
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(startX + (random() - 0.5) * 8, startY + 4 + random() * 5);
+          ctx.lineTo(startX + (random() - 0.5) * 16, startY + 8 + random() * 8);
           ctx.stroke();
         }
       }
@@ -1802,21 +1481,21 @@
         for (const segment of game.level.ground) {
           const sx = segment.x - game.cameraX;
           if (sx + segment.w < -20 || sx > WIDTH + 20) continue;
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(sx, segment.y, segment.w, segment.h);
+          ctx.clip();
           const tileW = 56;
-          for (let x = 0; x < segment.w; x += tileW) {
-            const drawX = sx + x;
-            const tileH = Math.min(40, segment.h);
-            drawCrackedStoneTile(drawX, segment.y, Math.min(tileW, segment.w - x), tileH);
+          const tileH = 34;
+          for (let row = 0; row * tileH < segment.h; row += 1) {
+            const offset = row % 2 === 0 ? 0 : tileW / 2;
+            for (let x = -offset; x < segment.w; x += tileW) {
+              const drawX = sx + x;
+              const drawY = segment.y + row * tileH;
+              drawCrackedStoneTile(drawX, drawY, tileW, tileH);
+            }
           }
-
-          const slotX = segment.x + segment.w * 0.5 - 96;
-          const slotScreenX = slotX - game.cameraX;
-          if (slotScreenX + 190 > 0 && slotScreenX < WIDTH) {
-            ctx.fillStyle = "rgba(16, 23, 31, 0.5)";
-            ctx.fillRect(slotScreenX, segment.y + 6, 192, 45);
-            ctx.fillStyle = "rgba(32, 39, 48, 0.9)";
-            ctx.fillRect(slotScreenX + 8, segment.y + 10, 176, 27);
-          }
+          ctx.restore();
         }
       }
 
@@ -1835,14 +1514,6 @@
           }
         }
 
-        for (const segment of game.level.ground) {
-          const sx = segment.x - game.cameraX;
-          if (sx + segment.w < -20 || sx > WIDTH + 20) continue;
-          const trapSlot = { x: segment.x + segment.w * 0.5 - 96, y: segment.y, w: 192, h: 58 };
-          const tx = trapSlot.x - game.cameraX;
-          ctx.fillStyle = "rgba(17, 21, 26, 0.78)";
-          ctx.fillRect(tx, trapSlot.y + 12, trapSlot.w, 28);
-        }
       }
 
       function drawSpikes() {
@@ -1850,17 +1521,41 @@
           const sx = spike.x - game.cameraX;
           if (sx + spike.w < -10 || sx > WIDTH + 10) continue;
 
+          const slotX = sx - 8;
+          const slotWidth = spike.w + 16;
+          ctx.fillStyle = "#252d36";
+          ctx.fillRect(slotX, FLOOR_Y - 4, slotWidth, 20);
+          ctx.fillStyle = "rgba(12, 17, 23, 0.65)";
+          ctx.fillRect(slotX + 4, FLOOR_Y, slotWidth - 8, 12);
+          ctx.fillStyle = "rgba(151, 164, 176, 0.28)";
+          ctx.fillRect(slotX, FLOOR_Y - 4, slotWidth, 2);
+
+          if (spike.state === 1) {
+            const pulse = 0.35 + (Math.sin((spike.stateTimer / 0.5) * Math.PI * 4 - Math.PI / 2) + 1) * 0.3;
+            ctx.save();
+            ctx.globalAlpha = pulse;
+            ctx.strokeStyle = "#ff403b";
+            ctx.shadowColor = "#ff302a";
+            ctx.shadowBlur = 12;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(slotX + 8, FLOOR_Y + 2);
+            ctx.lineTo(slotX + slotWidth - 8, FLOOR_Y + 2);
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          if (spike.state !== 2 && spike.state !== 3) continue;
           const riseProgress = Math.max(0, Math.min(1, spike.phase || 0));
-          const maxHeight = 26;
-          const hiddenDepth = 24;
-          const baseY = spike.y + 12;
+          const maxHeight = 34;
+          const baseY = FLOOR_Y + 8;
           const activeHeight = riseProgress * maxHeight;
-          const tipY = spike.dangerous ? baseY - activeHeight : baseY + hiddenDepth - riseProgress * hiddenDepth;
+          const tipY = baseY - activeHeight;
           const count = Math.max(2, Math.floor(spike.w / 16));
           const unit = spike.w / count;
 
-          ctx.fillStyle = spike.dangerous ? "#db6a59" : "#7d8d9b";
-          ctx.strokeStyle = spike.dangerous ? "#a93d3a" : "#596978";
+          ctx.fillStyle = spike.isDangerous ? "#db6a59" : "#7d8d9b";
+          ctx.strokeStyle = spike.isDangerous ? "#a93d3a" : "#596978";
 
           for (let i = 0; i < count; i += 1) {
             const px = sx + i * unit;
@@ -2055,7 +1750,7 @@
         const dx = clientX - cx;
         const dy = clientY - cy;
         const len = Math.hypot(dx, dy);
-        const maxRadius = rect.width * 0.39;
+        const maxRadius = Math.min(rect.width, rect.height) * 0.25;
         let clampedX = dx;
         let clampedY = dy;
         if (len > maxRadius) {
@@ -2068,8 +1763,24 @@
         const normalizedY = Math.max(-1, Math.min(1, clampedY / maxRadius));
         joystickState.x = normalizedX;
         joystickState.y = normalizedY;
+        joystickState.handleX = clampedX;
+        joystickState.handleY = clampedY;
+        if (normalizedY > -0.25) joystickState.jumpTriggered = false;
         joystickHandle.style.setProperty("--stick-x", `${clampedX}px`);
         joystickHandle.style.setProperty("--stick-y", `${clampedY}px`);
+      }
+
+      function updateJoystickHandle(delta) {
+        if (joystickState.active) return;
+        const blend = 1 - Math.exp(-16 * delta);
+        joystickState.handleX += (0 - joystickState.handleX) * blend;
+        joystickState.handleY += (0 - joystickState.handleY) * blend;
+        if (Math.hypot(joystickState.handleX, joystickState.handleY) < 0.35) {
+          joystickState.handleX = 0;
+          joystickState.handleY = 0;
+        }
+        joystickHandle.style.setProperty("--stick-x", `${joystickState.handleX}px`);
+        joystickHandle.style.setProperty("--stick-y", `${joystickState.handleY}px`);
       }
 
       function releaseJoystick() {
@@ -2077,8 +1788,9 @@
         joystickState.pointerId = null;
         joystickState.x = 0;
         joystickState.y = 0;
-        joystickHandle.style.setProperty("--stick-x", "0px");
-        joystickHandle.style.setProperty("--stick-y", "0px");
+        joystickState.jumpTriggered = false;
+        player.vx = 0;
+        joystick.classList.remove("is-active");
       }
 
       function bindTouchControls() {
@@ -2088,6 +1800,7 @@
           event.preventDefault();
           joystickState.active = true;
           joystickState.pointerId = event.pointerId;
+          joystick.classList.add("is-active");
           joystick.setPointerCapture?.(event.pointerId);
           setJoystickFromPointer(event.clientX, event.clientY);
         });
@@ -2108,6 +1821,8 @@
         actionButtons.forEach((button) => {
           button.addEventListener("pointerdown", (event) => {
             event.preventDefault();
+            button.dataset.pointerId = String(event.pointerId);
+            button.setPointerCapture?.(event.pointerId);
             button.classList.add("is-pressed");
             ensureAudio();
             if (button.dataset.action === "jump") {
@@ -2118,15 +1833,14 @@
             }
           });
 
-          button.addEventListener("pointerup", () => {
+          const releaseAction = (event) => {
+            if (button.dataset.pointerId !== String(event.pointerId)) return;
+            button.dataset.pointerId = "";
             button.classList.remove("is-pressed");
-          });
-          button.addEventListener("pointerleave", () => {
-            button.classList.remove("is-pressed");
-          });
-          button.addEventListener("pointercancel", () => {
-            button.classList.remove("is-pressed");
-          });
+          };
+          button.addEventListener("pointerup", releaseAction);
+          button.addEventListener("pointercancel", releaseAction);
+          button.addEventListener("lostpointercapture", releaseAction);
         });
       }
 
@@ -2213,12 +1927,6 @@
         startLandscapeBtn.addEventListener("click", () => startGame("landscape"));
         startPortraitBtn.addEventListener("click", () => startGame("portrait"));
 
-        skipIntroBtn.addEventListener("click", () => {
-          if (game.state !== "intro") return;
-          game.state = "playing";
-          introOverlay.classList.remove("visible");
-          game.started = true;
-        });
       }
 
       function initGame() {
