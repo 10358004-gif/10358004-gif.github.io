@@ -1876,25 +1876,10 @@
         const rect = gameScreen.getBoundingClientRect();
         if (!rect.width || !rect.height) return;
 
-        const ratio = 16 / 9;
-        let nextWidth = Math.round(rect.width);
-        let nextHeight = Math.round(nextWidth / ratio);
-
-        if (window.matchMedia("(pointer: coarse), (max-width: 780px)").matches) {
-          nextHeight = Math.max(320, Math.round(rect.height));
-          nextWidth = Math.round(nextHeight * ratio);
-          if (nextWidth > rect.width) {
-            nextWidth = Math.round(rect.width);
-            nextHeight = Math.round(nextWidth / ratio);
-          }
-        } else if (nextHeight > rect.height) {
-          nextHeight = Math.round(rect.height);
-          nextWidth = Math.round(nextHeight * ratio);
-        }
-
-        if (canvas.width === nextWidth && canvas.height === nextHeight) return;
+        const nextWidth = Math.max(1, Math.round(HEIGHT * rect.width / rect.height));
+        if (canvas.width === nextWidth && canvas.height === HEIGHT) return;
         canvas.width = nextWidth;
-        canvas.height = nextHeight;
+        canvas.height = HEIGHT;
         WIDTH = canvas.width;
       }
 
@@ -1941,6 +1926,11 @@
       }
 
       window.addEventListener("resize", resizeCanvas);
+      window.addEventListener("orientationchange", () => requestAnimationFrame(resizeCanvas));
+      window.visualViewport?.addEventListener("resize", resizeCanvas);
+      if ("ResizeObserver" in window) {
+        new ResizeObserver(resizeCanvas).observe(gameScreen);
+      }
       initGame();
     })();
   </script>
