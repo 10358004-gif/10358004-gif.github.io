@@ -431,6 +431,7 @@
 
     .intro-overlay.visible {
       display: block;
+      animation: introBackdropIn 0.95s ease forwards;
     }
 
     .intro-panel {
@@ -445,14 +446,17 @@
 
     .story-box {
       position: relative;
-      width: min(760px, 90%);
-      padding: 28px 30px 74px;
-      border: 1px solid rgba(255, 255, 255, 0.36);
-      border-radius: 24px;
-      background: rgba(211, 232, 255, 0.16);
-      box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.12);
+      width: min(820px, 92%);
+      padding: 30px 34px 82px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(203, 233, 255, 0.12), rgba(81, 121, 151, 0.14));
+      box-shadow: 0 30px 90px rgba(4, 17, 32, 0.42), inset 0 0 20px rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(1px);
       pointer-events: auto;
+      opacity: 0;
+      transform: translateY(28px) scale(0.82) rotateX(10deg);
+      animation: storyBoxIn 1s cubic-bezier(0.17, 0.84, 0.22, 1) 0.18s forwards;
     }
 
     .story-box::before {
@@ -464,24 +468,42 @@
       pointer-events: none;
     }
 
+    .story-box::after {
+      content: "";
+      position: absolute;
+      inset: -18% 18% auto 18%;
+      height: 70%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.21), transparent 68%);
+      filter: blur(26px);
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
     .story-title {
       margin: 0 0 12px;
       color: rgba(255, 255, 255, 0.94);
-      font-size: clamp(1.2rem, 2vw, 1.75rem);
-      letter-spacing: 0.08em;
+      font-size: clamp(1.2rem, 2vw, 1.85rem);
+      letter-spacing: 0.12em;
       text-transform: uppercase;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: storyTitleIn 0.7s ease 0.48s forwards;
     }
 
     .story-copy {
       margin: 0;
-      min-height: 170px;
-      color: rgba(245, 250, 255, 0.96);
-      font-size: clamp(1.1rem, 1.8vw, 1.36rem);
-      line-height: 1.9;
-      letter-spacing: 0.03em;
-      text-shadow: 0 2px 16px rgba(8, 30, 34, 0.24);
+      min-height: 185px;
+      color: rgba(245, 250, 255, 0.97);
+      font-size: clamp(1.12rem, 1.9vw, 1.48rem);
+      line-height: 1.95;
+      letter-spacing: 0.04em;
+      text-shadow: 0 3px 18px rgba(8, 30, 34, 0.28);
       white-space: pre-wrap;
       word-break: break-word;
+      opacity: 0;
+      transform: translateY(10px);
+      filter: blur(3px);
+      animation: storyTextIn 0.7s ease 0.7s forwards;
     }
 
     .story-cursor {
@@ -497,6 +519,67 @@
       50%, 100% { opacity: 0; }
     }
 
+    @keyframes introBackdropIn {
+      from {
+        opacity: 0;
+        background: rgba(16, 32, 52, 0.18);
+        backdrop-filter: blur(0px);
+      }
+      to {
+        opacity: 1;
+        background: radial-gradient(circle at 50% 30%, rgba(157, 209, 255, 0.48), rgba(202, 230, 255, 0.12) 34%, rgba(16, 32, 52, 0.7));
+        backdrop-filter: blur(1px);
+      }
+    }
+
+    @keyframes storyBoxIn {
+      from {
+        opacity: 0;
+        transform: translateY(28px) scale(0.82) rotateX(10deg);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1) rotateX(0deg);
+      }
+    }
+
+    @keyframes storyTitleIn {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+        letter-spacing: 0.2em;
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        letter-spacing: 0.12em;
+      }
+    }
+
+    @keyframes storyTextIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+        filter: blur(3px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes introButtonsIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.94);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
     .intro-actions {
       position: absolute;
       right: 26px;
@@ -504,13 +587,16 @@
       display: flex;
       gap: 10px;
       align-items: center;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: introButtonsIn 0.45s ease 1s forwards;
     }
 
     .skip-btn,
     .continue-btn {
       border: 1px solid rgba(255, 255, 255, 0.32);
       border-radius: 999px;
-      background: rgba(15, 39, 54, 0.18);
+      background: linear-gradient(180deg, rgba(22, 52, 80, 0.7), rgba(11, 28, 42, 0.6));
       color: white;
       font-weight: 800;
       cursor: pointer;
@@ -518,6 +604,13 @@
       opacity: 0;
       transform: translateY(8px);
       animation: introFadeIn 0.5s ease forwards;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .skip-btn:hover,
+    .continue-btn:hover {
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 10px 24px rgba(17, 64, 84, 0.3);
     }
 
     .skip-btn {
@@ -529,8 +622,8 @@
     }
 
     .continue-btn {
-      padding: 10px 20px;
-      font-size: 0.9rem;
+      padding: 10px 22px;
+      font-size: 0.92rem;
     }
 
     @keyframes introFadeIn {
@@ -1210,14 +1303,28 @@
         const story = STORY_TEXT;
         let index = 0;
         let stage = 0;
-        let speed = 28;
+        let speed = 42;
         let active = true;
         let forceComplete = false;
+        let introTransitionTimer = null;
+
+        storyText.innerHTML = "";
+        storyText.classList.remove("story-complete");
+
+        function startGameFromIntro() {
+          if (introTransitionTimer) return;
+          introTransitionTimer = setTimeout(() => {
+            game.state = "playing";
+            introOverlay.classList.remove("visible");
+            game.started = true;
+          }, 800);
+        }
 
         function renderChar() {
           if (!active) return;
           if (forceComplete) {
             storyText.innerHTML = `${story}<span class="story-cursor"></span>`;
+            storyText.classList.add("story-complete");
             return;
           }
           const visible = story.slice(0, index);
@@ -1225,18 +1332,24 @@
           storyText.innerHTML = `${visible}${cursor}`;
           index += 1;
           if (index <= story.length) {
-            const timeout = Math.max(16, speed - stage * 6);
+            const timeout = Math.max(22, speed - stage * 6);
             setTimeout(renderChar, timeout);
           } else {
             storyText.innerHTML = `${story}<span class="story-cursor"></span>`;
+            storyText.classList.add("story-complete");
+            setTimeout(startGameFromIntro, 1200);
           }
         }
 
         renderChar();
 
         function finish() {
+          if (forceComplete) return;
           forceComplete = true;
           storyText.innerHTML = `${story}<span class="story-cursor"></span>`;
+          storyText.classList.add("story-complete");
+          active = false;
+          setTimeout(startGameFromIntro, 450);
         }
 
         document.addEventListener("pointerdown", (event) => {
@@ -1257,17 +1370,12 @@
             game.state = "playing";
             introOverlay.classList.remove("visible");
             game.started = true;
-          }, 120);
+          }, 250);
         });
 
         setTimeout(() => {
           if (!forceComplete) {
             finish();
-            setTimeout(() => {
-              game.state = "playing";
-              introOverlay.classList.remove("visible");
-              game.started = true;
-            }, 200);
           }
         }, 10000);
       }
@@ -1302,34 +1410,36 @@
         if (trap.state === undefined) trap.state = 0;
         trap.stateTimer += delta;
 
-        const riseTime = 0.28;
+        const hiddenTime = trap.cooldown || 1.5;
+        const riseTime = 0.32;
         const holdTime = 1.1;
-        const downTime = 0.28;
+        const retractTime = 0.35;
 
         if (trap.state === 0) {
           trap.dangerous = false;
           trap.phase = 0;
-          if (trap.stateTimer > trap.cooldown || trap.stateTimer === 0) {
+          if (trap.stateTimer >= hiddenTime) {
             trap.state = 1;
             trap.stateTimer = 0;
           }
         } else if (trap.state === 1) {
+          trap.dangerous = false;
           trap.phase = Math.min(1, trap.stateTimer / riseTime);
-          if (trap.stateTimer > riseTime) {
+          if (trap.stateTimer >= riseTime) {
             trap.state = 2;
             trap.stateTimer = 0;
           }
         } else if (trap.state === 2) {
           trap.dangerous = true;
           trap.phase = 1;
-          if (trap.stateTimer > holdTime) {
+          if (trap.stateTimer >= holdTime) {
             trap.state = 3;
             trap.stateTimer = 0;
           }
         } else if (trap.state === 3) {
           trap.dangerous = false;
-          trap.phase = 1 - Math.min(1, trap.stateTimer / downTime);
-          if (trap.stateTimer > downTime) {
+          trap.phase = 1 - Math.min(1, trap.stateTimer / retractTime);
+          if (trap.stateTimer >= retractTime) {
             trap.state = 0;
             trap.stateTimer = 0;
           }
@@ -1702,21 +1812,24 @@
         for (const spike of game.level.spikes) {
           const sx = spike.x - game.cameraX;
           if (sx + spike.w < -10 || sx > WIDTH + 10) continue;
-          const height = 18 + (spike.phase || 0) * 18;
-          const hideDepth = 32 - (spike.phase || 0) * 28;
+
+          const riseProgress = spike.phase || 0;
+          const height = 18 + riseProgress * 20;
+          const hiddenDepth = 24 + (1 - riseProgress) * 28;
           const baseY = spike.y + 8;
-          const yOffset = spike.dangerous ? 0 : hideDepth;
-          const visibleY = baseY - height - yOffset;
+          const visibleY = baseY - height - (spike.dangerous ? 0 : hiddenDepth * (1 - riseProgress));
           const count = Math.max(2, Math.floor(spike.w / 16));
           const unit = spike.w / count;
 
           ctx.fillStyle = spike.dangerous ? "#db6a59" : "#7d8d9b";
           ctx.strokeStyle = spike.dangerous ? "#a93d3a" : "#596978";
+
           for (let i = 0; i < count; i += 1) {
             const px = sx + i * unit;
+            const tipY = visibleY;
             ctx.beginPath();
             ctx.moveTo(px, baseY);
-            ctx.lineTo(px + unit * 0.5, visibleY);
+            ctx.lineTo(px + unit * 0.5, tipY);
             ctx.lineTo(px + unit, baseY);
             ctx.closePath();
             ctx.fill();
