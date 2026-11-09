@@ -867,7 +867,7 @@
         </div>
       </div>
 
-      <div class="intro-overlay visible" id="introOverlay" aria-live="polite">
+      <div class="intro-overlay" id="introOverlay" aria-live="polite">
         <div class="particle-layer" id="particleLayer"></div>
         <button class="skip-btn" id="skipIntroBtn" type="button">Skip</button>
         <div class="intro-panel">
@@ -1381,17 +1381,14 @@
       }
 
       function beginIntro() {
-        game.state = "intro";
-        introOverlay.classList.add("visible");
-        addParticles();
-        runStorySequence();
+        introOverlay.classList.remove("visible");
+        game.state = "playing";
+        game.started = true;
       }
 
       function startGame(mode) {
         ensureAudio();
         orientationScreen.hidden = true;
-        game.state = "intro";
-        game.started = false;
         const gameShell = document.querySelector(".game-shell");
         if (mode === "landscape") {
           gameShell.classList.add("force-landscape");
@@ -1402,8 +1399,11 @@
           document.body.classList.remove("force-landscape-mode");
           document.body.classList.add("force-portrait-mode");
         }
+        introOverlay.classList.remove("visible");
+        game.state = "playing";
+        game.started = true;
+        game.canInput = true;
         resizeCanvas();
-        beginIntro();
       }
 
       function trapStateMachine(trap, delta) {
@@ -1813,11 +1813,12 @@
           const sx = spike.x - game.cameraX;
           if (sx + spike.w < -10 || sx > WIDTH + 10) continue;
 
-          const riseProgress = spike.phase || 0;
-          const height = 18 + riseProgress * 20;
-          const hiddenDepth = 24 + (1 - riseProgress) * 28;
-          const baseY = spike.y + 8;
-          const visibleY = baseY - height - (spike.dangerous ? 0 : hiddenDepth * (1 - riseProgress));
+          const riseProgress = Math.max(0, Math.min(1, spike.phase || 0));
+          const maxHeight = 26;
+          const hiddenDepth = 24;
+          const baseY = spike.y + 12;
+          const activeHeight = riseProgress * maxHeight;
+          const tipY = spike.dangerous ? baseY - activeHeight : baseY + hiddenDepth - riseProgress * hiddenDepth;
           const count = Math.max(2, Math.floor(spike.w / 16));
           const unit = spike.w / count;
 
@@ -1826,10 +1827,10 @@
 
           for (let i = 0; i < count; i += 1) {
             const px = sx + i * unit;
-            const tipY = visibleY;
+            const yTop = tipY;
             ctx.beginPath();
             ctx.moveTo(px, baseY);
-            ctx.lineTo(px + unit * 0.5, tipY);
+            ctx.lineTo(px + unit * 0.5, yTop);
             ctx.lineTo(px + unit, baseY);
             ctx.closePath();
             ctx.fill();
