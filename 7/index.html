@@ -110,7 +110,7 @@
 
     .hud {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 10px;
       margin-bottom: 12px;
     }
@@ -143,6 +143,7 @@
       border: 1px solid rgba(153, 179, 190, 0.5);
       cursor: pointer;
       background: rgba(248, 251, 253, 0.9);
+      pointer-events: auto;
     }
 
     .screen {
@@ -560,6 +561,14 @@
         border-color: rgba(255, 255, 255, 0.8);
       }
 
+      .sound-toggle {
+        font-size: 0;
+      }
+
+      .sound-toggle::first-letter {
+        font-size: 0.9rem;
+      }
+
       .screen {
         position: relative;
         width: 100%;
@@ -623,10 +632,11 @@
     </header>
 
     <section class="hud" aria-label="遊戲狀態">
-      <div class="hud-item">關卡 <strong id="levelDisplay">1 / 5</strong></div>
+      <div class="hud-item">關卡 <strong id="levelDisplay">1 / 4</strong></div>
       <div class="hud-item">生命 <strong id="lives">♥ ♥ ♥</strong></div>
       <div class="hud-item">分數 <strong id="score">0</strong></div>
-      <button class="hud-item sound-toggle" id="soundToggle" type="button" aria-label="關閉音效" aria-pressed="true">🔊 音效</button>
+      <div class="hud-item">寶劍 <strong id="weaponDisplay">⚔️ +0</strong></div>
+      <button class="hud-item sound-toggle" id="soundToggle" type="button" aria-label="關閉音效與音樂" aria-pressed="true">🔊 音效＋音樂</button>
     </section>
 
     <section class="screen" aria-label="遊戲畫面">
@@ -657,6 +667,8 @@
           <div class="overlay-actions">
             <button class="overlay-btn" id="nextLevelBtn" type="button">下一關 →</button>
             <button class="overlay-btn secondary" id="retryBtn" type="button" hidden>重試</button>
+            <button class="overlay-btn secondary" id="lifeRewardBtn" type="button" hidden>❤️ 生命 +1</button>
+            <button class="overlay-btn secondary" id="swordRewardBtn" type="button" hidden>⚔️ 寶劍升級</button>
           </div>
         </div>
       </div>
@@ -700,6 +712,7 @@
       const retryBtn = document.getElementById("retryBtn");
       const restartBtn = document.getElementById("restartBtn");
       const soundToggle = document.getElementById("soundToggle");
+      const weaponDisplay = document.getElementById("weaponDisplay");
       const levelDisplay = document.getElementById("levelDisplay");
       const livesDisplay = document.getElementById("lives");
       const scoreDisplay = document.getElementById("score");
@@ -709,6 +722,12 @@
       const orientationScreen = document.getElementById("orientationScreen");
       const startLandscapeBtn = document.getElementById("startLandscapeBtn");
       const startPortraitBtn = document.getElementById("startPortraitBtn");
+      const lifeRewardBtn = document.getElementById("lifeRewardBtn");
+      const swordRewardBtn = document.getElementById("swordRewardBtn");
+      const backgroundMusicNotes = [
+        392, 494, 587, 494, 440, 523, 659, 523,
+        392, 494, 587, 659, 587, 523, 494, 440
+      ];
 
       const baseLevelTemplates = [
         {
@@ -857,8 +876,23 @@
         audioContext: null,
         audioEnabled: true,
         audioUnlocked: false,
+        musicTimer: null,
+        nextMusicTime: 0,
+        musicStep: 0,
+        enemyProjectiles: [],
+        attackingBirds: [],
+        birdAttackTimer: 5,
+        swordLevel: 0,
+        rewardClaimed: false,
         mobileMode: window.matchMedia("(pointer: coarse), (max-width: 760px)").matches
       };
+      const skyBirds = Array.from({ length: 7 }, (_, index) => ({
+        x: Math.random() * WIDTH,
+        y: 48 + Math.random() * 175,
+        speed: 20 + Math.random() * 42,
+        size: 0.65 + Math.random() * 0.8,
+        phase: index * 1.7
+      }));
 
       let orientationLockMode = null;
 
@@ -929,10 +963,54 @@
         oscillator.stop(now + config.duration);
       }
 
+      function scheduleMusicNote(frequency, startTime, duration, volume, wave) {
+        const ctxAudio = game.audioContext;
+        const oscillator = ctxAudio.createOscillator();
+        const gain = ctxAudio.createGain();
+        oscillator.type = wave;
+        oscillator.frequency.setValueAtTime(frequency, startTime);
+        gain.gain.setValueAtTime(0.0001, startTime);
+        gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.025);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+        oscillator.connect(gain);
+        gain.connect(ctxAudio.destination);
+        oscillator.start(startTime);
+        oscillator.stop(startTime + duration);
+      }
+
+      function startBackgroundMusic() {
+        if (!game.audioEnabled || game.musicTimer !== null) return;
+        ensureAudio();
+        if (!game.audioContext) return;
+
+        const beatDuration = 60 / 96 / 2;
+        game.nextMusicTime = game.audioContext.currentTime + 0.05;
+        game.musicTimer = window.setInterval(() => {
+          if (!game.audioContext || game.audioContext.state !== "running") return;
+          while (game.nextMusicTime < game.audioContext.currentTime + 0.12) {
+            const note = backgroundMusicNotes[game.musicStep % backgroundMusicNotes.length];
+            scheduleMusicNote(note, game.nextMusicTime, beatDuration * 0.85, 0.035, "triangle");
+            if (game.musicStep % 4 === 0) {
+              const bassNotes = [196, 147, 174, 131];
+              scheduleMusicNote(bassNotes[Math.floor(game.musicStep / 4) % bassNotes.length], game.nextMusicTime, beatDuration * 3.6, 0.045, "sine");
+            }
+            game.nextMusicTime += beatDuration;
+            game.musicStep += 1;
+          }
+        }, 100);
+      }
+
+      function stopBackgroundMusic() {
+        if (game.musicTimer === null) return;
+        window.clearInterval(game.musicTimer);
+        game.musicTimer = null;
+      }
+
       function updateHud() {
         levelDisplay.textContent = `${game.currentLevelIndex + 1} / ${baseLevelTemplates.length}`;
         livesDisplay.textContent = `${"♥ ".repeat(Math.max(0, game.lives)).trim()}${game.lives < 3 ? ` ${"♡ ".repeat(3 - game.lives).trim()}` : ""}`;
         scoreDisplay.textContent = String(game.score);
+        weaponDisplay.textContent = `⚔️ +${game.swordLevel}`;
         levelName.textContent = `第 ${game.currentLevelIndex + 1} 關・${game.level?.name || "新手訓練"}`;
       }
 
@@ -950,6 +1028,9 @@
         game.skillQueued = false;
         game.skillCooldown = 0;
         game.fireballs = [];
+        game.enemyProjectiles = [];
+        game.attackingBirds = [];
+        game.birdAttackTimer = 4 + Math.random() * 4;
         keys.clear();
         joystickState.active = false;
         joystickState.pointerId = null;
@@ -1006,9 +1087,19 @@
           enemies: template.enemies
             .map((enemy) => placeHazardSafely(enemy, template.width, true))
             .filter(Boolean)
-            .map((enemy) => ({ ...enemy })),
+            .map((enemy, index) => ({
+              ...enemy,
+              attackCooldown: 0.9 + Math.random() * 1.4,
+              attackType: (game.currentLevelIndex + index) % 2 === 0 ? "fireball" : "acid"
+            })),
           coins: template.coins.map((coin, index) => ({ ...coin, id: `${game.currentLevelIndex}-${index}`, collected: collectedCoinIds.has(`${game.currentLevelIndex}-${index}`) })),
-          boss: template.boss ? { ...template.boss, hp: template.boss.hp, maxHp: template.boss.maxHp, alive: true } : null,
+          boss: template.boss ? {
+            ...template.boss,
+            hp: template.boss.hp,
+            maxHp: template.boss.maxHp,
+            alive: true,
+            attackCooldown: 1.8
+          } : null,
           tileSeed: Math.random() * 1024
         };
       }
@@ -1032,7 +1123,9 @@
         overlayMessage.textContent = message;
         overlayIcon.textContent = icon;
         overlay.hidden = false;
-        nextLevelBtn.hidden = kind !== "cleared";
+        nextLevelBtn.hidden = kind !== "cleared" || !game.rewardClaimed;
+        lifeRewardBtn.hidden = kind !== "cleared" || game.rewardClaimed;
+        swordRewardBtn.hidden = kind !== "cleared" || game.rewardClaimed;
         retryBtn.hidden = kind !== "gameover";
         if (kind === "gameover") {
           nextLevelBtn.hidden = true;
@@ -1041,14 +1134,33 @@
       }
 
       function completeLevel() {
+        game.rewardClaimed = false;
         playTone("clear");
         if (game.currentLevelIndex >= baseLevelTemplates.length - 1) {
-          showOverlay("cleared", "恭喜完成冒險！", `你已收集 ${game.score} 分的黃金露水，成功喚醒了飛空島的黃金樹。`, "🏆");
+          showOverlay("cleared", "恭喜完成冒險！", `你已收集 ${game.score} 分的黃金露水，成功喚醒了飛空島的黃金樹。選擇一項過關獎勵！`, "🏆");
           game.state = "cleared";
         } else {
-          showOverlay("cleared", "恭喜過關！", `第 ${game.currentLevelIndex + 1} 關完成，準備前往下一座高地吧！`, "🏁");
+          showOverlay("cleared", "恭喜過關！", `第 ${game.currentLevelIndex + 1} 關完成，選擇一項獎勵再前往下一座高地吧！`, "🏁");
           game.state = "cleared";
         }
+      }
+
+      function claimReward(kind) {
+        if (game.state !== "cleared" || game.rewardClaimed) return;
+        if (kind === "life") {
+          game.lives = Math.min(5, game.lives + 1);
+          updateHud();
+          overlayMessage.textContent = "獲得 1 點生命（生命上限為 5）！";
+        } else {
+          game.swordLevel += 1;
+          updateHud();
+          overlayMessage.textContent = "寶劍升級！火球與踩踏攻擊的傷害提高。";
+        }
+        game.rewardClaimed = true;
+        lifeRewardBtn.hidden = true;
+        swordRewardBtn.hidden = true;
+        nextLevelBtn.hidden = false;
+        nextLevelBtn.textContent = game.currentLevelIndex >= baseLevelTemplates.length - 1 ? "重新冒險 ↻" : "下一關 →";
       }
 
       function loseLife() {
@@ -1071,6 +1183,7 @@
           game.currentLevelIndex = 0;
           game.score = 0;
           game.lives = 3;
+          game.swordLevel = 0;
           collectedCoinIds.clear();
         } else {
           game.currentLevelIndex += 1;
@@ -1099,6 +1212,7 @@
 
       function startGame(mode) {
         ensureAudio();
+        startBackgroundMusic();
         orientationScreen.hidden = true;
         applyOrientationMode(mode);
 
@@ -1221,9 +1335,10 @@
       function updateFireballs(delta) {
         for (let i = game.fireballs.length - 1; i >= 0; i -= 1) {
           const ball = game.fireballs[i];
+          const previousY = ball.y;
           ball.x += ball.vx * delta;
           ball.y += ball.vy * delta;
-          ball.vy += 70 * delta;
+          ball.vy += 520 * delta;
           ball.life -= delta;
 
           const firebox = { x: ball.x - 12, y: ball.y - 12, w: 24, h: 24 };
@@ -1243,15 +1358,164 @@
 
           const boss = game.level.boss;
           if (!hit && boss && boss.hp > 0 && rectsOverlap(firebox, boss)) {
-            boss.hp -= 1;
+            boss.hp -= 1 + game.swordLevel;
             game.score += 250;
             hit = true;
             playTone("stomp");
             updateHud();
           }
 
+          if (!hit) {
+            for (const bird of game.attackingBirds) {
+              if (!bird.alive) continue;
+              if (rectsOverlap(firebox, { x: bird.x - 16, y: bird.y - 9, w: 32, h: 18 })) {
+                bird.alive = false;
+                game.score += 120;
+                hit = true;
+                playTone("stomp");
+                updateHud();
+                break;
+              }
+            }
+          }
+
+          if (!hit && ball.bouncesLeft > 0 && ball.vy > 0) {
+            const landingSurface = [...game.level.ground, ...game.level.platforms].find((surface) =>
+              ball.x >= surface.x - 12
+              && ball.x <= surface.x + surface.w + 12
+              && previousY + 12 <= surface.y
+              && ball.y + 12 >= surface.y
+            );
+            if (landingSurface) {
+              ball.y = landingSurface.y - 12;
+              ball.vy = -260;
+              ball.bouncesLeft -= 1;
+            }
+          }
+
           if (hit || ball.life <= 0 || ball.x < 0 || ball.x > game.level.width) {
             game.fireballs.splice(i, 1);
+          }
+        }
+      }
+
+      function fireEnemyProjectile(source, type) {
+        const startX = source.x + source.w / 2;
+        const startY = source.y + source.h * 0.45;
+        const targetX = player.x + PLAYER_WIDTH / 2;
+        const targetY = player.y + PLAYER_HEIGHT / 2;
+        const dx = targetX - startX;
+        const dy = targetY - startY;
+        const distance = Math.max(1, Math.hypot(dx, dy));
+        const speed = type === "acid" ? 235 : 275;
+
+        game.enemyProjectiles.push({
+          x: startX,
+          y: startY,
+          vx: dx / distance * speed,
+          vy: dy / distance * speed - (type === "acid" ? 65 : 0),
+          gravity: type === "acid" ? 180 : 0,
+          type,
+          life: 3
+        });
+      }
+
+      function updateEnemies(delta) {
+        const canAttack = game.currentLevelIndex >= 2;
+        for (let index = 0; index < game.level.enemies.length; index += 1) {
+          const enemy = game.level.enemies[index];
+          if (!enemy.alive) continue;
+
+          enemy.x += enemy.dir * enemy.speed * delta;
+          if (enemy.x <= enemy.min) {
+            enemy.x = enemy.min;
+            enemy.dir = 1;
+          } else if (enemy.x + enemy.w >= enemy.max) {
+            enemy.x = Math.max(enemy.min, enemy.max - enemy.w);
+            enemy.dir = -1;
+          }
+
+          if (!canAttack) continue;
+          enemy.attackCooldown -= delta;
+          if (enemy.attackCooldown <= 0 && Math.abs(player.x - enemy.x) < 540) {
+            fireEnemyProjectile(enemy, enemy.attackType);
+            enemy.attackCooldown = 2.2 + Math.random() * 1.2;
+          }
+        }
+
+        const boss = game.level.boss;
+        if (!boss || boss.hp <= 0) return;
+        boss.x += boss.dir * boss.speed * delta;
+        if (boss.x <= boss.min) {
+          boss.x = boss.min;
+          boss.dir = 1;
+        } else if (boss.x + boss.w >= boss.max) {
+          boss.x = Math.max(boss.min, boss.max - boss.w);
+          boss.dir = -1;
+        }
+        if (!canAttack) return;
+        boss.attackCooldown -= delta;
+        if (boss.attackCooldown <= 0 && Math.abs(player.x - boss.x) < 620) {
+          fireEnemyProjectile(boss, "acid");
+          boss.attackCooldown = 2.8;
+        }
+      }
+
+      function updateEnemyProjectiles(delta) {
+        const playerBox = { x: player.x + 4, y: player.y + 4, w: PLAYER_WIDTH - 8, h: PLAYER_HEIGHT - 8 };
+        for (let index = game.enemyProjectiles.length - 1; index >= 0; index -= 1) {
+          const projectile = game.enemyProjectiles[index];
+          projectile.x += projectile.vx * delta;
+          projectile.y += projectile.vy * delta;
+          projectile.vy += projectile.gravity * delta;
+          projectile.life -= delta;
+          const radius = projectile.type === "acid" ? 10 : 11;
+          const projectileBox = { x: projectile.x - radius, y: projectile.y - radius, w: radius * 2, h: radius * 2 };
+          if (rectsOverlap(playerBox, projectileBox)) {
+            loseLife();
+            game.enemyProjectiles.splice(index, 1);
+            continue;
+          }
+          if (projectile.life <= 0 || projectile.y > FLOOR_Y + 20 || projectile.x < 0 || projectile.x > game.level.width) {
+            game.enemyProjectiles.splice(index, 1);
+          }
+        }
+      }
+
+      function updateAttackingBirds(delta) {
+        game.birdAttackTimer -= delta;
+        if (game.birdAttackTimer <= 0) {
+          const direction = Math.random() < 0.5 ? -1 : 1;
+          const x = Math.max(24, Math.min(game.level.width - 24, player.x + direction * (WIDTH * 0.55)));
+          const startY = 100 + Math.random() * 95;
+          const targetX = player.x + PLAYER_WIDTH / 2;
+          const targetY = player.y + PLAYER_HEIGHT / 2;
+          const dx = targetX - x;
+          const dy = targetY - startY;
+          const distance = Math.max(1, Math.hypot(dx, dy));
+          game.attackingBirds.push({
+            x,
+            y: startY,
+            vx: dx / distance * 235,
+            vy: dy / distance * 235,
+            life: 3.2,
+            alive: true
+          });
+          game.birdAttackTimer = 8 + Math.random() * 5;
+        }
+
+        const playerBox = { x: player.x + 4, y: player.y + 4, w: PLAYER_WIDTH - 8, h: PLAYER_HEIGHT - 8 };
+        for (let index = game.attackingBirds.length - 1; index >= 0; index -= 1) {
+          const bird = game.attackingBirds[index];
+          bird.x += bird.vx * delta;
+          bird.y += bird.vy * delta;
+          bird.life -= delta;
+          if (bird.alive && rectsOverlap(playerBox, { x: bird.x - 16, y: bird.y - 9, w: 32, h: 18 })) {
+            bird.alive = false;
+            loseLife();
+          }
+          if (!bird.alive || bird.life <= 0 || bird.y > FLOOR_Y + 30 || bird.x < 0 || bird.x > game.level.width) {
+            game.attackingBirds.splice(index, 1);
           }
         }
       }
@@ -1265,7 +1529,8 @@
           y: player.y + PLAYER_HEIGHT * 0.45,
           vx: player.facing * 620,
           vy: 0,
-          life: 2.0
+          life: 2.0,
+          bouncesLeft: 2
         });
       }
 
@@ -1292,7 +1557,7 @@
         const boss = game.level.boss;
         if (boss && boss.hp > 0 && rectsOverlap(playerBox, boss)) {
           if (player.vy > 0 && prevBottom <= boss.y + 12) {
-            boss.hp -= 1;
+            boss.hp -= 1 + game.swordLevel;
             player.vy = -JUMP_VELOCITY * 0.58;
             game.score += 250;
             playTone("stomp");
@@ -1417,7 +1682,10 @@
         player.invulnerable = Math.max(0, player.invulnerable - step);
         updateSpikes(step);
         updateControls(step);
+        updateEnemies(step);
         updateFireballs(step);
+        updateEnemyProjectiles(step);
+        updateAttackingBirds(step);
         updatePlayer(step);
         if (game.state !== "playing") return;
       }
@@ -1450,6 +1718,91 @@
           ctx.lineTo(mx + 180, HEIGHT);
           ctx.closePath();
           ctx.fill();
+        }
+
+        drawSkyBirds();
+        drawPineForest();
+      }
+
+      function drawBird(x, y, size, phase, color) {
+        const wingLift = Math.sin(phase) * size * 4;
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = Math.max(1.2, size * 1.6);
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(x - size * 9, y);
+        ctx.quadraticCurveTo(x - size * 5, y - size * 5 - wingLift, x, y);
+        ctx.quadraticCurveTo(x + size * 5, y - size * 5 - wingLift, x + size * 9, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(x, y + size, size * 3, size * 1.4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(x + size * 2, y + size);
+        ctx.lineTo(x + size * 5, y + size * 0.5);
+        ctx.lineTo(x + size * 4, y + size * 1.6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawSkyBirds() {
+        for (const bird of skyBirds) {
+          const x = ((bird.x + game.animationTime * bird.speed) % (WIDTH + 80)) - 40;
+          drawBird(x, bird.y, bird.size, game.animationTime * 5 + bird.phase, "rgba(45, 73, 82, 0.62)");
+        }
+      }
+
+      function drawPine(x, baseY, size, colors) {
+        const trunkWidth = Math.max(3, size * 0.11);
+        ctx.fillStyle = colors.trunk;
+        ctx.fillRect(x - trunkWidth / 2, baseY - size * 0.18, trunkWidth, size * 0.2);
+        for (let layer = 0; layer < 3; layer += 1) {
+          const top = baseY - size + layer * size * 0.24;
+          const halfWidth = size * (0.25 + layer * 0.1);
+          const bottom = top + size * 0.48;
+          ctx.fillStyle = colors.shade[layer];
+          ctx.beginPath();
+          ctx.moveTo(x, top);
+          ctx.lineTo(x - halfWidth, bottom);
+          ctx.lineTo(x + halfWidth, bottom);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = colors.light[layer];
+          ctx.beginPath();
+          ctx.moveTo(x, top + size * 0.06);
+          ctx.lineTo(x - halfWidth * 0.7, bottom - size * 0.04);
+          ctx.lineTo(x, bottom - size * 0.12);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+
+      function drawPineForest() {
+        const layers = [
+          { parallax: 0.16, baseY: 412, size: 96, spacing: 82, offset: 23,
+            shade: ["#6e9a77", "#557e62", "#426b52"], light: ["#8eb596", "#719d7a", "#5a8767"], trunk: "#765a44" },
+          { parallax: 0.28, baseY: 455, size: 128, spacing: 104, offset: 61,
+            shade: ["#477b59", "#35694a", "#2d5a40"], light: ["#67966e", "#4d805d", "#3e7152"], trunk: "#654b38" },
+          { parallax: 0.4, baseY: 500, size: 158, spacing: 132, offset: 7,
+            shade: ["#315d42", "#254e38", "#204330"], light: ["#4c7a54", "#39684a", "#2f5b41"], trunk: "#594331" }
+        ];
+        for (let layerIndex = 0; layerIndex < layers.length; layerIndex += 1) {
+          const layer = layers[layerIndex];
+          const colors = {
+            shade: layer.shade,
+            light: layer.light,
+            trunk: layer.trunk
+          };
+          const count = Math.ceil(WIDTH / layer.spacing) + 2;
+          for (let index = -1; index < count; index += 1) {
+            const worldX = index * layer.spacing + layer.offset;
+            const screenX = ((worldX - game.cameraX * layer.parallax + WIDTH) % (WIDTH + layer.spacing)) - layer.spacing / 2;
+            const size = layer.size * (0.8 + ((index * 17 + 50) % 7) / 20);
+            drawPine(screenX, layer.baseY, size, colors);
+          }
         }
       }
 
@@ -1678,6 +2031,59 @@
         }
       }
 
+      function drawEnemyProjectiles() {
+        for (const projectile of game.enemyProjectiles) {
+          const x = projectile.x - game.cameraX;
+          const y = projectile.y;
+          ctx.save();
+          ctx.translate(x, y);
+          if (projectile.type === "acid") {
+            ctx.shadowBlur = 14;
+            ctx.shadowColor = "#8bf05c";
+            ctx.fillStyle = "#83d94e";
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 8, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#d8ff8d";
+            ctx.beginPath();
+            ctx.arc(-2, -3, 3, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.shadowBlur = 16;
+            ctx.shadowColor = "#ff693d";
+            ctx.fillStyle = "#ed563b";
+            ctx.beginPath();
+            ctx.arc(0, 0, 10, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#ffd26e";
+            ctx.beginPath();
+            ctx.arc(-2, -2, 4, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+      }
+
+      function drawAttackingBirds() {
+        for (const bird of game.attackingBirds) {
+          if (!bird.alive) continue;
+          const x = bird.x - game.cameraX;
+          const facing = bird.vx < 0 ? -1 : 1;
+          ctx.save();
+          ctx.translate(x, bird.y);
+          ctx.scale(facing, 1);
+          drawBird(0, 0, 1.35, game.animationTime * 13, "#4c3a2f");
+          ctx.fillStyle = "#e7a63f";
+          ctx.beginPath();
+          ctx.moveTo(6, 1);
+          ctx.lineTo(15, 5);
+          ctx.lineTo(6, 8);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
       function drawPlayer() {
         if (player.invulnerable > 0 && Math.floor(game.animationTime * 18) % 2 === 0) return;
         const x = player.x - game.cameraX + PLAYER_WIDTH / 2;
@@ -1733,6 +2139,8 @@
         drawCoins();
         drawEnemies();
         drawFireballs();
+        drawEnemyProjectiles();
+        drawAttackingBirds();
         drawExitPillar();
         drawPlayer();
       }
@@ -1885,10 +2293,15 @@
       function setupUI() {
         soundToggle.addEventListener("click", () => {
           game.audioEnabled = !game.audioEnabled;
-          soundToggle.textContent = game.audioEnabled ? "🔊 音效" : "🔇 靜音";
-          soundToggle.setAttribute("aria-label", game.audioEnabled ? "關閉音效" : "開啟音效");
+          soundToggle.textContent = game.audioEnabled ? "🔊 音效＋音樂" : "🔇 靜音";
+          soundToggle.setAttribute("aria-label", game.audioEnabled ? "關閉音效與音樂" : "開啟音效與音樂");
           soundToggle.setAttribute("aria-pressed", String(game.audioEnabled));
-          if (game.audioEnabled) ensureAudio();
+          if (game.audioEnabled) {
+            ensureAudio();
+            startBackgroundMusic();
+          } else {
+            stopBackgroundMusic();
+          }
         });
 
         restartBtn.addEventListener("click", () => {
@@ -1900,6 +2313,9 @@
         nextLevelBtn.addEventListener("click", () => {
           goToNextLevel();
         });
+
+        lifeRewardBtn.addEventListener("click", () => claimReward("life"));
+        swordRewardBtn.addEventListener("click", () => claimReward("sword"));
 
         retryBtn.addEventListener("click", () => {
           buildLevel(game.currentLevelIndex);
