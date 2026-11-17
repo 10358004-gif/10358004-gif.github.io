@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="簡易網頁訪客計數器">
+  <title>網頁訪客計數器</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Segoe UI", "Noto Sans TC", sans-serif;
+      color: #17352f;
+      background: #f1f6f2;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      display: grid;
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px;
+      place-items: center;
+    }
+
+    main {
+      width: min(100%, 560px);
+      padding: clamp(24px, 7vw, 48px);
+      border: 1px solid #dce8df;
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: 0 18px 55px rgb(34 76 57 / 10%);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: #478464;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+    }
+
+    h1 { margin: 0; font-size: clamp(1.7rem, 6vw, 2.4rem); }
+
+    .count-card {
+      display: grid;
+      min-height: 190px;
+      margin: 28px 0 20px;
+      padding: 24px;
+      place-items: center;
+      border-radius: 18px;
+      background: #edf6ef;
+      text-align: center;
+    }
+
+    .count-label { color: #526a5c; }
+
+    #count {
+      color: #246746;
+      font-size: clamp(3.2rem, 14vw, 5rem);
+      font-weight: 850;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+
+    #status {
+      min-height: 1.6em;
+      margin: 0;
+      color: #526a5c;
+      font-size: 0.92rem;
+    }
+
+    .note {
+      margin: 24px 0 0;
+      padding-top: 20px;
+      border-top: 1px solid #e6ece7;
+      color: #64746a;
+      font-size: 0.88rem;
+      line-height: 1.75;
+    }
+
+    .setup {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 12px;
+      background: #fff7e8;
+      color: #684f22;
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    .setup[hidden] { display: none; }
+    code { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">VISITOR COUNTER</p>
+    <h1>網頁訪客計數器</h1>
+
+    <section class="count-card" aria-label="訪客統計">
+      <div>
+        <div class="count-label">累計瀏覽次數</div>
+        <div id="count" aria-live="polite">—</div>
+      </div>
+    </section>
+    <p id="status" role="status">正在連線並記錄本次瀏覽…</p>
+
+    <div id="setup" class="setup" hidden>
+      尚未設定 GAS 網頁應用程式網址。請先依照 <code>count.gs</code> 的部署方式部署，
+      再將下方程式中的 <code>GAS_WEB_APP_URL</code> 換成部署後的網址。
+    </div>
+
+    <p class="note">
+      每次載入此頁面會記錄一筆瀏覽事件（時間、頁面路徑、來源頁面及瀏覽器資訊）。
+      本計數器不收集訪客姓名或 IP 位址。瀏覽器封鎖指令碼、網路中斷或 GAS 配額限制時，
+      該次瀏覽可能無法送達，因此無法保證記錄未成功送達的瀏覽。
+    </p>
+  </main>
+
+  <script>
+    // 部署 count.gs 為網頁應用程式後，貼上以 /exec 結尾的網址。
+    const GAS_WEB_APP_URL = "請貼上你的GAS網頁應用程式網址";
+    const countElement = document.getElementById("count");
+    const statusElement = document.getElementById("status");
+    const setupElement = document.getElementById("setup");
+
+    function recordVisit() {
+      if (!GAS_WEB_APP_URL.startsWith("https://script.google.com/")) {
+        setupElement.hidden = false;
+        statusElement.textContent = "尚未設定計數器服務。";
+        return;
+      }
+
+      const callbackName = `counterCallback_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      const script = document.createElement("script");
+      const requestUrl = new URL(GAS_WEB_APP_URL);
+      requestUrl.searchParams.set("action", "visit");
+      requestUrl.searchParams.set("callback", callbackName);
+      requestUrl.searchParams.set("page", `${location.origin}${location.pathname}`);
+      requestUrl.searchParams.set("referrer", document.referrer);
+      requestUrl.searchParams.set("userAgent", navigator.userAgent);
+      requestUrl.searchParams.set("_", Date.now().toString());
+
+      let finished = false;
+      const timeout = window.setTimeout(() => finish("連線逾時，這次瀏覽可能未成功記錄。"), 15000);
+
+      function finish(message) {
+        if (finished) return;
+        finished = true;
+        window.clearTimeout(timeout);
+        delete window[callbackName];
+        script.remove();
+        if (message) statusElement.textContent = message;
+      }
+
+      window[callbackName] = (result) => {
+        if (!result || result.ok !== true || !Number.isSafeInteger(result.count)) {
+          finish("計數服務回傳錯誤，這次瀏覽可能未成功記錄。");
+          return;
+        }
+
+        countElement.textContent = result.count.toLocaleString("zh-Hant");
+        finish("本次瀏覽已記錄。");
+      };
+
+      script.onerror = () => finish("無法連線到計數服務，這次瀏覽可能未成功記錄。");
+      script.src = requestUrl.toString();
+      document.head.appendChild(script);
+    }
+
+    recordVisit();
+  </script>
+</body>
+</html>
