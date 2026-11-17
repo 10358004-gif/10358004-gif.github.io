@@ -33,14 +33,17 @@ function setupCounter() {
 }
 
 function doGet(e) {
-  const callback = e && e.parameter ? e.parameter.callback : "";
-  if (!isValidCallback_(callback)) {
-    return ContentService.createTextOutput("Invalid callback")
-      .setMimeType(ContentService.MimeType.TEXT);
+  const parameters = e && e.parameter ? e.parameter : {};
+  if (parameters.action !== "visit") {
+    return ContentService.createTextOutput(
+      "Counter API is ready. Open the website to record a visit."
+    ).setMimeType(ContentService.MimeType.TEXT);
   }
 
-  if (!e.parameter || e.parameter.action !== "visit") {
-    return jsonp_(callback, { ok: false, error: "Unsupported action" });
+  const callback = parameters.callback || "";
+  if (!isValidCallback_(callback)) {
+    return ContentService.createTextOutput("Missing or invalid callback parameter.")
+      .setMimeType(ContentService.MimeType.TEXT);
   }
 
   const lock = LockService.getScriptLock();
@@ -49,15 +52,20 @@ function doGet(e) {
     const sheet = getVisitsSheet_();
     sheet.appendRow([
       new Date().toISOString(),
-      safeCellValue_(e.parameter.page, 500),
-      safeCellValue_(e.parameter.referrer, 1000),
-      safeCellValue_(e.parameter.userAgent, 500)
+      safeCellValue_(parameters.page, 500),
+      safeCellValue_(parameters.referrer, 1000),
+      safeCellValue_(parameters.userAgent, 500)
     ]);
     const count = Math.max(0, sheet.getLastRow() - 1);
     return jsonp_(callback, { ok: true, count: count });
   } catch (error) {
     console.error("Unable to record visitor: " + error);
-    return jsonp_(callback, { ok: false, error: "Unable to record visit" });
+    const errorMessage = error && error.message ? error.message : "";
+    const publicMessage = errorMessage === "COUNTER_NOT_INITIALIZED" ||
+      errorMessage === "VISITS_SHEET_MISSING"
+      ? "計數器尚未初始化。請在 Apps Script 執行 setupCounter() 並完成授權。"
+      : "瀏覽紀錄寫入失敗。請到 Apps Script 的「執行項目」查看錯誤。";
+    return jsonp_(callback, { ok: false, error: publicMessage });
   } finally {
     if (lock.hasLock()) {
       lock.releaseLock();
@@ -69,13 +77,13 @@ function getVisitsSheet_() {
   const spreadsheetId = PropertiesService.getScriptProperties()
     .getProperty(SPREADSHEET_PROPERTY);
   if (!spreadsheetId) {
-    throw new Error("Run setupCounter() and authorize the spreadsheet first.");
+    throw new Error("COUNTER_NOT_INITIALIZED");
   }
 
   const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
   const sheet = spreadsheet.getSheetByName(VISITS_SHEET_NAME);
   if (!sheet) {
-    throw new Error("Visits sheet is missing; run setupCounter() again.");
+    throw new Error("VISITS_SHEET_MISSING");
   }
   return sheet;
 }

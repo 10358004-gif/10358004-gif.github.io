@@ -156,7 +156,10 @@
 
       window[callbackName] = (result) => {
         if (!result || result.ok !== true || !Number.isSafeInteger(result.count)) {
-          finish("計數服務回傳錯誤，這次瀏覽可能未成功記錄。");
+          const reason = result && typeof result.error === "string"
+            ? ` ${result.error}`
+            : "";
+          finish(`計數服務回傳錯誤，這次瀏覽可能未成功記錄。${reason}`);
           return;
         }
 
