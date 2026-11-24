@@ -137,6 +137,62 @@
             font-size: clamp(1rem, 2vw, 1.12rem);
         }
 
+        .visitor-counter {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 24px;
+            padding: 10px 16px 10px 12px;
+            border: 1px solid #bfd0c3;
+            border-radius: 999px;
+            background: rgba(255, 254, 250, 0.92);
+            box-shadow: 0 10px 28px rgba(47, 97, 77, 0.09);
+        }
+
+        .visitor-counter-icon {
+            display: grid;
+            width: 38px;
+            height: 38px;
+            place-items: center;
+            border-radius: 50%;
+            background: var(--green);
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .visitor-counter-copy {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.25;
+        }
+
+        .visitor-counter-label {
+            color: var(--muted);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+        }
+
+        #visitor-count {
+            min-width: 3ch;
+            color: var(--green);
+            font-size: 1.25rem;
+            font-weight: 850;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
         .hero-link {
             display: inline-flex;
             align-items: center;
@@ -920,6 +976,15 @@
                 <p class="eyebrow">MY SELECTED WORKS · 2026</p>
                 <h1 id="hero-title">用互動，讓點子<br><span>變得好玩。</span></h1>
                 <p class="hero-copy">你好！這裡整理了我的五個網頁作品，從互動遊戲、工程計算到英文學習工具。點選作品圖卡，立即開始體驗。</p>
+                <aside class="visitor-counter" aria-label="作品集累計瀏覽次數">
+                    <span class="visitor-counter-icon" aria-hidden="true">👁</span>
+                    <span class="visitor-counter-copy">
+                        <span class="visitor-counter-label">累計瀏覽次數</span>
+                        <strong id="visitor-count" aria-live="polite">—</strong>
+                    </span>
+                    <span id="visitor-status" class="sr-only" role="status">正在載入瀏覽次數</span>
+                </aside>
+                <br>
                 <a class="hero-link" href="#projects"><span aria-hidden="true">↓</span>探索所有作品</a>
             </section>
 
@@ -1094,5 +1159,51 @@
             <a href="#top">回到頁首 ↑</a>
         </footer>
     </div>
+
+    <script>
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzLKjremuFv7WdKPlXUsOSGa-gIrDkVqNb4Abogxi81CvSGRTqpX24FJC412dknxIpP9A/exec";
+        const countElement = document.getElementById("visitor-count");
+        const statusElement = document.getElementById("visitor-status");
+
+        function recordVisit() {
+            const callbackName = `portfolioCounterCallback_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+            const script = document.createElement("script");
+            const requestUrl = new URL(GAS_WEB_APP_URL);
+            requestUrl.searchParams.set("action", "visit");
+            requestUrl.searchParams.set("callback", callbackName);
+            requestUrl.searchParams.set("page", `${location.origin}${location.pathname}`);
+            requestUrl.searchParams.set("referrer", document.referrer);
+            requestUrl.searchParams.set("userAgent", navigator.userAgent);
+            requestUrl.searchParams.set("_", Date.now().toString());
+
+            let finished = false;
+            const timeout = window.setTimeout(() => finish("瀏覽次數連線逾時。"), 15000);
+
+            function finish(message) {
+                if (finished) return;
+                finished = true;
+                window.clearTimeout(timeout);
+                delete window[callbackName];
+                script.remove();
+                statusElement.textContent = message;
+            }
+
+            window[callbackName] = (result) => {
+                if (!result || result.ok !== true || !Number.isSafeInteger(result.count)) {
+                    finish("暫時無法載入瀏覽次數。");
+                    return;
+                }
+
+                countElement.textContent = result.count.toLocaleString("zh-Hant");
+                finish("本次瀏覽已記錄。");
+            };
+
+            script.onerror = () => finish("暫時無法連線計數服務。");
+            script.src = requestUrl.toString();
+            document.head.appendChild(script);
+        }
+
+        recordVisit();
+    </script>
 </body>
 </html>
