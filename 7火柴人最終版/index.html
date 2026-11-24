@@ -1610,12 +1610,7 @@
 
         player.vx = moveRequest * SPEED;
 
-        if (joystickState.y < -0.6 && !joystickState.jumpTriggered) {
-          game.jumpQueued = true;
-          joystickState.jumpTriggered = true;
-        } else if (joystickState.y > -0.25) {
-          joystickState.jumpTriggered = false;
-        }
+        // 跳躍與移動分開處理：輪盤只負責左右移動，跳躍由獨立按鈕觸發。
 
         if (game.jumpQueued && player.grounded) {
           player.vy = -JUMP_VELOCITY;
@@ -2193,44 +2188,49 @@
         joystickHandle.style.setProperty("--stick-y", `${joystickState.handleY}px`);
       }
 
-      function releaseJoystick() {
+      function releaseJoystick(event) {
+        if (event && joystickState.pointerId !== null && event.pointerId !== joystickState.pointerId) return;
         joystickState.active = false;
         joystickState.pointerId = null;
         joystickState.x = 0;
         joystickState.y = 0;
         joystickState.jumpTriggered = false;
-        player.vx = 0;
         joystick.classList.remove("is-active");
+        joystickHandle.style.setProperty("--stick-x", "0px");
+        joystickHandle.style.setProperty("--stick-y", "0px");
       }
 
       function bindTouchControls() {
         const actionButtons = document.querySelectorAll(".action-btn");
 
         joystick.addEventListener("pointerdown", (event) => {
+          if (event.pointerType === "mouse") return;
           event.preventDefault();
           joystickState.active = true;
           joystickState.pointerId = event.pointerId;
           joystick.classList.add("is-active");
           joystick.setPointerCapture?.(event.pointerId);
           setJoystickFromPointer(event.clientX, event.clientY);
-        });
+        }, { passive: false });
 
         joystick.addEventListener("pointermove", (event) => {
           if (!joystickState.active || joystickState.pointerId !== event.pointerId) return;
           event.preventDefault();
           setJoystickFromPointer(event.clientX, event.clientY);
-        });
+        }, { passive: false });
 
         joystick.addEventListener("pointerup", (event) => {
           if (joystickState.pointerId !== event.pointerId) return;
-          releaseJoystick();
-        });
-        joystick.addEventListener("pointercancel", releaseJoystick);
+          event.preventDefault();
+          releaseJoystick(event);
+        }, { passive: false });
+        joystick.addEventListener("pointercancel", releaseJoystick, { passive: false });
         joystick.addEventListener("lostpointercapture", releaseJoystick);
 
         actionButtons.forEach((button) => {
           button.addEventListener("pointerdown", (event) => {
             event.preventDefault();
+            event.stopPropagation();
             button.dataset.pointerId = String(event.pointerId);
             button.setPointerCapture?.(event.pointerId);
             button.classList.add("is-pressed");
@@ -2241,15 +2241,16 @@
             if (button.dataset.action === "skill") {
               game.skillQueued = true;
             }
-          });
+          }, { passive: false });
 
           const releaseAction = (event) => {
             if (button.dataset.pointerId !== String(event.pointerId)) return;
+            event.preventDefault?.();
             button.dataset.pointerId = "";
             button.classList.remove("is-pressed");
           };
-          button.addEventListener("pointerup", releaseAction);
-          button.addEventListener("pointercancel", releaseAction);
+          button.addEventListener("pointerup", releaseAction, { passive: false });
+          button.addEventListener("pointercancel", releaseAction, { passive: false });
           button.addEventListener("lostpointercapture", releaseAction);
         });
       }
