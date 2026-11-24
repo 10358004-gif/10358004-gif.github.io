@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="探索互動遊戲、工程計算機與英文學習工具，歡迎瀏覽我的五個網頁作品。">
+    <meta name="description" content="探索互動遊戲、工程計算機、英文學習工具與訪客計數器，歡迎瀏覽我的六個網頁作品。">
     <title>作品集 — 張依琳</title>
     <style>
         :root {
@@ -257,10 +257,6 @@
             transition: transform 190ms ease, box-shadow 190ms ease, border-color 190ms ease;
         }
 
-        .project-card:nth-child(4) {
-            grid-column: 2 / span 2;
-        }
-
         .project-card:hover {
             transform: translateY(-5px);
             border-color: #bbc9bc;
@@ -338,6 +334,43 @@
         .art-stick {
             background:
                 radial-gradient(circle at 50% 50%, #b8ffff 0, #72f5ff 38%, #13cde9 72%, #28b7ee 100%);
+        }
+
+        .art-counter {
+            place-items: center;
+            background:
+                radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.95) 0 5px, transparent 6px),
+                radial-gradient(circle at 82% 72%, rgba(255, 255, 255, 0.75) 0 7px, transparent 8px),
+                linear-gradient(145deg, #dff3d1, #85cfa1 55%, #4da47b);
+        }
+
+        .counter-preview {
+            position: relative;
+            z-index: 1;
+            width: min(220px, 72%);
+            padding: 16px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.82);
+            border-radius: 16px;
+            background: rgba(255, 254, 250, 0.94);
+            color: var(--green);
+            box-shadow: 0 16px 30px rgba(47, 97, 77, 0.16);
+            text-align: center;
+        }
+
+        .counter-preview span {
+            display: block;
+            color: var(--muted);
+            font-size: 0.68rem;
+            font-weight: 850;
+            letter-spacing: 0.12em;
+        }
+
+        .counter-preview strong {
+            display: block;
+            margin-top: 3px;
+            font-size: 2.35rem;
+            line-height: 1.2;
+            font-variant-numeric: tabular-nums;
         }
 
         .art-levels {
@@ -975,7 +1008,7 @@
             <section class="hero" aria-labelledby="hero-title">
                 <p class="eyebrow">MY SELECTED WORKS · 2026</p>
                 <h1 id="hero-title">用互動，讓點子<br><span>變得好玩。</span></h1>
-                <p class="hero-copy">你好！這裡整理了我的五個網頁作品，從互動遊戲、工程計算到英文學習工具。點選作品圖卡，立即開始體驗。</p>
+                <p class="hero-copy">你好！這裡整理了我的六個網頁作品，包含互動遊戲、工程計算、英文學習工具與訪客計數器。點選作品圖卡，立即開始體驗。</p>
                 <aside class="visitor-counter" aria-label="作品集累計瀏覽次數">
                     <span class="visitor-counter-icon" aria-hidden="true">👁</span>
                     <span class="visitor-counter-copy">
@@ -1132,13 +1165,31 @@
                             </svg>
                         </div>
                         <div class="card-content">
-                            <div class="card-meta"><span>動作闖關</span><span class="card-number">05 / 05</span></div>
+                            <div class="card-meta"><span>動作闖關</span><span class="card-number">05 / 06</span></div>
                             <h3>火柴人冒險</h3>
                             <p class="card-description">操控黑色火柴人跨越平台與尖刺、收集金幣，朝終點旗幟一路前進。</p>
                             <ul class="feature-list" aria-label="主要功能">
                                 <li>鍵盤操作</li><li>金幣收集</li><li>檢查點存檔</li>
                             </ul>
                             <div class="card-action"><span>進入關卡</span><span aria-hidden="true">→</span></div>
+                        </div>
+                    </a>
+
+                    <a class="project-card" href="8/index.html" aria-label="開啟累計瀏覽計數器">
+                        <div class="art art-counter" aria-hidden="true">
+                            <div class="counter-preview">
+                                <span>累計瀏覽次數</span>
+                                <strong>001,286</strong>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-meta"><span>網站工具</span><span class="card-number">06 / 06</span></div>
+                            <h3>累計瀏覽計數器</h3>
+                            <p class="card-description">自動記錄作品集的瀏覽次數，並即時顯示累計訪客統計與每次瀏覽紀錄。</p>
+                            <ul class="feature-list" aria-label="主要功能">
+                                <li>即時計數</li><li>瀏覽紀錄</li><li>雲端試算表</li>
+                            </ul>
+                            <div class="card-action"><span>查看計數器</span><span aria-hidden="true">→</span></div>
                         </div>
                     </a>
 
@@ -1150,7 +1201,7 @@
                     <h2 id="about-title">關於這份作品集</h2>
                     <p>持續累積網頁設計與互動程式的練習，每個圖卡都能直接開啟對應作品。</p>
                 </div>
-                <span class="project-count">目前收錄 05 件作品</span>
+                <span class="project-count">目前收錄 06 件作品</span>
             </section>
         </main>
 
